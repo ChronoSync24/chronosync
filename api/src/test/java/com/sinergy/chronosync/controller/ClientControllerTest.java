@@ -45,7 +45,11 @@ class ClientControllerTest {
         int page = 0;
         int size = 10;
 
-        Client client = Client.builder().firstName("John").lastName("Doe").email("john.doe@example.com").build();
+        Client client = Client.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .build();
         Page<Client> mockPage = new PageImpl<>(List.of(client), PageRequest.of(page, size), 1);
 
         BasePaginationRequest paginationRequest = new BasePaginationRequest();
@@ -77,7 +81,12 @@ class ClientControllerTest {
                 .email("john.doe@example.com")
                 .phone("123-456-7890")
                 .build();
-        Client createdClient = Client.builder().firstName("John").lastName("Doe").email("john.doe@example.com").build();
+
+        Client createdClient = Client.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .build();
 
         when(clientService.createClient(requestDTO)).thenReturn(createdClient);
 
@@ -96,13 +105,23 @@ class ClientControllerTest {
      */
     @Test
     void updateClientTest() {
+        Client existingClient = new Client();
+        existingClient.setId(1L);
+        existingClient.setFirstName("John");
+        existingClient.setLastName("Doe");
+        existingClient.setEmail("john.doe@example.com");
+        existingClient.setPhone("123-456-7890");
+
         ClientRequestDTO requestDTO = ClientRequestDTO.builder()
+                .id(1L)
                 .firstName("John")
-                .lastName("Doe")
+                .lastName("Doo")
                 .email("john.doe@example.com")
                 .phone("123-456-7890")
                 .build();
-        Client updatedClient = Client.builder().firstName("John").lastName("Doe").email("john.doe@example.com").build();
+
+        Client updatedClient = requestDTO.toModel();
+        updatedClient.setId(existingClient.getId());
 
         when(clientService.updateClient(requestDTO)).thenReturn(updatedClient);
 
@@ -110,7 +129,8 @@ class ClientControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).isEqualTo(updatedClient);
+        assertThat(response.getBody().getId()).isEqualTo(existingClient.getId());
+        assertThat(response.getBody().getLastName()).isEqualTo("Doo");
 
         verify(clientService, times(1)).updateClient(requestDTO);
     }

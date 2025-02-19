@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Service implementation for managing appointment types.
- * <p>This service handles all business logic related to appointment types, including
- * retrieving, creating, updating, and deleting appointment type entities.</p>
+ * <p>This service handles all business logic related to appointment types.</p>
  */
 @Service
 @AllArgsConstructor
@@ -58,11 +57,11 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 		AppointmentType appointmentType = requestDto.toModel();
 		appointmentType.setFirm(getAuthUserFirm());
 
-		return appointmentTypeRepository.save(appointmentType);
+		return appointmentTypeRepository.create(appointmentType);
 	}
 
 	/**
-	 * Updates an existing appointment type or creates a new one if no ID is provided.
+	 * Updates an existing appointment type or throws an exception if no ID is provided.
 	 *
 	 * @param requestDto {@link AppointmentTypeRequestDTO} containing appointment type details
 	 * @return {@link AppointmentType} representing the updated or newly created appointment type
@@ -86,7 +85,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 		existingAppointmentType.setCurrency(requestDto.getCurrency());
 		existingAppointmentType.setColorCode(requestDto.getColorCode());
 
-		return appointmentTypeRepository.save(existingAppointmentType);
+		return appointmentTypeRepository.update(existingAppointmentType, requestDto.getId());
 	}
 
 	/**
@@ -103,6 +102,18 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 		appointmentTypeRepository.deleteById(id);
 	}
 
+	/**
+	 * Retrieves the authenticated user's associated firm.
+	 *
+	 * <p>This method extracts the currently authenticated username from the security context
+	 * and constructs a filter to query the user repository. If the user is found, their associated
+	 * firm is returned. If no user is found, a {@link UserNotFoundException} is thrown. If the user
+	 * is not linked to a firm, an {@link InvalidStateException} is thrown.</p>
+	 *
+	 * @return the {@link Firm} associated with the authenticated user
+	 * @throws UserNotFoundException if no user is found with the authenticated username
+	 * @throws InvalidStateException if the user is not associated with any firm
+	 */
 	private Firm getAuthUserFirm() {
 		UserFilterBuilder filterBuilder = UserFilterBuilder.builder()
 			.username(SecurityContextHolder.getContext().getAuthentication().getName())

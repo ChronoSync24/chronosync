@@ -1,7 +1,9 @@
 package com.sinergy.chronosync.builder;
 
 import com.sinergy.chronosync.model.Client;
+import com.sinergy.chronosync.model.Firm;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Builder;
@@ -64,5 +66,12 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 		return (root, query, criteriaBuilder) -> criteriaBuilder.and(
 			buildPredicates(criteriaBuilder, root).toArray(new Predicate[0])
 		);
+	}
+
+	public static Specification<Client> hasFirm(Long firmId) {
+		return (root, query, criteriaBuilder) -> {
+			Join<Client, Firm> firmJoin = root.join("firms");
+			return criteriaBuilder.equal(firmJoin.get("id"), firmId);
+		};
 	}
 }

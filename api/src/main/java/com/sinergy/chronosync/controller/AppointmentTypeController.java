@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * </p>
  */
 @RestController
-@RequestMapping(path = "api/v1/appointmenttype")
+@RequestMapping(path = "api/v1/appointment-type")
 @RequiredArgsConstructor
 public class AppointmentTypeController {
 
@@ -36,7 +36,7 @@ public class AppointmentTypeController {
 	 * are used if not specified.</p>
 	 *
 	 */
-	@PostMapping("/get")
+	@PostMapping("/search")
 	public ResponseEntity<Page<AppointmentType>> getAppointmentTypes(
 		@RequestBody BasePaginationRequest paginationRequest
 	) {
@@ -62,7 +62,7 @@ public class AppointmentTypeController {
 	}
 
 	/**
-	 * Updates an existing appointment type identified by its ID, or creates a new one if no ID is provided.
+	 * Updates an existing appointment type identified by its ID, or throws an exception.
 	 *
 	 * @param request {@link AppointmentTypeRequestDTO} containing details of the appointment type to update or create
 	 * @return {@link ResponseEntity} containing the updated or created {@link AppointmentType} and HTTP status

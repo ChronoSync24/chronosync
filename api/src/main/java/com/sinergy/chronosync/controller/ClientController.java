@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller for managing clients.
- * <p>This controller provides endpoints for retrieving, creating, updating and deleting clients</p>
  */
 @RestController
 @RequestMapping(path = "api/v1/client")
@@ -22,23 +21,31 @@ public class ClientController {
 
 	private final ClientServiceImpl clientService;
 
-	/** java docs*/
-	@PostMapping("/get")
+	/**
+	 * Retrieves a paginated list of clients associated with the current user's firm.
+	 *
+	 * <p>This endpoint allows users associated with a firm to view clients
+	 * specific to their firm. It ensures data isolation by returning only the clients
+	 * linked to the logged-in user's firm.</p>
+	 *
+	 * <p>The pagination details, such as the page number and page size, are provided
+	 * in the request body using the {@link BasePaginationRequest} class. Default values
+	 * are used if not specified.</p>
+	 */
+	@PostMapping("/search")
 	public ResponseEntity<Page<Client>> getClients(
 		@RequestBody BasePaginationRequest paginationRequest
 	) {
-		int page = paginationRequest.getPage();
-		int size = paginationRequest.getPageSize();
-		PageRequest pageRequest = PageRequest.of(page, size);
+		PageRequest pageRequest = PageRequest.of(paginationRequest.getPage(), paginationRequest.getPageSize());
 		Page<Client> clients = clientService.getClients(pageRequest);
 		return ResponseEntity.ok(clients);
 	}
 
 	/**
-	 * Creates new client for the current user's firm
+	 * Creates new client.
 	 *
-	 * @param request {@link ClientRequestDTO} containing the details of the new client.
-	 * @return created {@link Client} along with an HTTP status of 201 (Created).
+	 * @param request {@link ClientRequestDTO} containing the details of the new client
+	 * @return created {@link Client} along with an HTTP status of 201 (Created)
 	 */
 	@PostMapping("/create")
 	public ResponseEntity<Client> createClient(
@@ -49,10 +56,10 @@ public class ClientController {
 	}
 
 	/**
-	 * Updates an existing client identified by its ID, or creates a new one if no ID is provided.
+	 * Updates an existing client identified by its ID, or throws an exception if the client does not exist.
 	 *
-	 * @param request {@link ClientRequestDTO} containing details of the client.
-	 * @return {@link ResponseEntity} containing the updated or created {@link Client}.
+	 * @param request {@link ClientRequestDTO} containing details of the client
+	 * @return {@link ResponseEntity} containing the updated or created {@link Client}
 	 */
 	@PutMapping
 	public ResponseEntity<Client> updateClient(
@@ -65,7 +72,7 @@ public class ClientController {
 	/**
 	 * Deletes a client by its ID.
 	 *
-	 * @param id {@link Long} ID of the client to delete.
+	 * @param id {@link Long} ID of the client to delete
 	 */
 	@DeleteMapping
 	public ResponseEntity<Client> deleteClient(

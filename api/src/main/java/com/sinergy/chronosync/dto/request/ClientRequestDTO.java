@@ -24,7 +24,7 @@ public class ClientRequestDTO {
 	private String phone;
 
 	/**
-	 * Creates and returns Client model from Data Transfer Object
+	 * Creates and returns Client model from Data Transfer Object.
 	 *
 	 * @return {@link Client} user model
 	 */

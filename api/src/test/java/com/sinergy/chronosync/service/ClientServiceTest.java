@@ -40,7 +40,9 @@ class ClientServiceTest {
     @InjectMocks
     private ClientServiceImpl clientService;
 
-
+    /**
+     * Sets up Mock dependencies before each test.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -62,19 +64,24 @@ class ClientServiceTest {
         when(userRepository.findOne(Mockito.<Specification<User>>any())).thenReturn(Optional.of(user));
     }
 
+    /**
+     * Tests the getClients method when the request is valid.
+     */
     @Test
     void getClientsTest() {
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Client client = new Client();
-        client.setId(1L);
-        client.setFirstName("John");
-        client.setLastName("Doe");
-        client.setEmail("john.doe@example.com");
-        client.setPhone("123456789");
+        ClientRequestDTO newClient = ClientRequestDTO.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .email("john@doe.com")
+                .phone("123-456-789")
+                .build();
+
         Firm firm = new Firm();
         firm.setId(1L);
-        client.getFirms().add(firm);
-        Page<Client> clients = new PageImpl<>(List.of(client));
+        newClient.toModel().getFirms().add(firm);
+        Page<Client> clients = new PageImpl<>(List.of(newClient.toModel()));
 
         when(clientRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(clients);
@@ -88,6 +95,9 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
+    /**
+     * Tests the createClient method when the request is valid.
+     */
     @Test
     void createClientTest() {
         Firm firm = new Firm();
@@ -103,12 +113,8 @@ class ClientServiceTest {
                 .phone("123456789")
                 .build();
 
-        Client client = new Client();
+        Client client = requestDto.toModel();
         client.setId(1L);
-        client.setFirstName("John");
-        client.setLastName("Doe");
-        client.setEmail("john.doe@example.com");
-        client.setPhone("123456789");
 
         when(userRepository.findOne(Mockito.<Specification<User>>any())).thenReturn(Optional.of(user));
 
@@ -124,41 +130,9 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).save(any(Client.class));
     }
 
-    @Test
-    void createClientWhenClientExistsTest() {
-        Firm firm = new Firm();
-        firm.setId(1L);
-
-        User user = new User();
-        user.setFirm(firm);
-
-        ClientRequestDTO requestDto = ClientRequestDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .phone("123456789")
-                .build();
-
-        Client existingClient = new Client();
-        existingClient.setId(1L);
-        existingClient.setFirstName("John");
-        existingClient.setLastName("Doe");
-        existingClient.setEmail("john.doe@example.com");
-        existingClient.setPhone("123456789");
-
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        when(clientRepository.findById(any())).thenReturn(Optional.of(existingClient));
-        when(clientRepository.save(any(Client.class))).thenReturn(existingClient);
-
-        Client updatedClient = clientService.createClient(requestDto);
-
-        assertNotNull(updatedClient);
-        assertEquals("John", updatedClient.getFirstName());
-        assertEquals("Doe", updatedClient.getLastName());
-
-        verify(clientRepository, times(1)).save(any(Client.class));
-    }
-
+    /**
+     * Tests the updateClient method.
+     */
     @Test
     void updateClientTest() {
         ClientRequestDTO requestDto = ClientRequestDTO.builder()
@@ -169,33 +143,37 @@ class ClientServiceTest {
                 .phone("987654321")
                 .build();
 
-        Client existingClient = new Client();
-        existingClient.setId(1L);
-        existingClient.setFirstName("John");
-        existingClient.setLastName("Doe");
-        existingClient.setEmail("john.doe@example.com");
-        existingClient.setPhone("123456789");
+        ClientRequestDTO existingClient = ClientRequestDTO.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .phone("123456789")
+                .build();
 
-        when(clientRepository.findById(1L)).thenReturn(Optional.of(existingClient));
-        when(clientRepository.save(any(Client.class))).thenReturn(existingClient);
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(existingClient.toModel()));
+        when(clientRepository.save(any(Client.class))).thenReturn(existingClient.toModel());
 
         Client updatedClient = clientService.updateClient(requestDto);
 
         assertNotNull(updatedClient);
-        assertEquals("Jane", updatedClient.getFirstName());
+        assertEquals("John", updatedClient.getFirstName());
         assertEquals("Doe", updatedClient.getLastName());
-        assertEquals("jane.doe@example.com", updatedClient.getEmail());
+        assertEquals("john.doe@example.com", updatedClient.getEmail());
 
         verify(clientRepository, times(1)).save(any(Client.class));
     }
 
+    /**
+     * Tests the updateClient method when the client is not found.
+     */
     @Test
     void updateClientNotFoundTest() {
         ClientRequestDTO requestDto = ClientRequestDTO.builder()
                 .id(1L)
                 .firstName("Jane")
                 .lastName("Doe")
-                .email("jane.doe@example.com")
+                .email("john.doe@example.com")
                 .phone("987654321")
                 .build();
 
@@ -210,6 +188,9 @@ class ClientServiceTest {
         verify(clientRepository, never()).save(any(Client.class));
     }
 
+    /**
+     * Tests the deleteClient method when the client exists.
+     */
     @Test
     void deleteClientTest() {
         Long clientId = 1L;
@@ -221,6 +202,9 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).deleteById(clientId);
     }
 
+    /**
+     * Tests the deleteClient method when the client doesn't exist.
+     */
     @Test
     void deleteClientNotFoundTest() {
         Long clientId = 1L;

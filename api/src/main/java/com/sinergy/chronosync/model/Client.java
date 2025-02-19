@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Client model class
+ * Client model class.
  */
 @NoArgsConstructor
 @AllArgsConstructor

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
  *
  * <p>Verifies the behavior of the {@link ClientFilterBuilder} class,
  * specifically its ability to convert filter criteria into a {@link Specification}
- * for querying {@link Client} entities based on attributes such as firmId, firstName and lastName</p>
+ * for querying {@link Client} entities based on attributes</p>
  *
  * <p>Mock objects are utilized to simulate the database environment, including
  * {@link Root}, {@link CriteriaBuilder}, {@link Predicate}, and {@link Path} instances.</p>
@@ -48,6 +48,12 @@ public class ClientFilterBuilderTest {
     private Path<String> lastNamePath;
 
     @Mock
+    private Path<String> emailPath;
+
+    @Mock
+    private Path<String> phoneNumberPath;
+
+    @Mock
     private Path<Long> firmIdPath;
 
     private AutoCloseable mocks;
@@ -64,28 +70,37 @@ public class ClientFilterBuilderTest {
 
     /**
      * Verifies that the {@link ClientFilterBuilder#toSpecification()} method correctly builds
-     * a {@link Specification} based on provided filter values such as firmId, firstName and lastName.
+     * a {@link Specification} based on provided filter values.
      */
     @Test
     void toSpecificationTest() {
         Long firmId = 1L;
         String firstName = "Test";
         String lastName = "Client";
+        String email = "test@test.com";
+        String phone = "+555-555-555";
+
 
         ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
                 .firmId(firmId)
                 .firstName(firstName)
                 .lastName(lastName)
+                .email(email)
+                .phone(phone)
                 .build();
 
         when(root.<Long>get("firm")).thenReturn(firmIdPath);
         when(root.<String>get("firstName")).thenReturn(firstNamePath);
         when(root.<String>get("lastName")).thenReturn(lastNamePath);
+        when(root.<String>get("email")).thenReturn(emailPath);
+        when(root.<String>get("phone")).thenReturn(phoneNumberPath);
 
         when(firmIdPath.<Long>get("id")).thenReturn(firmIdPath);
         when(criteriaBuilder.equal(firmIdPath, firmId)).thenReturn(predicate);
         when(criteriaBuilder.like(firstNamePath, "%" + firstName + "%")).thenReturn(predicate);
         when(criteriaBuilder.like(lastNamePath, "%" + lastName + "%")).thenReturn(predicate);
+        when(criteriaBuilder.like(emailPath, "%" + email + "%")).thenReturn(predicate);
+        when(criteriaBuilder.like(phoneNumberPath, "%" + phone + "%")).thenReturn(predicate);
         when(criteriaBuilder.and(any(Predicate[].class))).thenReturn(predicate);
 
         Specification<Client> specification = filterBuilder.toSpecification();
@@ -97,6 +112,9 @@ public class ClientFilterBuilderTest {
         verify(criteriaBuilder).equal(firmIdPath, firmId);
         verify(criteriaBuilder).like(firstNamePath, "%" + firstName + "%");
         verify(criteriaBuilder).like(lastNamePath, "%" + lastName + "%");
+        verify(criteriaBuilder).like(emailPath, "%" + email + "%");
+        verify(criteriaBuilder).like(phoneNumberPath, "%" + phone + "%");
+
         verify(criteriaBuilder).and(any(Predicate[].class));
     }
 }

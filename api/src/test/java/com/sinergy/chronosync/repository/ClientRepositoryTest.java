@@ -1,5 +1,7 @@
 package com.sinergy.chronosync.repository;
 
+import com.sinergy.chronosync.builder.ClientFilterBuilder;
+import com.sinergy.chronosync.dto.request.ClientRequestDTO;
 import com.sinergy.chronosync.model.Client;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,16 +36,19 @@ class ClientRepositoryTest {
      */
     @Test
     void findByNameTest() {
-        Specification<Client> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("firstName"), "John");
+        ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+                .firstName("John")
+                .build();
+        Specification<Client> spec = filterBuilder.toSpecification();
 
-        Client client = new Client();
-        client.setId(1L);
-        client.setFirstName("John");
-        client.setLastName("Doe");
-        client.setEmail("john.doe@example.com");
+        ClientRequestDTO clientDTO = ClientRequestDTO.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .phone("123-456-789")
+                .build();
 
-        List<Client> clients = List.of(client);
+        List<Client> clients = List.of(clientDTO.toModel());
 
         when(clientRepository.findAll(Mockito.<Specification<Client>>any())).thenReturn(clients);
 
@@ -63,8 +68,10 @@ class ClientRepositoryTest {
      */
     @Test
     void findWithNoMatchTest() {
-        Specification<Client> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("firstName"), "Nonexistent");
+        ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+                .firstName("Nonexistent")
+                .build();
+        Specification<Client> spec = filterBuilder.toSpecification();
 
         when(clientRepository.findAll(Mockito.<Specification<Client>>any())).thenReturn(List.of());
 
@@ -80,16 +87,20 @@ class ClientRepositoryTest {
      */
     @Test
     void findOneTest() {
-        Client client = new Client();
-        client.setId(1L);
-        client.setFirstName("John");
-        client.setLastName("Doe");
-        client.setEmail("john.doe@example.com");
+        ClientRequestDTO client = ClientRequestDTO.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .phone("123-456-789")
+                .build();
 
-        Specification<Client> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("firstName"), "John");
+        ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+                .firstName("John")
+                .build();
+        Specification<Client> spec = filterBuilder.toSpecification();
 
-        when(clientRepository.findOne(Mockito.<Specification<Client>>any())).thenReturn(Optional.of(client));
+        when(clientRepository.findOne(Mockito.<Specification<Client>>any())).thenReturn(Optional.of(client.toModel()));
 
         Optional<Client> result = clientRepository.findOne(spec);
 
