@@ -127,7 +127,7 @@ class ClientServiceTest {
         assertEquals("Doe", createdClient.getLastName());
         assertEquals("john.doe@example.com", createdClient.getEmail());
 
-        verify(clientRepository, times(1)).save(any(Client.class));
+        verify(clientRepository, times(1)).create(any(Client.class));
     }
 
     /**
@@ -161,7 +161,7 @@ class ClientServiceTest {
         assertEquals("Doe", updatedClient.getLastName());
         assertEquals("john.doe@example.com", updatedClient.getEmail());
 
-        verify(clientRepository, times(1)).save(any(Client.class));
+        verify(clientRepository, times(1)).update(any(Client.class), existingClient.getId());
     }
 
     /**
@@ -185,7 +185,7 @@ class ClientServiceTest {
         );
 
         assertEquals("Client not found", thrownException.getMessage());
-        verify(clientRepository, never()).save(any(Client.class));
+        verify(clientRepository, never()).update(any(Client.class), requestDto.getId());
     }
 
     /**

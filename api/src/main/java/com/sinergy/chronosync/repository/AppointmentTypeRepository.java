@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
  * This interface extends {@link BaseRepository} to provide CRUD operations for {@link AppointmentType} entities.
  */
 @Repository
-public interface AppointmentTypeRepository extends BaseRepository<AppointmentType, Long>,
+public interface AppointmentTypeRepository
+		extends BaseRepository<AppointmentType, Long>,
 		JpaSpecificationExecutor<AppointmentType> {
 }

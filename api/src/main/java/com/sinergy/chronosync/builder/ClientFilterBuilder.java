@@ -68,6 +68,12 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 		);
 	}
 
+	/**
+	 * Creates a {@link Specification} to filter clients that are associated with a specific firm.
+	 *
+	 * @param firmId The ID of the firm to filter clients by.
+	 * @return {@link Specification} that can be used in repository queries to find clients belonging to the given firm.
+	 */
 	public static Specification<Client> hasFirm(Long firmId) {
 		return (root, query, criteriaBuilder) -> {
 			Join<Client, Firm> firmJoin = root.join("firms");

@@ -1,6 +1,6 @@
-import {apiClient} from "../utils/ApiClient";
-import {Client} from "../models/Client";
-import {ClientRequestDTO} from "../dtos/requests/ClientRequestDTO";
+import { apiClient } from "../utils/ApiClient";
+import { Client } from "../models/Client";
+import { ClientRequestDTO } from "../dtos/requests/ClientRequestDTO";
 
 const ENDPOINT_PREFIX = '/client';
 

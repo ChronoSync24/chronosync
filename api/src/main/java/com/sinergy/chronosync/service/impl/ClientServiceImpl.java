@@ -4,6 +4,7 @@ import com.sinergy.chronosync.builder.ClientFilterBuilder;
 import com.sinergy.chronosync.builder.UserFilterBuilder;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
 import com.sinergy.chronosync.exception.InvalidStateException;
+import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.exception.UserNotFoundException;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.model.Firm;
@@ -23,8 +24,6 @@ import java.util.Optional;
 
 /**
  * Service implementation for managing clients.
- *
- * <p>This service handles all business logic related to clients.</p>
  */
 @Service
 @AllArgsConstructor
@@ -40,12 +39,11 @@ public class ClientServiceImpl implements ClientService {
 	 * a list of {@link Client} objects linked to that firm's ID.
 	 *
 	 * @param pageRequest The pagination and sorting information
-	 * @return {@link Page} of {@link Client} objects associated with the current user's firm
+	 * @return {@link Page} clients associated with the authenticated user's firm
 	 */
 	@Override
 	public Page<Client> getClients(PageRequest pageRequest) {
-		Long firmId = getAuthUserFirm().getId();
-		return clientRepository.findAll(ClientFilterBuilder.hasFirm(firmId), pageRequest);
+		return clientRepository.findAll(ClientFilterBuilder.hasFirm(getAuthUserFirm().getId()), pageRequest);
 	}
 
 	/**
@@ -84,18 +82,18 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	/**
-	 * Updates an existing client or throws an exception if the client is not found.
+	 * Updates an existing client.
 	 *
 	 * @param requestDto {@link ClientRequestDTO} containing client details
 	 * @return {@link Client} representing the updated or newly created client
-	 * @throws InvalidStateException if the client cannot be found for update
+	 * @throws RepositoryException if the client cannot be found for update
 	 */
 	@Override
-	public Client updateClient(ClientRequestDTO requestDto){
+	public Client updateClient(ClientRequestDTO requestDto) {
 
         Client existingClient = clientRepository.findById(requestDto.getId())
                 .orElseThrow(
-                        () -> new InvalidStateException("Client not found")
+                        () -> new RepositoryException("Client not found")
                 );
 
 		existingClient.setFirstName(requestDto.getFirstName());
@@ -125,8 +123,7 @@ public class ClientServiceImpl implements ClientService {
 	 *
 	 * <p>This method extracts the currently authenticated username from the security context
 	 * and constructs a filter to query the user repository. If the user is found, their associated
-	 * firm is returned. If no user is found, a {@link UserNotFoundException} is thrown. If the user
-	 * is not linked to a firm, an {@link InvalidStateException} is thrown.</p>
+	 * firm is returned.
 	 *
 	 * @return the {@link Firm} associated with the authenticated user
 	 * @throws UserNotFoundException if no user is found with the authenticated username

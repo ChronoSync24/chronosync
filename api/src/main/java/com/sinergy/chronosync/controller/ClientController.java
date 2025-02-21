@@ -23,14 +23,6 @@ public class ClientController {
 
 	/**
 	 * Retrieves a paginated list of clients associated with the current user's firm.
-	 *
-	 * <p>This endpoint allows users associated with a firm to view clients
-	 * specific to their firm. It ensures data isolation by returning only the clients
-	 * linked to the logged-in user's firm.</p>
-	 *
-	 * <p>The pagination details, such as the page number and page size, are provided
-	 * in the request body using the {@link BasePaginationRequest} class. Default values
-	 * are used if not specified.</p>
 	 */
 	@PostMapping("/search")
 	public ResponseEntity<Page<Client>> getClients(
@@ -56,7 +48,7 @@ public class ClientController {
 	}
 
 	/**
-	 * Updates an existing client identified by its ID, or throws an exception if the client does not exist.
+	 * Updates an existing client identified by its ID.
 	 *
 	 * @param request {@link ClientRequestDTO} containing details of the client
 	 * @return {@link ResponseEntity} containing the updated or created {@link Client}
