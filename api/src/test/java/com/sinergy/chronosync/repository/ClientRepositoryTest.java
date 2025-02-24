@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -22,115 +23,119 @@ import static org.mockito.Mockito.*;
  */
 class ClientRepositoryTest {
 
-    @Mock
-    private ClientRepository clientRepository;
+	@Mock
+	private ClientRepository clientRepository;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
+	@BeforeEach
+	void setup() {
+		MockitoAnnotations.openMocks(this);
+	}
 
-    /**
-     * Tests the {@link ClientRepository#findAll(Specification)} method with a specification filter.
-     * Verifies that the repository returns a list of clients matching the specification.
-     */
-    @Test
-    void findByNameTest() {
-        ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
-                .firstName("John")
-                .build();
-        Specification<Client> spec = filterBuilder.toSpecification();
+	/**
+	 * Tests the {@link ClientRepository#findAll(Specification)} method with a specification filter.
+	 * Verifies that the repository returns a list of clients matching the specification.
+	 */
+	@Test
+	void findByNameTest() {
+		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+			.firstName("John")
+			.build();
+		Specification<Client> spec = filterBuilder.toSpecification();
 
-        ClientRequestDTO clientDTO = ClientRequestDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .phone("123-456-789")
-                .build();
+		ClientRequestDTO clientDTO = ClientRequestDTO.builder()
+			.firstName("John")
+			.lastName("Doe")
+			.email("john.doe@example.com")
+			.phone("123-456-789")
+			.build();
 
-        List<Client> clients = List.of(clientDTO.toModel());
+		List<Client> clients = List.of(clientDTO.toModel());
 
-        when(clientRepository.findAll(Mockito.<Specification<Client>>any())).thenReturn(clients);
+		when(clientRepository.findAll(Mockito.<Specification<Client>>any())).thenReturn(clients);
 
-        List<Client> result = clientRepository.findAll(spec);
+		List<Client> result = clientRepository.findAll(spec);
 
-        assertThat(result)
-                .isNotNull()
-                .isNotEmpty()
-                .allMatch(c -> "John".equals(c.getFirstName()));
+		assertThat(result)
+			.isNotNull()
+			.isNotEmpty()
+			.allMatch(c -> "John".equals(c.getFirstName()));
 
-        verify(clientRepository, times(1)).findAll(spec);
-    }
+		verify(clientRepository, times(1)).findAll(spec);
+	}
 
-    /**
-     * Tests the {@link ClientRepository#findAll(Specification)} method with no matching clients.
-     * Verifies that the repository returns an empty list when no clients match the specification.
-     */
-    @Test
-    void findWithNoMatchTest() {
-        ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
-                .firstName("Nonexistent")
-                .build();
-        Specification<Client> spec = filterBuilder.toSpecification();
+	/**
+	 * Tests the {@link ClientRepository#findAll(Specification)} method with no matching clients.
+	 * Verifies that the repository returns an empty list when no clients match the specification.
+	 */
+	@Test
+	void findWithNoMatchTest() {
+		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+			.firstName("Nonexistent")
+			.build();
+		Specification<Client> spec = filterBuilder.toSpecification();
 
-        when(clientRepository.findAll(Mockito.<Specification<Client>>any())).thenReturn(List.of());
+		when(clientRepository.findAll(Mockito.<Specification<Client>>any())).thenReturn(List.of());
 
-        List<Client> result = clientRepository.findAll(spec);
+		List<Client> result = clientRepository.findAll(spec);
 
-        assertThat(result).isEmpty();
-        verify(clientRepository, times(1)).findAll(spec);
-    }
+		assertThat(result).isEmpty();
+		verify(clientRepository, times(1)).findAll(spec);
+	}
 
-    /**
-     * Tests the {@link ClientRepository#findOne(Specification)} method when
-     * a matching client is found.
-     */
-    @Test
-    void findOneTest() {
-        ClientRequestDTO client = ClientRequestDTO.builder()
-                .id(1L)
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .phone("123-456-789")
-                .build();
+	/**
+	 * Tests the {@link ClientRepository#findOne(Specification)} method when a matching client is found.
+	 */
+	@Test
+	void findOneTest() {
+		ClientRequestDTO client = ClientRequestDTO.builder()
+			.id(1L)
+			.firstName("John")
+			.lastName("Doe")
+			.email("john.doe@example.com")
+			.phone("123-456-789")
+			.build();
 
-        ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
-                .firstName("John")
-                .build();
-        Specification<Client> spec = filterBuilder.toSpecification();
+		Client clientModel = client.toModel();
 
-        when(clientRepository.findOne(Mockito.<Specification<Client>>any())).thenReturn(Optional.of(client.toModel()));
+		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+			.firstName("John")
+			.build();
+		Specification<Client> spec = filterBuilder.toSpecification();
 
-        Optional<Client> result = clientRepository.findOne(spec);
+		when(clientRepository.findOne(Mockito.<Specification<Client>>any())).thenReturn(Optional.of(clientModel));
 
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(client);
-        verify(clientRepository, times(1)).findOne(spec);
-    }
+		Optional<Client> result = clientRepository.findOne(spec);
 
-    /**
-     * Tests the {@link ClientRepository#findAll()} method.
-     * Verifies that the repository returns a page of clients.
-     */
-    @Test
-    void findAllPaginatedTest() {
-        Client client = new Client();
-        client.setId(1L);
-        client.setFirstName("John");
-        client.setLastName("Doe");
-        client.setEmail("john.doe@example.com");
+		assertThat(result).isPresent();
+		assertEquals(clientModel.getFirstName(), result.get().getFirstName());
+		assertEquals(clientModel.getLastName(), result.get().getLastName());
+		assertEquals(clientModel.getId(), result.get().getId());
 
-        Page<Client> page = new PageImpl<>(List.of(client), PageRequest.of(0, 10), 1);
+		verify(clientRepository, times(1)).findOne(spec);
+	}
 
-        when(clientRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(page);
+	/**
+	 * Tests the {@link ClientRepository#findAll()} method.
+	 * Verifies that the repository returns a page of clients.
+	 */
+	@Test
+	void findAllPaginatedTest() {
+		Client client = new Client();
+		client.setId(1L);
+		client.setFirstName("John");
+		client.setLastName("Doe");
+		client.setEmail("john.doe@example.com");
 
-        Page<Client> result = clientRepository.findAll(PageRequest.of(0, 10));
+		Page<Client> page = new PageImpl<>(List.of(client), PageRequest.of(0, 10), 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(1);
-        assertThat(result.getContent()).contains(client);
+		when(clientRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(page);
 
-        verify(clientRepository, times(1)).findAll(Mockito.any(PageRequest.class));
-    }
+		Page<Client> result = clientRepository.findAll(PageRequest.of(0, 10));
+
+		assertThat(result).isNotNull();
+		assertThat(result.getTotalElements()).isEqualTo(1);
+		assertThat(result.getContent()).contains(client);
+
+		verify(clientRepository, times(1)).findAll(Mockito.any(PageRequest.class));
+	}
 }

@@ -100,7 +100,7 @@ public class ClientServiceImpl implements ClientService {
 	 * @throws InvalidStateException if deletion fails or the client does not exist
 	 */
 	@Override
-	public void deleteClient(Long id){
+	public void deleteClient(Long id) {
 		if (!clientRepository.existsById(id)) {
 			throw new InvalidStateException("Client not found");
 		}

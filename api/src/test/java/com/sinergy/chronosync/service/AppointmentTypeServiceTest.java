@@ -177,33 +177,24 @@ class AppointmentTypeServiceTest {
 	 */
 	@Test
 	void updateAppointmentTypeTest() {
-		User mockUser = getUser();
-
-		when(userRepository.findOne(Mockito.<Specification<User>>any())).thenReturn(Optional.of(mockUser));
-
 		AppointmentTypeRequestDTO requestDto = AppointmentTypeRequestDTO.builder()
+			.id(1L)
 			.name("updatedName")
 			.durationMinutes(60)
 			.price(100.0)
 			.build();
 
-		requestDto.setId(1L);
-
 		AppointmentType existingAppointmentType = getAppointmentType();
 
-		when(appointmentTypeRepository.findById(1L)).thenReturn(Optional.of(existingAppointmentType));
-		when(appointmentTypeRepository.create(Mockito.any(AppointmentType.class)))
-			.thenAnswer(invocation -> invocation.getArgument(0));
+		when(appointmentTypeRepository.update(Mockito.any(AppointmentType.class))).thenReturn(requestDto.toModel());
 
 		AppointmentType updatedAppointmentType = appointmentTypeService.updateAppointmentType(requestDto);
 
 		assertNotNull(updatedAppointmentType);
-		assertEquals("updatedName", updatedAppointmentType.getName());
-		assertEquals(60, updatedAppointmentType.getDurationMinutes());
-		assertEquals(100.0, updatedAppointmentType.getPrice());
+		assertEquals(requestDto.getName(), updatedAppointmentType.getName());
+		assertEquals(requestDto.getDurationMinutes(), updatedAppointmentType.getDurationMinutes());
+		assertEquals(requestDto.getPrice(), updatedAppointmentType.getPrice());
 
-		verify(userRepository, times(1)).findOne(Mockito.<Specification<User>>any());
-		verify(appointmentTypeRepository, times(1)).findById(1L);
 		verify(appointmentTypeRepository, times(1)).update(Mockito.any(AppointmentType.class));
 	}
 
