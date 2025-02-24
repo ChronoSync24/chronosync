@@ -1,18 +1,17 @@
 package com.sinergy.chronosync.repository;
 
 import com.sinergy.chronosync.exception.RepositoryException;
+import com.sinergy.chronosync.model.BaseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import java.io.Serializable;
 
 /**
  * Base repository interface providing common CRUD operations for all entities.
  *
- * @param <T>  The entity type that this repository manages.
- * @param <ID> The type of the entity's primary key.
+ * @param <T> The entity type that this repository manages, extending {@link BaseEntity}.
  */
 @NoRepositoryBean
-public interface BaseRepository<T, ID extends Serializable> extends JpaRepository<T, ID> {
+public interface BaseRepository<T extends BaseEntity> extends JpaRepository<T, Long> {
 
     /**
      * Saves a new entity in the database.
@@ -28,14 +27,20 @@ public interface BaseRepository<T, ID extends Serializable> extends JpaRepositor
      * Updates an existing entity in the database.
      *
      * @param entity The entity with updated data to be saved.
-     * @param id The ID of the entity to be updated.
      * @return The updated entity after being persisted.
-     * @throws RepositoryException if the entity with the given ID does not exist.
      */
-    default T update(T entity, ID id) {
-        if (!existsById(id)) {
-            throw new RepositoryException("Entity with ID " + id + " does not exist.");
-        }
+    default T update(T entity) {
+        findByIdOrThrow(entity.getId());
         return save(entity);
+    }
+
+    /**
+     *
+     * @param id The id of the entity to search for
+     * @throws RepositoryException if the entity with the given ID does not exist
+     */
+    default T findByIdOrThrow(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new RepositoryException("Entity with ID " + id + " not found."));
     }
 }

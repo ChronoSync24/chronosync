@@ -126,7 +126,7 @@ class AppointmentTypeServiceTest {
 
 		AppointmentType mockAppointmentType = getAppointmentType();
 
-		when(appointmentTypeRepository.save(Mockito.any(AppointmentType.class))).thenReturn(mockAppointmentType);
+		when(appointmentTypeRepository.create(Mockito.any(AppointmentType.class))).thenReturn(mockAppointmentType);
 
 		AppointmentType createdAppointmentType = appointmentTypeService.createAppointmentType(requestDto);
 
@@ -136,7 +136,7 @@ class AppointmentTypeServiceTest {
 		assertEquals(200.0, createdAppointmentType.getPrice());
 
 		verify(userRepository, times(1)).findOne(Mockito.<Specification<User>>any());
-		verify(appointmentTypeRepository, times(1)).save(Mockito.any(AppointmentType.class));
+		verify(appointmentTypeRepository, times(1)).create(Mockito.any(AppointmentType.class));
 	}
 
 	/**
@@ -192,7 +192,7 @@ class AppointmentTypeServiceTest {
 		AppointmentType existingAppointmentType = getAppointmentType();
 
 		when(appointmentTypeRepository.findById(1L)).thenReturn(Optional.of(existingAppointmentType));
-		when(appointmentTypeRepository.save(Mockito.any(AppointmentType.class)))
+		when(appointmentTypeRepository.create(Mockito.any(AppointmentType.class)))
 			.thenAnswer(invocation -> invocation.getArgument(0));
 
 		AppointmentType updatedAppointmentType = appointmentTypeService.updateAppointmentType(requestDto);
@@ -204,7 +204,7 @@ class AppointmentTypeServiceTest {
 
 		verify(userRepository, times(1)).findOne(Mockito.<Specification<User>>any());
 		verify(appointmentTypeRepository, times(1)).findById(1L);
-		verify(appointmentTypeRepository, times(1)).save(Mockito.any(AppointmentType.class));
+		verify(appointmentTypeRepository, times(1)).update(Mockito.any(AppointmentType.class));
 	}
 
 	/**

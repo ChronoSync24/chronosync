@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AppointmentTypeRepository
-		extends BaseRepository<AppointmentType, Long>,
+		extends BaseRepository<AppointmentType>,
 		JpaSpecificationExecutor<AppointmentType> {
 }

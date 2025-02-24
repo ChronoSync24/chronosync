@@ -69,10 +69,8 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 */
 	@Override
 	public AppointmentType updateAppointmentType(AppointmentTypeRequestDTO requestDto) {
-		AppointmentType existingAppointmentType = appointmentTypeRepository.findById(requestDto.getId())
-			.orElseThrow(
-				() -> new InvalidStateException("Appointment type with ID " + requestDto.getId() + " does not exist.")
-			);
+
+		AppointmentType existingAppointmentType = appointmentTypeRepository.findByIdOrThrow(requestDto.getId());
 
 		if (!existingAppointmentType.getFirm().getId().equals(getAuthUserFirm().getId())) {
 			throw new InvalidStateException("Appointment type does not belong to the current user's firm.");
@@ -84,7 +82,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 		existingAppointmentType.setCurrency(requestDto.getCurrency());
 		existingAppointmentType.setColorCode(requestDto.getColorCode());
 
-		return appointmentTypeRepository.update(existingAppointmentType, requestDto.getId());
+		return appointmentTypeRepository.update(existingAppointmentType);
 	}
 
 	/**

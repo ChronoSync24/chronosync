@@ -72,7 +72,7 @@ public class ClientServiceImpl implements ClientService {
 				existingClient.getFirms().add(authUserFirm);
 				authUserFirm.getClients().add(existingClient);
 			}
-			return clientRepository.update(existingClient, existingClient.getId());
+			return clientRepository.update(existingClient);
 		} else {
 			Client client = requestDto.toModel();
 			client.getFirms().add(authUserFirm);
@@ -91,17 +91,14 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public Client updateClient(ClientRequestDTO requestDto) {
 
-        Client existingClient = clientRepository.findById(requestDto.getId())
-                .orElseThrow(
-                        () -> new RepositoryException("Client not found")
-                );
+		Client existingClient = clientRepository.findByIdOrThrow(requestDto.getId());
 
 		existingClient.setFirstName(requestDto.getFirstName());
 		existingClient.setLastName(requestDto.getLastName());
 		existingClient.setEmail(requestDto.getEmail());
 		existingClient.setPhone(requestDto.getPhone());
 
-		return clientRepository.update(existingClient, requestDto.getId());
+		return clientRepository.update(existingClient);
 	}
 
 	/**

@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Repository interface for managing {@link Client} entities.
  */
 @Repository
-public interface ClientRepository extends BaseRepository<Client, Long>, JpaSpecificationExecutor<Client> {
+public interface ClientRepository extends BaseRepository<Client>, JpaSpecificationExecutor<Client> {
 }

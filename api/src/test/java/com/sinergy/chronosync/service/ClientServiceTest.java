@@ -118,7 +118,7 @@ class ClientServiceTest {
 
         when(userRepository.findOne(Mockito.<Specification<User>>any())).thenReturn(Optional.of(user));
 
-        when(clientRepository.save(any(Client.class))).thenReturn(client);
+        when(clientRepository.create(any(Client.class))).thenReturn(client);
 
         Client createdClient = clientService.createClient(requestDto);
 
@@ -143,25 +143,26 @@ class ClientServiceTest {
                 .phone("987654321")
                 .build();
 
-        ClientRequestDTO existingClient = ClientRequestDTO.builder()
-                .id(1L)
+        Client existingClient = Client.builder()
                 .firstName("John")
                 .lastName("Doe")
                 .email("john.doe@example.com")
                 .phone("123456789")
                 .build();
 
-        when(clientRepository.findById(1L)).thenReturn(Optional.of(existingClient.toModel()));
-        when(clientRepository.save(any(Client.class))).thenReturn(existingClient.toModel());
+        existingClient.setId(1L);
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(existingClient));
+        when(clientRepository.save(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Client updatedClient = clientService.updateClient(requestDto);
 
         assertNotNull(updatedClient);
-        assertEquals("John", updatedClient.getFirstName());
+        assertEquals("Jane", updatedClient.getFirstName()); // Ensure the update happened
         assertEquals("Doe", updatedClient.getLastName());
-        assertEquals("john.doe@example.com", updatedClient.getEmail());
+        assertEquals("jane.doe@example.com", updatedClient.getEmail());
 
-        verify(clientRepository, times(1)).update(any(Client.class), existingClient.getId());
+        verify(clientRepository, times(1)).findById(1L);
+        verify(clientRepository, times(1)).save(any(Client.class));
     }
 
     /**
@@ -185,7 +186,7 @@ class ClientServiceTest {
         );
 
         assertEquals("Client not found", thrownException.getMessage());
-        verify(clientRepository, never()).update(any(Client.class), requestDto.getId());
+        verify(clientRepository, never()).update(any(Client.class));
     }
 
     /**
