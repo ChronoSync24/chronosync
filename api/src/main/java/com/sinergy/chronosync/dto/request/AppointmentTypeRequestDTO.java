@@ -32,6 +32,7 @@ public class AppointmentTypeRequestDTO {
 	 */
 	public AppointmentType toModel() {
 		return AppointmentType.builder()
+			.id(id)
 			.name(name)
 			.durationMinutes(durationMinutes)
 			.price(price)

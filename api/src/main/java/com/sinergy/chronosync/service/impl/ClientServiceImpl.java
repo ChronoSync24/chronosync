@@ -90,15 +90,7 @@ public class ClientServiceImpl implements ClientService {
 	 */
 	@Override
 	public Client updateClient(ClientRequestDTO requestDto) {
-
-		Client existingClient = clientRepository.findByIdOrThrow(requestDto.getId());
-
-		existingClient.setFirstName(requestDto.getFirstName());
-		existingClient.setLastName(requestDto.getLastName());
-		existingClient.setEmail(requestDto.getEmail());
-		existingClient.setPhone(requestDto.getPhone());
-
-		return clientRepository.update(existingClient);
+		return clientRepository.update(requestDto.toModel());
 	}
 
 	/**

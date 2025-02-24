@@ -5,6 +5,7 @@ import com.sinergy.chronosync.model.BaseEntity;
 import com.sinergy.chronosync.model.Firm;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Appointment type model class.
@@ -14,7 +15,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Builder
+@SuperBuilder
 @Table(name = "appointmentTypes")
 public class AppointmentType extends BaseEntity {
 

@@ -30,6 +30,7 @@ public class ClientRequestDTO {
 	 */
 	public Client toModel() {
 		return Client.builder()
+			.id(id)
 			.firstName(firstName)
 			.lastName(lastName)
 			.email(email)

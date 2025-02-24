@@ -69,20 +69,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 */
 	@Override
 	public AppointmentType updateAppointmentType(AppointmentTypeRequestDTO requestDto) {
-
-		AppointmentType existingAppointmentType = appointmentTypeRepository.findByIdOrThrow(requestDto.getId());
-
-		if (!existingAppointmentType.getFirm().getId().equals(getAuthUserFirm().getId())) {
-			throw new InvalidStateException("Appointment type does not belong to the current user's firm.");
-		}
-
-		existingAppointmentType.setName(requestDto.getName());
-		existingAppointmentType.setDurationMinutes(requestDto.getDurationMinutes());
-		existingAppointmentType.setPrice(requestDto.getPrice());
-		existingAppointmentType.setCurrency(requestDto.getCurrency());
-		existingAppointmentType.setColorCode(requestDto.getColorCode());
-
-		return appointmentTypeRepository.update(existingAppointmentType);
+		return appointmentTypeRepository.update(requestDto.toModel());
 	}
 
 	/**
