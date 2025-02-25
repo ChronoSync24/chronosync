@@ -2,7 +2,7 @@ package com.sinergy.chronosync.dto.request;
 
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.appointmentType.Currency;
-import com.sinergy.chronosync.model.firm.Firm;
+import com.sinergy.chronosync.model.Firm;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +32,7 @@ public class AppointmentTypeRequestDTO {
 	 */
 	public AppointmentType toModel() {
 		return AppointmentType.builder()
+			.id(id)
 			.name(name)
 			.durationMinutes(durationMinutes)
 			.price(price)

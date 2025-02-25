@@ -1,6 +1,6 @@
 package com.sinergy.chronosync.model.user;
 
-import com.sinergy.chronosync.model.firm.Firm;
+import com.sinergy.chronosync.model.Firm;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;

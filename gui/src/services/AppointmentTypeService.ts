@@ -47,7 +47,7 @@ export const update = async (request: AppointmentTypeRequestDTO): Promise<Appoin
 };
 
 /**
- * Creates a new appointment type.
+ * Deletes an appointment type.
  *
  * @param {number} id - Appointment type id
  *

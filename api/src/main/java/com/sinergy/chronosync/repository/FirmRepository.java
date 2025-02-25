@@ -1,6 +1,6 @@
 package com.sinergy.chronosync.repository;
 
-import com.sinergy.chronosync.model.firm.Firm;
+import com.sinergy.chronosync.model.Firm;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

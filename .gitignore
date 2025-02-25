@@ -58,3 +58,5 @@ pnpm-debug.log*
 # Temporary OS and IDE files
 *.bak
 *.~*
+*.iml
+*.xml
