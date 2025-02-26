@@ -1,9 +1,11 @@
 package com.sinergy.chronosync.model.appointmentType;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sinergy.chronosync.model.BaseEntity;
-import com.sinergy.chronosync.model.firm.Firm;
+import com.sinergy.chronosync.model.Firm;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Appointment type model class.
@@ -13,7 +15,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Builder
+@SuperBuilder
 @Table(name = "appointmentTypes")
 public class AppointmentType extends BaseEntity {
 
@@ -24,6 +26,7 @@ public class AppointmentType extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Currency currency;
 
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "firm_id")
 	private Firm firm;

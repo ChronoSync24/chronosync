@@ -25,7 +25,7 @@ public class UserController {
 	 * Creates new user.
 	 *
 	 * @param request {@link UserRequestDTO} user create request
-	 * @return {@link ResponseEntity< UserResponseDTO >} user creation response
+	 * @return {@link ResponseEntity<UserResponseDTO>} user creation response
 	 */
 	@PostMapping("/create")
 	public ResponseEntity<User> create(
