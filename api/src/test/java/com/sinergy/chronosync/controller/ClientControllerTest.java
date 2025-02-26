@@ -25,130 +25,130 @@ import static org.mockito.Mockito.*;
  */
 class ClientControllerTest {
 
-    @Mock
-    private ClientServiceImpl clientService;
+	@Mock
+	private ClientServiceImpl clientService;
 
-    @InjectMocks
-    private ClientController clientController;
+	@InjectMocks
+	private ClientController clientController;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+	}
 
-    /**
-     * Tests the {@link ClientController#getClients(BasePaginationRequest)} method.
-     * Verifies that the service is called with the correct parameters and the response is valid.
-     */
-    @Test
-    void getClientsTest() {
-        int page = 0;
-        int size = 10;
+	/**
+	 * Tests the {@link ClientController#getClients(BasePaginationRequest)} method.
+	 * Verifies that the service is called with the correct parameters and the response is valid.
+	 */
+	@Test
+	void getClientsTest() {
+		int page = 0;
+		int size = 10;
 
-        Client client = Client.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .build();
-        Page<Client> mockPage = new PageImpl<>(List.of(client), PageRequest.of(page, size), 1);
+		Client client = Client.builder()
+			.firstName("John")
+			.lastName("Doe")
+			.email("john.doe@example.com")
+			.build();
+		Page<Client> mockPage = new PageImpl<>(List.of(client), PageRequest.of(page, size), 1);
 
-        BasePaginationRequest paginationRequest = new BasePaginationRequest();
-        paginationRequest.setPage(page);
-        paginationRequest.setPageSize(size);
+		BasePaginationRequest paginationRequest = new BasePaginationRequest();
+		paginationRequest.setPage(page);
+		paginationRequest.setPageSize(size);
 
-        PageRequest pageRequest = PageRequest.of(page, size);
+		PageRequest pageRequest = PageRequest.of(page, size);
 
-        when(clientService.getClients(pageRequest)).thenReturn(mockPage);
+		when(clientService.getClients(pageRequest)).thenReturn(mockPage);
 
-        ResponseEntity<Page<Client>> response = clientController.getClients(paginationRequest);
+		ResponseEntity<Page<Client>> response = clientController.getClients(paginationRequest);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getContent()).contains(client);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody().getContent()).contains(client);
 
-        verify(clientService, times(1)).getClients(pageRequest);
-    }
+		verify(clientService, times(1)).getClients(pageRequest);
+	}
 
-    /**
-     * Tests the {@link ClientController#createClient(ClientRequestDTO)} method.
-     * Verifies that the service is called with the correct DTO and the response contains the created entity.
-     */
-    @Test
-    void createClientTest() {
-        ClientRequestDTO requestDTO = ClientRequestDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .phone("123-456-7890")
-                .build();
+	/**
+	 * Tests the {@link ClientController#createClient(ClientRequestDTO)} method.
+	 * Verifies that the service is called with the correct DTO and the response contains the created entity.
+	 */
+	@Test
+	void createClientTest() {
+		ClientRequestDTO requestDTO = ClientRequestDTO.builder()
+			.firstName("John")
+			.lastName("Doe")
+			.email("john.doe@example.com")
+			.phone("123-456-7890")
+			.build();
 
-        Client createdClient = Client.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .build();
+		Client createdClient = Client.builder()
+			.firstName("John")
+			.lastName("Doe")
+			.email("john.doe@example.com")
+			.build();
 
-        when(clientService.createClient(requestDTO)).thenReturn(createdClient);
+		when(clientService.createClient(requestDTO)).thenReturn(createdClient);
 
-        ResponseEntity<Client> response = clientController.createClient(requestDTO);
+		ResponseEntity<Client> response = clientController.createClient(requestDTO);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).isEqualTo(createdClient);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody()).isEqualTo(createdClient);
 
-        verify(clientService, times(1)).createClient(requestDTO);
-    }
+		verify(clientService, times(1)).createClient(requestDTO);
+	}
 
-    /**
-     * Tests the {@link ClientController#updateClient(ClientRequestDTO)} method.
-     * Verifies that the service is called with the correct DTO and the response contains the updated entity.
-     */
-    @Test
-    void updateClientTest() {
-        Client existingClient = new Client();
-        existingClient.setId(1L);
-        existingClient.setFirstName("John");
-        existingClient.setLastName("Doe");
-        existingClient.setEmail("john.doe@example.com");
-        existingClient.setPhone("123-456-7890");
+	/**
+	 * Tests the {@link ClientController#updateClient(ClientRequestDTO)} method.
+	 * Verifies that the service is called with the correct DTO and the response contains the updated entity.
+	 */
+	@Test
+	void updateClientTest() {
+		Client existingClient = new Client();
+		existingClient.setId(1L);
+		existingClient.setFirstName("John");
+		existingClient.setLastName("Doe");
+		existingClient.setEmail("john.doe@example.com");
+		existingClient.setPhone("123-456-7890");
 
-        ClientRequestDTO requestDTO = ClientRequestDTO.builder()
-                .id(1L)
-                .firstName("John")
-                .lastName("Doo")
-                .email("john.doe@example.com")
-                .phone("123-456-7890")
-                .build();
+		ClientRequestDTO requestDTO = ClientRequestDTO.builder()
+			.id(1L)
+			.firstName("John")
+			.lastName("Doo")
+			.email("john.doe@example.com")
+			.phone("123-456-7890")
+			.build();
 
-        Client updatedClient = requestDTO.toModel();
-        updatedClient.setId(existingClient.getId());
+		Client updatedClient = requestDTO.toModel();
+		updatedClient.setId(existingClient.getId());
 
-        when(clientService.updateClient(requestDTO)).thenReturn(updatedClient);
+		when(clientService.updateClient(requestDTO)).thenReturn(updatedClient);
 
-        ResponseEntity<Client> response = clientController.updateClient(requestDTO);
+		ResponseEntity<Client> response = clientController.updateClient(requestDTO);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getId()).isEqualTo(existingClient.getId());
-        assertThat(response.getBody().getLastName()).isEqualTo("Doo");
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody().getId()).isEqualTo(existingClient.getId());
+		assertThat(response.getBody().getLastName()).isEqualTo("Doo");
 
-        verify(clientService, times(1)).updateClient(requestDTO);
-    }
+		verify(clientService, times(1)).updateClient(requestDTO);
+	}
 
-    /**
-     * Tests the {@link ClientController#deleteClient(Long)} method.
-     * Verifies that the service is called with the correct ID and the response status is 204 (No Content).
-     */
-    @Test
-    void deleteClientTest() {
-        Long id = 1L;
+	/**
+	 * Tests the {@link ClientController#deleteClient(Long)} method.
+	 * Verifies that the service is called with the correct ID and the response status is 204 (No Content).
+	 */
+	@Test
+	void deleteClientTest() {
+		Long id = 1L;
 
-        doNothing().when(clientService).deleteClient(id);
+		doNothing().when(clientService).deleteClient(id);
 
-        ResponseEntity<Client> response = clientController.deleteClient(id);
+		ResponseEntity<Client> response = clientController.deleteClient(id);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        verify(clientService, times(1)).deleteClient(id);
-    }
+		verify(clientService, times(1)).deleteClient(id);
+	}
 }

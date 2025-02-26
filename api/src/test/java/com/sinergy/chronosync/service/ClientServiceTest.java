@@ -16,8 +16,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
@@ -71,21 +71,14 @@ class ClientServiceTest {
 	@Test
 	void getClientsTest() {
 		PageRequest pageRequest = PageRequest.of(0, 10);
-		ClientRequestDTO newClient = ClientRequestDTO.builder()
-			.id(1L)
-			.firstName("John")
-			.lastName("Doe")
-			.email("john@doe.com")
-			.phone("123-456-789")
-			.build();
+		ClientRequestDTO newClient = ClientRequestDTO.builder().id(1L).firstName("John").lastName("Doe").email("john@doe.com").phone("123-456-789").build();
 
 		Firm firm = new Firm();
 		firm.setId(1L);
 		newClient.toModel().getFirms().add(firm);
 		Page<Client> clients = new PageImpl<>(List.of(newClient.toModel()));
 
-		when(clientRepository.findAll(any(Specification.class), any(Pageable.class)))
-			.thenReturn(clients);
+		when(clientRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(clients);
 
 		Page<Client> result = clientService.getClients(pageRequest);
 
@@ -136,13 +129,7 @@ class ClientServiceTest {
 	 */
 	@Test
 	void updateClientTest() {
-		ClientRequestDTO requestDto = ClientRequestDTO.builder()
-			.id(1L)
-			.firstName("Jane")
-			.lastName("Doe")
-			.email("jane.doe@example.com")
-			.phone("987654321")
-			.build();
+		ClientRequestDTO requestDto = ClientRequestDTO.builder().id(1L).firstName("Jane").lastName("Doe").email("jane.doe@example.com").phone("987654321").build();
 
 		when(clientRepository.update(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -161,13 +148,7 @@ class ClientServiceTest {
 	 */
 	@Test
 	void updateClientNotFoundTest() {
-		ClientRequestDTO requestDto = ClientRequestDTO.builder()
-			.id(1L)
-			.firstName("Jane")
-			.lastName("Doe")
-			.email("john.doe@example.com")
-			.phone("987654321")
-			.build();
+		ClientRequestDTO requestDto = ClientRequestDTO.builder().id(1L).firstName("Jane").lastName("Doe").email("john.doe@example.com").phone("987654321").build();
 
 		when(clientRepository.update(any(Client.class))).thenThrow(RepositoryException.class);
 
@@ -199,10 +180,7 @@ class ClientServiceTest {
 
 		when(clientRepository.existsById(clientId)).thenReturn(false);
 
-		InvalidStateException thrownException = assertThrows(
-			InvalidStateException.class,
-			() -> clientService.deleteClient(clientId)
-		);
+		InvalidStateException thrownException = assertThrows(InvalidStateException.class, () -> clientService.deleteClient(clientId));
 
 		assertEquals("Client not found", thrownException.getMessage());
 		verify(clientRepository, never()).deleteById(clientId);

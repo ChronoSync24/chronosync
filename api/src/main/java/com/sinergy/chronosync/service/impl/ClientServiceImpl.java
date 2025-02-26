@@ -58,11 +58,11 @@ public class ClientServiceImpl implements ClientService {
 		Firm authUserFirm = getAuthUserFirm();
 
 		Specification<Client> spec = ClientFilterBuilder.builder()
-				.firstName(requestDto.getFirstName())
-				.lastName(requestDto.getLastName())
-				.email(requestDto.getEmail())
-				.phone(requestDto.getPhone())
-				.build().toSpecification();
+			.firstName(requestDto.getFirstName())
+			.lastName(requestDto.getLastName())
+			.email(requestDto.getEmail())
+			.phone(requestDto.getPhone())
+			.build().toSpecification();
 
 		Optional<Client> existingClientOptional = clientRepository.findOne(spec);
 

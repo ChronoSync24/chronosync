@@ -31,6 +31,19 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 	private String phone;
 	private Long firmId;
 
+	/**
+	 * Creates a {@link Specification} to filter clients that are associated with a specific firm.
+	 *
+	 * @param firmId The ID of the firm to filter clients by.
+	 * @return {@link Specification} that can be used in repository queries to find clients belonging to the given firm.
+	 */
+	public static Specification<Client> hasFirm(Long firmId) {
+		return (root, query, criteriaBuilder) -> {
+			Join<Client, Firm> firmJoin = root.join("firms");
+			return criteriaBuilder.equal(firmJoin.get("id"), firmId);
+		};
+	}
+
 	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<Client> root) {
 		List<Predicate> predicates = new ArrayList<>();
 
@@ -66,18 +79,5 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 		return (root, query, criteriaBuilder) -> criteriaBuilder.and(
 			buildPredicates(criteriaBuilder, root).toArray(new Predicate[0])
 		);
-	}
-
-	/**
-	 * Creates a {@link Specification} to filter clients that are associated with a specific firm.
-	 *
-	 * @param firmId The ID of the firm to filter clients by.
-	 * @return {@link Specification} that can be used in repository queries to find clients belonging to the given firm.
-	 */
-	public static Specification<Client> hasFirm(Long firmId) {
-		return (root, query, criteriaBuilder) -> {
-			Join<Client, Firm> firmJoin = root.join("firms");
-			return criteriaBuilder.equal(firmJoin.get("id"), firmId);
-		};
 	}
 }
