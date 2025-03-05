@@ -1,11 +1,12 @@
 package com.sinergy.chronosync.builder;
 
+import com.sinergy.chronosync.model.Appointment;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Builder;
-import com.sinergy.chronosync.model.Appointment;
 import org.springframework.data.jpa.domain.Specification;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +27,10 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 	private String startTime;
 	private String endTime;
 	private Long clientId;
-	private Long userId;
+	private Long taskedEmployeeId;
 	private Long appointmentTypeId;
+	private Long creatorId;
+	private Long firmId;
 
 	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<Appointment> root) {
 		List<Predicate> predicates = new ArrayList<>();
@@ -47,8 +50,14 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 		if (appointmentTypeId != null) {
 			predicates.add(criteriaBuilder.equal(root.get("appointmentType").get("id"), appointmentTypeId));
 		}
-		if (userId != null) {
-			predicates.add(criteriaBuilder.equal(root.get("user").get("id"), userId));
+		if (taskedEmployeeId != null) {
+			predicates.add(criteriaBuilder.equal(root.get("taskedEmployee").get("id"), taskedEmployeeId));
+		}
+		if (creatorId != null) {
+			predicates.add(criteriaBuilder.equal(root.get("creator").get("id"), creatorId));
+		}
+		if (firmId != null) {
+			predicates.add(criteriaBuilder.equal(root.get("firm").get("id"), firmId));
 		}
 		return predicates;
 	}

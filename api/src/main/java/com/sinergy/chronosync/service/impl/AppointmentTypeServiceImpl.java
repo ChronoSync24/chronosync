@@ -1,20 +1,16 @@
 package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.AppointmentTypeFilterBuilder;
-import com.sinergy.chronosync.builder.UserFilterBuilder;
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.UserNotFoundException;
-import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
-import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.repository.AppointmentTypeRepository;
-import com.sinergy.chronosync.repository.UserRepository;
 import com.sinergy.chronosync.service.AppointmentTypeService;
+import com.sinergy.chronosync.service.BaseService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 
 	private final AppointmentTypeRepository appointmentTypeRepository;
-	private final UserRepository userRepository;
+	private final BaseService baseService;
 
 	/**
 	 * Retrieves all appointment types associated with the current user's firm.
@@ -37,7 +33,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 */
 	public Page<AppointmentType> getAppointmentTypes(PageRequest pageRequest) {
 		AppointmentTypeFilterBuilder filterBuilder = AppointmentTypeFilterBuilder.builder()
-			.firmId(getAuthUserFirm().getId())
+			.firmId(baseService.getAuthUserFirm().getId())
 			.build();
 
 		filterBuilder.setPageable(pageRequest);
@@ -54,7 +50,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	@Override
 	public AppointmentType createAppointmentType(AppointmentTypeRequestDTO requestDto) {
 		AppointmentType appointmentType = requestDto.toModel();
-		appointmentType.setFirm(getAuthUserFirm());
+		appointmentType.setFirm(baseService.getAuthUserFirm());
 
 		return appointmentTypeRepository.create(appointmentType);
 	}
@@ -84,32 +80,5 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 			throw new InvalidStateException("Appointment type does not exist.");
 		}
 		appointmentTypeRepository.deleteById(id);
-	}
-
-	/**
-	 * Retrieves the authenticated user's associated firm.
-	 *
-	 * <p>This method extracts the currently authenticated username from the security context
-	 * and constructs a filter to query the user repository. If the user is found, their associated
-	 * firm is returned.
-	 *
-	 * @return the {@link Firm} associated with the authenticated user
-	 * @throws UserNotFoundException if no user is found with the authenticated username
-	 * @throws InvalidStateException if the user is not associated with any firm
-	 */
-	private Firm getAuthUserFirm() {
-		UserFilterBuilder filterBuilder = UserFilterBuilder.builder()
-			.username(SecurityContextHolder.getContext().getAuthentication().getName())
-			.build();
-
-		User user = userRepository.findOne(filterBuilder.toSpecification())
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		Firm firm = user.getFirm();
-		if (firm == null) {
-			throw new InvalidStateException("User is not associated with any firm.");
-		}
-
-		return firm;
 	}
 }

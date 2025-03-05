@@ -2,12 +2,10 @@ package com.sinergy.chronosync.dto.request;
 
 import com.sinergy.chronosync.model.Appointment;
 import com.sinergy.chronosync.model.Client;
+import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * DTO for creating or updating an appointment.
@@ -16,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 public class AppointmentRequestDTO {
 
 	private Long id;
@@ -23,8 +23,10 @@ public class AppointmentRequestDTO {
 	private String startTime;
 	private String endTime;
 	private AppointmentType appointmentType;
-	private User user;
+	private User taskedEmployee;
 	private Client client;
+	private User creator;
+	private Firm firm;
 
 	/**
 	 * Creates and returns Appointment model from Data Transfer Object.
@@ -38,8 +40,10 @@ public class AppointmentRequestDTO {
 			.startTime(startTime)
 			.endTime(endTime)
 			.appointmentType(appointmentType)
-			.user(user)
+			.taskedEmployee(taskedEmployee)
 			.client(client)
+			.creator(creator)
+			.firm(firm)
 			.build();
 	}
 }

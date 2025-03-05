@@ -1,23 +1,19 @@
 package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.ClientFilterBuilder;
-import com.sinergy.chronosync.builder.UserFilterBuilder;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.RepositoryException;
-import com.sinergy.chronosync.exception.UserNotFoundException;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.model.Firm;
-import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.repository.ClientRepository;
-import com.sinergy.chronosync.repository.UserRepository;
+import com.sinergy.chronosync.service.BaseService;
 import com.sinergy.chronosync.service.ClientService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -30,7 +26,7 @@ import java.util.Optional;
 public class ClientServiceImpl implements ClientService {
 
 	private final ClientRepository clientRepository;
-	private final UserRepository userRepository;
+	private final BaseService baseService;
 
 	/**
 	 * Retrieves all clients associated with the current user's firm.
@@ -43,7 +39,8 @@ public class ClientServiceImpl implements ClientService {
 	 */
 	@Override
 	public Page<Client> getClients(PageRequest pageRequest) {
-		return clientRepository.findAll(ClientFilterBuilder.hasFirm(getAuthUserFirm().getId()), pageRequest);
+		return clientRepository.findAll(ClientFilterBuilder.hasFirm(
+			baseService.getAuthUserFirm().getId()), pageRequest);
 	}
 
 	/**
@@ -55,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	@Transactional
 	public Client createClient(ClientRequestDTO requestDto) {
-		Firm authUserFirm = getAuthUserFirm();
+		Firm authUserFirm = baseService.getAuthUserFirm();
 
 		Specification<Client> spec = ClientFilterBuilder.builder()
 			.firstName(requestDto.getFirstName())
@@ -105,32 +102,5 @@ public class ClientServiceImpl implements ClientService {
 			throw new InvalidStateException("Client not found");
 		}
 		clientRepository.deleteById(id);
-	}
-
-	/**
-	 * Retrieves the authenticated user's associated firm.
-	 *
-	 * <p>This method extracts the currently authenticated username from the security context
-	 * and constructs a filter to query the user repository. If the user is found, their associated
-	 * firm is returned.
-	 *
-	 * @return the {@link Firm} associated with the authenticated user
-	 * @throws UserNotFoundException if no user is found with the authenticated username
-	 * @throws InvalidStateException if the user is not associated with any firm
-	 */
-	private Firm getAuthUserFirm() {
-		UserFilterBuilder filterBuilder = UserFilterBuilder.builder()
-			.username(SecurityContextHolder.getContext().getAuthentication().getName())
-			.build();
-
-		User user = userRepository.findOne(filterBuilder.toSpecification())
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		Firm firm = user.getFirm();
-		if (firm == null) {
-			throw new InvalidStateException("User is not associated with any firm.");
-		}
-
-		return firm;
 	}
 }
