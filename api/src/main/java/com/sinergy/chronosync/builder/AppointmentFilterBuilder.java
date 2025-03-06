@@ -26,6 +26,7 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 	private String note;
 	private String startTime;
 	private String endTime;
+	private String date;
 	private Long clientId;
 	private Long taskedEmployeeId;
 	private Long appointmentTypeId;
@@ -43,6 +44,9 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 		}
 		if (note != null && !note.isEmpty()) {
 			predicates.add(criteriaBuilder.like(root.get("note"), "%" + note + "%"));
+		}
+		if (date != null && !date.isEmpty()) {
+			predicates.add(criteriaBuilder.like(root.get("date"), "%" + date + "%"));
 		}
 		if (clientId != null) {
 			predicates.add(criteriaBuilder.equal(root.get("client").get("id"), clientId));

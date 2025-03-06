@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Date;
+
 /**
  * Appointment model class.
  */
@@ -28,6 +30,7 @@ public class Appointment extends BaseEntity {
 	private String note;
 	private String startTime;
 	private String endTime;
+	private String date;
 
 	@JsonBackReference
 	@ManyToOne

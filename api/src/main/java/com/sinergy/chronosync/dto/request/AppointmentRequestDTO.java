@@ -1,10 +1,7 @@
 package com.sinergy.chronosync.dto.request;
 
 import com.sinergy.chronosync.model.Appointment;
-import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.model.Firm;
-import com.sinergy.chronosync.model.appointmentType.AppointmentType;
-import com.sinergy.chronosync.model.user.User;
 import lombok.*;
 
 /**
@@ -22,10 +19,10 @@ public class AppointmentRequestDTO {
 	private String note;
 	private String startTime;
 	private String endTime;
-	private AppointmentType appointmentType;
-	private User taskedEmployee;
-	private Client client;
-	private User creator;
+	private String date;
+	private Long appointmentTypeId;
+	private Long taskedEmployeeId;
+	private Long clientId;
 	private Firm firm;
 
 	/**
@@ -39,10 +36,7 @@ public class AppointmentRequestDTO {
 			.note(note)
 			.startTime(startTime)
 			.endTime(endTime)
-			.appointmentType(appointmentType)
-			.taskedEmployee(taskedEmployee)
-			.client(client)
-			.creator(creator)
+			.date(date)
 			.firm(firm)
 			.build();
 	}

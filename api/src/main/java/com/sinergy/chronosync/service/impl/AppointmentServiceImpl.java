@@ -9,6 +9,7 @@ import com.sinergy.chronosync.model.Appointment;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.user.User;
+import com.sinergy.chronosync.model.user.UserRole;
 import com.sinergy.chronosync.repository.AppointmentRepository;
 import com.sinergy.chronosync.repository.AppointmentTypeRepository;
 import com.sinergy.chronosync.repository.ClientRepository;
@@ -45,18 +46,17 @@ public class AppointmentServiceImpl implements AppointmentService {
 		User authUser = baseService.getAuthUser();
 		AppointmentFilterBuilder filterBuilder;
 
-		int role = authUser.getRole().ordinal();
-		if (role == 0) {
+		if (authUser.getRole() == UserRole.ADMINISTRATOR || authUser.getRole() == UserRole.MANAGER) {
 			filterBuilder = AppointmentFilterBuilder.builder()
 				.firmId(baseService.getAuthUserFirm().getId())
 				.build();
-		} else {
+			return appointmentRepository.findAll(filterBuilder.toSpecification(), pageRequest);
+		} else if (authUser.getRole() == UserRole.EMPLOYEE) {
 			filterBuilder = AppointmentFilterBuilder.builder()
 				.taskedEmployeeId(baseService.getAuthUser().getId())
 				.build();
+			return appointmentRepository.findAll(filterBuilder.toSpecification(), pageRequest);
 		}
-
-		return appointmentRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}
 
 	/**
@@ -67,26 +67,26 @@ public class AppointmentServiceImpl implements AppointmentService {
 	 */
 	@Override
 	public Appointment createAppointment(AppointmentRequestDTO requestDto) {
-		User authUser = baseService.getAuthUser();
-		requestDto.setCreator(authUser);
-
-		if (requestDto.getTaskedEmployee().getId() != null) {
-			User taskedEmployee = userRepository.findById(requestDto.getTaskedEmployee().getId())
+		Appointment appointment = requestDto.toModel();
+		appointment.setCreator(baseService.getAuthUser());
+		appointment.setFirm(baseService.getAuthUserFirm());
+		if (requestDto.getTaskedEmployeeId() != null) {
+			User taskedEmployee = userRepository.findById(requestDto.getTaskedEmployeeId())
 				.orElseThrow(() -> new UserNotFoundException("Tasked employee not found"));
-			requestDto.setTaskedEmployee(taskedEmployee);
+			appointment.setTaskedEmployee(taskedEmployee);
 		}
-		if (requestDto.getClient().getId() != null) {
-			Client client = clientRepository.findById(requestDto.getClient().getId())
+		if (requestDto.getClientId() != null) {
+			Client client = clientRepository.findById(requestDto.getClientId())
 				.orElseThrow(() -> new RepositoryException("Client not found"));
-			requestDto.setClient(client);
+			appointment.setClient(client);
 		}
-		if (requestDto.getAppointmentType().getId() != null) {
-			AppointmentType appointmentType = appointmentTypeRepository.findById(requestDto.getAppointmentType().getId())
+		if (requestDto.getAppointmentTypeId() != null) {
+			AppointmentType appointmentType = appointmentTypeRepository.findById(requestDto.getAppointmentTypeId())
 				.orElseThrow(() -> new RepositoryException("Appointment type not found"));
-			requestDto.setAppointmentType(appointmentType);
+			appointment.setAppointmentType(appointmentType);
 		}
 
-		return appointmentRepository.save(requestDto.toModel());
+		return appointmentRepository.create(appointment);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 	 */
 	@Override
 	public Appointment updateAppointment(AppointmentRequestDTO requestDto) {
-		return appointmentRepository.save(requestDto.toModel());
+		return appointmentRepository.update(requestDto.toModel());
 	}
 
 	/**
