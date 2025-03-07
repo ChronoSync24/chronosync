@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Box } from '@mui/material';
+import { ThemeContext, ThemeProviderWrapper } from './theme/ThemeContext';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
 
-function App() {
+const themeClasses: Record<'light' | 'dark', string> = {
+  light: '',
+  dark: 'dark',
+};
+
+const AppContent: React.FC = () => {
+  const { mode, toggleTheme } = useContext(ThemeContext);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box className={themeClasses[mode]}>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<LandingPage />} />
+          <Route path='/login' element={<LoginPage />} />
+        </Routes>
+      </BrowserRouter>
+    </Box>
   );
-}
+};
+
+const App: React.FC = () => (
+  <ThemeProviderWrapper>
+    <AppContent />
+  </ThemeProviderWrapper>
+);
 
 export default App;
