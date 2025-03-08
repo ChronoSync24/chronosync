@@ -1,9 +1,11 @@
 package com.sinergy.chronosync.util;
 
+import com.sinergy.chronosync.exception.TokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -129,5 +131,21 @@ public class JwtUtils {
 	 */
 	public Boolean isTokenValid(String jwtString, UserDetails userDetails) {
 		return !isTokenExpired(jwtString) && extractUsername(jwtString).equals(userDetails.getUsername());
+	}
+
+	/**
+	 * Extracts JWT from {@link HttpServletRequest} request header.
+	 *
+	 * @param request {@link HttpServletRequest} http request
+	 * @return {@link String} token from the header
+	 */
+	public static String extractToken(HttpServletRequest request) {
+		String authHeader = request.getHeader("Authorization");
+
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new TokenException("Invalid JWT token");
+		}
+
+		return authHeader.substring(7);
 	}
 }
