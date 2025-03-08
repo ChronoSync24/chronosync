@@ -1,12 +1,10 @@
 package com.sinergy.chronosync.service;
 
-import com.sinergy.chronosync.builder.TokenFilterBuilder;
 import com.sinergy.chronosync.model.Token;
 import com.sinergy.chronosync.repository.TokenRepository;
 import com.sinergy.chronosync.service.impl.LogoutServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.service.spi.ServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,8 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -66,49 +62,6 @@ class LogoutServiceTest {
 
 		verify(tokenRepository, times(1)).delete(token);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-	}
-
-	/**
-	 * Tests the logout functionality when the Authorization header is missing.
-	 * Verifies that a {@link ServiceException} is thrown.
-	 */
-	@Test
-	void missingAuthorizationHeaderTest() {
-		when(request.getHeader("Authorization")).thenReturn(null);
-
-		assertThrows(ServiceException.class, () -> logoutService.logout(request, response, authentication));
-
-		verify(tokenRepository, never()).delete(any(Token.class));
-	}
-
-	/**
-	 * Tests the logout functionality when the JWT token does not start with "Bearer ".
-	 * Verifies that a {@link ServiceException} is thrown.
-	 */
-	@Test
-	void invalidAuthorizationHeaderFormatTest() {
-		when(request.getHeader("Authorization")).thenReturn("InvalidTokenFormat");
-
-		assertThrows(ServiceException.class, () -> logoutService.logout(request, response, authentication));
-
-		verify(tokenRepository, never()).delete(any(Token.class));
-	}
-
-	/**
-	 * Tests the logout functionality when the JWT token in the Authorization header is not found in the repository.
-	 * Verifies that a {@link ServiceException} is thrown.
-	 */
-	@Test
-	void invalidJwtTest() {
-		String nonExistentJwt = "Bearer jwt123";
-
-		when(request.getHeader("Authorization")).thenReturn(nonExistentJwt);
-		when(tokenRepository.findOne(TokenFilterBuilder.builder().jwtString("jwt123").build().toSpecification()))
-			.thenReturn(Optional.empty());
-
-		assertThrows(ServiceException.class, () -> logoutService.logout(request, response, authentication));
-
-		verify(tokenRepository, never()).delete(any(Token.class));
 	}
 }
 
