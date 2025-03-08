@@ -40,6 +40,7 @@ public class WebSecurityConfig {
 
 	private static final List<String> EMPLOYEE_LIST_URL = List.of(
 			"/api/v1/auth/logout",
+			"/api/v1/auth/validate-token",
 			"/api/v1/client/**"
 	);
 
