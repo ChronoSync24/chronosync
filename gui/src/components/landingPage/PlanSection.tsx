@@ -1,8 +1,9 @@
 import React, { forwardRef } from 'react';
-import { Box, Typography, Card, CardContent, Theme, Button } from '@mui/material';
+import { Box, Typography, Card, CardContent, Theme } from '@mui/material';
 import LayersIcon from '@mui/icons-material/Layers';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import PrimaryButton from '../PrimaryButton';
 
 interface PlanSectionProps {
   theme: Theme;
@@ -101,15 +102,12 @@ const PlanSection = forwardRef<HTMLDivElement, PlanSectionProps>(({ theme }, ref
                 /seat/mo
               </Typography>
             </div>
-            <Button
-              variant='contained'
-              color='secondary'
+            <PrimaryButton
               sx={{
                 width: '100%',
-                fontWeight: 'bold',
               }}>
               Get started
-            </Button>
+            </PrimaryButton>
           </CardContent>
         </Card>
         <Card
@@ -148,15 +146,12 @@ const PlanSection = forwardRef<HTMLDivElement, PlanSectionProps>(({ theme }, ref
                 /seat/mo
               </Typography>
             </div>
-            <Button
-              variant='contained'
-              color='secondary'
+            <PrimaryButton
               sx={{
                 width: '100%',
-                fontWeight: 'bold',
               }}>
               Get started
-            </Button>
+            </PrimaryButton>
           </CardContent>
         </Card>
         <Card
@@ -197,15 +192,12 @@ const PlanSection = forwardRef<HTMLDivElement, PlanSectionProps>(({ theme }, ref
                 /seat/mo
               </Typography>
             </div>
-            <Button
-              variant='contained'
-              color='secondary'
+            <PrimaryButton
               sx={{
                 width: '100%',
-                fontWeight: 'bold',
               }}>
               Get started
-            </Button>
+            </PrimaryButton>
           </CardContent>
         </Card>
       </Box>

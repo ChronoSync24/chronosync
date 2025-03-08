@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import { ThemeContext, ThemeProviderWrapper } from './theme/ThemeContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
 
 const themeClasses: Record<'light' | 'dark', string> = {
   light: '',
@@ -19,6 +20,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path='/' element={<LandingPage />} />
           <Route path='/login' element={<LoginPage />} />
+          <Route path='/home' element={<HomePage />} />
         </Routes>
       </BrowserRouter>
     </Box>

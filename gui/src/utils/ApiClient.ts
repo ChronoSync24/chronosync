@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 if (!API_BASE_URL) {
   throw new Error('VITE_API_BASE_URL is not defined in the environment variables.');
@@ -31,8 +31,12 @@ export const apiClient = async <T>(endpoint: string, { body, ...options }: ApiRe
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`API Error: ${response.status} - ${error}`);
+    throw new Error(error);
   }
 
-  return response.json();
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return null as T;
+  }
+
+  return response.json() as Promise<T>;
 };

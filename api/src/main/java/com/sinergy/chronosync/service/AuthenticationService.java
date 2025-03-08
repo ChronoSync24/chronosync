@@ -15,4 +15,12 @@ public interface AuthenticationService {
 	 * @return {@link AuthenticationResponse} JSON web token
 	 */
 	AuthenticationResponse authenticate(LoginRequestDTO request);
+
+	/**
+	 * Validates provided JWT.
+	 *
+	 * @param token {@link String} json web token
+	 * @return {@link Boolean} token validity
+	 */
+	Boolean validateToken(String token);
 }

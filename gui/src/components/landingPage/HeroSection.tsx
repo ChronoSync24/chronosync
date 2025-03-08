@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Button, Theme } from '@mui/material';
+import { Box, Typography, Theme } from '@mui/material';
+import PrimaryButton from '../PrimaryButton';
 
 interface HeroSectionProps {
   theme: Theme;
@@ -28,14 +29,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ theme, scrollToPlanSection })
         </Typography>
       </div>
 
-      <Button
-        variant='contained'
-        color='secondary'
-        className='h-10 w-60'
-        sx={{ fontWeight: 'bold' }}
-        onClick={scrollToPlanSection}>
+      <PrimaryButton className='w-60' onClick={scrollToPlanSection}>
         Become a partner
-      </Button>
+      </PrimaryButton>
     </Box>
   );
 };

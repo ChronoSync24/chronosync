@@ -6,43 +6,46 @@ const ENDPOINT_PREFIX = '/auth';
 //TODO: Setting token and removing token from the local storage does not belong to the service. Return the jwt string, and move logic to login tsx file. Change docs and return of the method.
 
 /**
- * Logs in a user with the provided credentials.
+ * Logs in user with the provided credentials.
  *
  * @param {LoginRequestDTO} request - The login credentials (username and password).
- * @returns {Promise<void>} - A Promise that resolves to `void`. The function doesn't return any value.
- *
- * @throws {Error} - Throws an error if the login fails.
+ * @returns {Promise<string>} - user's JWT
  */
-export const login = async (request: LoginRequestDTO): Promise<void> => {
-	try {
-		const response = await apiClient<{ jwtString: string }>(`${ENDPOINT_PREFIX}/login`, {
-			method: 'POST',
-			body: request,
-		});
+export const login = async (request: LoginRequestDTO): Promise<string> => {
+  const response = await apiClient<{ jwtString: string }>(`${ENDPOINT_PREFIX}/login`, {
+    method: 'POST',
+    body: request,
+  });
 
-		localStorage.setItem('token', response.jwtString);
-	} catch (error) {
-		throw new Error('Login failed.');
-	}
+  return response.jwtString;
 };
 
 /**
  * Logs out user.
- *
- * @throws {Error} - Throws an error if the logout fails.
  */
 export const logout = async (): Promise<void> => {
-	try {
-		await apiClient<{ jwtString: string }>(`${ENDPOINT_PREFIX}/login`, {
-			method: 'GET',
-			headers: {
-				Authorization: 'Bearer ' + localStorage.getItem('token'),
-				'Content-Type': 'application/json',
-			},
-		});
+  await apiClient<void>(`${ENDPOINT_PREFIX}/logout`, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + localStorage.getItem('token'),
+      'Content-Type': 'application/json',
+    },
+  });
+};
 
-		localStorage.removeItem('token');
-	} catch (error) {
-		throw new Error('Logout failed.');
-	}
+/**
+ * Validates JWT from the header.
+ *
+ * @returns {Promise<Boolean>} - validity of JWT
+ */
+export const validateToken = async (): Promise<Boolean> => {
+  const response = await apiClient<Boolean>(`${ENDPOINT_PREFIX}/validate-token`, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + localStorage.getItem('token'),
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return response;
 };

@@ -11,6 +11,7 @@ const themes: Record<'light' | 'dark', ThemeOptions> = {
       secondary: { main: '#6A5BCD' },
       background: { default: '#E6E6FA', paper: '#FFFFFF' },
       text: { primary: '#262838', secondary: '#717171' },
+      info: { main: '#2194f3' },
     },
   },
   dark: {
@@ -20,6 +21,7 @@ const themes: Record<'light' | 'dark', ThemeOptions> = {
       secondary: { main: '#64748B' },
       background: { default: '#1E293B', paper: '#111827' },
       text: { primary: '#262838', secondary: '#E5E7EB' },
+      info: { main: '#2194f3' },
     },
   },
 };
