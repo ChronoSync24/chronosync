@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Typography, Box, Theme } from '@mui/material';
 import { lighten } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
+import PrimaryButton from '../PrimaryButton';
 
 interface NavbarProps {
   theme: Theme;
@@ -54,14 +55,9 @@ const Navbar: React.FC<NavbarProps> = ({
           Contact
         </Button>
       </Box>
-      <Button
-        variant='contained'
-        color='secondary'
-        className='h-10'
-        sx={{ fontWeight: 'bold' }}
-        onClick={() => navigate('/login')}>
+      <PrimaryButton className='w-20' onClick={() => navigate('/login')}>
         Login
-      </Button>
+      </PrimaryButton>
     </Box>
   );
 };

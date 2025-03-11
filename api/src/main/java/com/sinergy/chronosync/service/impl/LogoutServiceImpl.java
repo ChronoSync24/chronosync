@@ -1,13 +1,12 @@
 package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.TokenFilterBuilder;
-import com.sinergy.chronosync.model.Token;
 import com.sinergy.chronosync.repository.TokenRepository;
 import com.sinergy.chronosync.service.LogoutService;
+import com.sinergy.chronosync.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -33,19 +32,15 @@ public class LogoutServiceImpl implements LogoutService, LogoutHandler {
 	 */
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		String authHeader = request.getHeader("Authorization");
-		String jwt;
+		String jwt = JwtUtils.extractToken(request);
 
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-			throw new ServiceException("Invalid JWT token");
-		}
+		tokenRepository.findOne(
+			TokenFilterBuilder.builder()
+				.jwtString(jwt)
+				.build()
+				.toSpecification()
+		).ifPresent(tokenRepository::delete);
 
-		jwt = authHeader.substring(7);
-		Token storedToken = tokenRepository
-			.findOne(TokenFilterBuilder.builder().jwtString(jwt).build().toSpecification())
-			.orElseThrow(() -> new ServiceException("Invalid JWT token"));
-
-		tokenRepository.delete(storedToken);
 		SecurityContextHolder.clearContext();
 	}
 }

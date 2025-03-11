@@ -15,7 +15,10 @@ import org.hibernate.service.spi.ServiceException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 /**
  * Authentication service interface implementation.
@@ -28,6 +31,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private final TokenRepository tokenRepository;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtils jwtUtils;
+	private final UserDetailsService userDetailsService;
 
 	/**
 	 * Authenticates provided user with username and password.
@@ -59,5 +63,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		tokenRepository.save(token);
 
 		return AuthenticationResponse.builder().jwtString(jwt).build();
+	}
+
+	/**
+	 * Validates provided JWT.
+	 *
+	 * @param token {@link String} json web token
+	 * @return {@link Boolean} token validity
+	 */
+	@Override
+	public Boolean validateToken(String token) {
+		String username = jwtUtils.extractUsername(token);
+
+		Optional<Token> dbToken = tokenRepository.findOne(
+			TokenFilterBuilder.builder()
+				.jwtString(token)
+				.build()
+				.toSpecification()
+		);
+
+		return dbToken.isPresent() && jwtUtils.isTokenValid(token, userDetailsService.loadUserByUsername(username));
 	}
 }
