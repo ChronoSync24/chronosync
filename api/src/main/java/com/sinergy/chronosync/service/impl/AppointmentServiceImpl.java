@@ -44,16 +44,19 @@ public class AppointmentServiceImpl implements AppointmentService {
 	@Override
 	public Page<Appointment> getAppointments(PageRequest pageRequest) {
 		User authUser = baseService.getAuthUser();
+		AppointmentFilterBuilder filterBuilder;
 
-		AppointmentFilterBuilder filterBuilder = AppointmentFilterBuilder.builder()
-				.taskedEmployeeId(authUser.getId())
-				.build();
-		if (authUser.getRole() == UserRole.ADMINISTRATOR || authUser.getRole() == UserRole.MANAGER) {
+		if (authUser.getRole() == UserRole.MANAGER || authUser.getRole() == UserRole.ADMINISTRATOR) {
 			filterBuilder = AppointmentFilterBuilder.builder()
 				.firmId(baseService.getAuthUserFirm().getId())
 				.build();
+		} else {
+			filterBuilder = AppointmentFilterBuilder.builder()
+				.taskedEmployeeId(authUser.getId())
+				.build();
 		}
-			return appointmentRepository.findAll(filterBuilder.toSpecification(), pageRequest);
+
+		return appointmentRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}
 
 	/**
