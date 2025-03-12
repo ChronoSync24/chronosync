@@ -1,7 +1,6 @@
 package com.sinergy.chronosync.config;
 
 import com.sinergy.chronosync.model.user.UserRole;
-import com.sinergy.chronosync.util.CollectionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,26 +38,18 @@ public class WebSecurityConfig {
 	private static final List<String> WHITE_LIST_URL = List.of("/api/v1/auth/login");
 
 	private static final List<String> EMPLOYEE_LIST_URL = List.of(
-			"/api/v1/auth/logout",
-			"/api/v1/client/**",
-			"/api/v1/appointment/**"
+		"/api/v1/auth/logout",
+		"/api/v1/client/**",
+		"/api/v1/appointment/**"
 	);
 
-	private static final List<String> MANAGER_LIST_URL = CollectionUtils.concat(
-		EMPLOYEE_LIST_URL,
-		List.of(
-			"/api/v1/user/create",
-			"/api/v1/test/test-manager",
-			"/api/v1/appointment-type/**"
-		)
+	private static final List<String> MANAGER_LIST_URL = List.of(
+		"/api/v1/appointment-type/**"
 	);
 
-	private static final List<String> ADMIN_LIST_URL = CollectionUtils.concat(
-		MANAGER_LIST_URL,
-		List.of(
-			"/api/v1/user/enable",
-			"/api/v1/test/test-manager"
-		)
+	private static final List<String> ADMIN_LIST_URL = List.of(
+		"/api/v1/user/create",
+		"/api/v1/user/enable"
 	);
 
 	/**
@@ -78,9 +69,11 @@ public class WebSecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(req -> req
 				.requestMatchers(WHITE_LIST_URL.toArray(String[]::new)).permitAll()
+				.requestMatchers(EMPLOYEE_LIST_URL.toArray(String[]::new))
+					.hasAnyRole(UserRole.EMPLOYEE.name(), UserRole.MANAGER.name(), UserRole.ADMINISTRATOR.name())
+				.requestMatchers(MANAGER_LIST_URL.toArray(String[]::new))
+					.hasAnyRole(UserRole.MANAGER.name(), UserRole.ADMINISTRATOR.name())
 				.requestMatchers(ADMIN_LIST_URL.toArray(String[]::new)).hasRole(UserRole.ADMINISTRATOR.name())
-				.requestMatchers(MANAGER_LIST_URL.toArray(String[]::new)).hasRole(UserRole.MANAGER.name())
-				.requestMatchers(EMPLOYEE_LIST_URL.toArray(String[]::new)).hasRole(UserRole.EMPLOYEE.name())
 			)
 			.cors(c -> c.configurationSource(corsConfig))
 			.sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
