@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-
 /**
  * DTO for creating or updating a client.
  */
@@ -17,11 +15,13 @@ import java.util.HashSet;
 @AllArgsConstructor
 public class ClientRequestDTO {
 
-	private Long id;
 	private String firstName;
 	private String lastName;
 	private String email;
 	private String phone;
+	private String address;
+	private String identificationNumber;
+	private Long firmId;
 
 	/**
 	 * Creates and returns Client model from Data Transfer Object.
@@ -29,14 +29,14 @@ public class ClientRequestDTO {
 	 * @return {@link Client} user model
 	 */
 	public Client toModel() {
-		return Client.builder()
-			.id(id)
-			.firstName(firstName)
-			.lastName(lastName)
-			.email(email)
-			.phone(phone)
-			.firms(new HashSet<>())
-			.build();
+		Client client = new Client();
+			client.setFirstName(firstName);
+			client.setLastName(lastName);
+			client.setEmail(email);
+			client.setPhone(phone);
+			client.setAddress(address);
+			client.setIdentificationNumber(identificationNumber);
+			return client;
 	}
 
 }

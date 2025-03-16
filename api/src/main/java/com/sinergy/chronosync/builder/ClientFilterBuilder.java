@@ -1,9 +1,7 @@
 package com.sinergy.chronosync.builder;
 
 import com.sinergy.chronosync.model.Client;
-import com.sinergy.chronosync.model.Firm;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Builder;
@@ -30,19 +28,6 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 	private String email;
 	private String phone;
 	private Long firmId;
-
-	/**
-	 * Creates a {@link Specification} to filter clients that are associated with a specific firm.
-	 *
-	 * @param firmId The ID of the firm to filter clients by.
-	 * @return {@link Specification} that can be used in repository queries to find clients belonging to the given firm.
-	 */
-	public static Specification<Client> hasFirm(Long firmId) {
-		return (root, query, criteriaBuilder) -> {
-			Join<Client, Firm> firmJoin = root.join("firms");
-			return criteriaBuilder.equal(firmJoin.get("id"), firmId);
-		};
-	}
 
 	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<Client> root) {
 		List<Predicate> predicates = new ArrayList<>();

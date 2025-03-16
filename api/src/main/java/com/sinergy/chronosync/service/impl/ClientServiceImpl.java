@@ -13,7 +13,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -39,12 +38,17 @@ public class ClientServiceImpl implements ClientService {
 	 */
 	@Override
 	public Page<Client> getClients(PageRequest pageRequest) {
-		return clientRepository.findAll(ClientFilterBuilder.hasFirm(
-			baseService.getAuthUserFirm().getId()), pageRequest);
+		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+			.firmId(baseService.getAuthUserFirm().getId())
+			.build();
+
+		filterBuilder.setPageable(pageRequest);
+
+		return clientRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}
 
 	/**
-	 * Creates a new client or updates an existing to associate it with the current user's firm.
+	 * Creates a new client associated with the current user's firm.
 	 *
 	 * @param requestDto {@link ClientRequestDTO} containing client details
 	 * @return {@link Client} representing the saved client
@@ -52,30 +56,24 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	@Transactional
 	public Client createClient(ClientRequestDTO requestDto) {
-		Firm authUserFirm = baseService.getAuthUserFirm();
+		Firm authFirm = baseService.getAuthUserFirm();
 
-		Specification<Client> spec = ClientFilterBuilder.builder()
+		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
 			.firstName(requestDto.getFirstName())
 			.lastName(requestDto.getLastName())
 			.email(requestDto.getEmail())
 			.phone(requestDto.getPhone())
-			.build().toSpecification();
+			.firmId(authFirm.getId())
+			.build();
 
-		Optional<Client> existingClientOptional = clientRepository.findOne(spec);
-
-		if (existingClientOptional.isPresent()) {
-			Client existingClient = existingClientOptional.get();
-			if (!existingClient.getFirms().contains(authUserFirm)) {
-				existingClient.getFirms().add(authUserFirm);
-				authUserFirm.getClients().add(existingClient);
-			}
-			return clientRepository.update(existingClient);
-		} else {
-			Client client = requestDto.toModel();
-			client.getFirms().add(authUserFirm);
-			authUserFirm.getClients().add(client);
-			return clientRepository.create(client);
+		Optional<Client> existingClient = clientRepository.findOne(filterBuilder.toSpecification());
+		if (existingClient.isPresent()) {
+			throw new RepositoryException("An identical client already exists for this firm.");
 		}
+
+		Client client = requestDto.toModel();
+		client.setFirm(authFirm);
+		return clientRepository.create(client);
 	}
 
 	/**
