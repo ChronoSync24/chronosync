@@ -113,7 +113,6 @@ class ClientControllerTest {
 		existingClient.setPhone("123-456-7890");
 
 		ClientRequestDTO requestDTO = ClientRequestDTO.builder()
-			.id(1L)
 			.firstName("John")
 			.lastName("Doo")
 			.email("john.doe@example.com")

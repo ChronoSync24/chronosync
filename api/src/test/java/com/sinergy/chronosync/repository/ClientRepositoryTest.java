@@ -90,7 +90,6 @@ class ClientRepositoryTest {
 	@Test
 	void findOneTest() {
 		ClientRequestDTO client = ClientRequestDTO.builder()
-			.id(1L)
 			.firstName("John")
 			.lastName("Doe")
 			.email("john.doe@example.com")
