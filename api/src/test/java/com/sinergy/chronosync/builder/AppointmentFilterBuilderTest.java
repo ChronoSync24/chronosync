@@ -135,7 +135,7 @@ public class AppointmentFilterBuilderTest {
 		assertNotNull(result);
 
 		verify(criteriaBuilder).like(notePath, "%" + note + "%");
-		verify(criteriaBuilder).equal(startTimePath, "%" + startTime + "%");
+		verify(criteriaBuilder).like(startTimePath, "%" + startTime + "%");
 		verify(criteriaBuilder).like(endTimePath, "%" + endTime + "%");
 		verify(criteriaBuilder).like(datePath, "%" + date + "%");
 		verify(criteriaBuilder).equal(clientIdPath, clientId);

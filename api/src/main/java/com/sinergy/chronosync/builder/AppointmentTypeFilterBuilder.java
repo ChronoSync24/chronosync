@@ -26,6 +26,14 @@ public class AppointmentTypeFilterBuilder extends BaseFilterBuilder<AppointmentT
 	private String name;
 	private Long firmId;
 
+	/**
+	 * Builds a list of predicates based on the provided filter criteria for querying {@link AppointmentType} entities.
+	 * The predicates are constructed using the {@link CriteriaBuilder} and applied to the {@link Root} entity.
+	 *
+	 * @param criteriaBuilder {@link CriteriaBuilder} used for constructing predicates.
+	 * @param root {@link Root} representing the {@link AppointmentType} entity in the query.
+	 * @return {@link List} of {@link Predicate} objects representing the filtering conditions.
+	 */
 	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<AppointmentType> root) {
 		List<Predicate> predicates = new ArrayList<>();
 

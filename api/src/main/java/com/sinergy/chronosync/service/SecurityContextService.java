@@ -11,11 +11,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- * Service responsible for retrieving authentication-related information.
+ * Service responsible for retrieving security context information.
  */
 @Service
 @RequiredArgsConstructor
-public class BaseService {
+public class SecurityContextService {
 
 	private final UserRepository userRepository;
 
@@ -49,18 +49,11 @@ public class BaseService {
 	 * @throws InvalidStateException if the user is not associated with any firm
 	 */
 	public Firm getAuthUserFirm() {
-		UserFilterBuilder filterBuilder = UserFilterBuilder.builder()
-			.username(SecurityContextHolder.getContext().getAuthentication().getName())
-			.build();
-
-		User user = userRepository.findOne(filterBuilder.toSpecification())
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
-
+		User user = getAuthUser();
 		Firm firm = user.getFirm();
 		if (firm == null) {
 			throw new InvalidStateException("User is not associated with any firm.");
 		}
-
 		return firm;
 	}
 }

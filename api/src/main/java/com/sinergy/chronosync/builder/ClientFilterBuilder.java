@@ -29,6 +29,14 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 	private String phone;
 	private Long firmId;
 
+	/**
+	 * Builds a list of predicates based on the provided filter criteria for querying {@link Client} entities.
+	 * The predicates are constructed using the {@link CriteriaBuilder} and applied to the {@link Root} entity.
+	 *
+	 * @param criteriaBuilder {@link CriteriaBuilder} used for constructing predicates.
+	 * @param root {@link Root} representing the {@link Client} entity in the query.
+	 * @return {@link List} of {@link Predicate} objects representing the filtering conditions.
+	 */
 	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<Client> root) {
 		List<Predicate> predicates = new ArrayList<>();
 

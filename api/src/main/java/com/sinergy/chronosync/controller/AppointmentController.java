@@ -22,10 +22,7 @@ public class AppointmentController {
 	private final AppointmentService appointmentService;
 
 	/**
-	 * Retrieves a paginated list of appointments associated with the current user.
-	 *
-	 * <p>This endpoint allows users to view appointments specific to them.
-	 * It ensures data isolation by returning only the appointments linked to the logged-in user.</p>
+	 * Retrieves a paginated list of appointments.
 	 *
 	 * <p>The pagination details, such as the page number and page size, are provided
 	 * in the request body using the {@link BasePaginationRequest} class. Default values
@@ -43,7 +40,7 @@ public class AppointmentController {
 	}
 
 	/**
-	 * Creates new appointment for the current user.
+	 * Creates new appointment.
 	 *
 	 * @param request {@link AppointmentRequestDTO} containing the details of the new appointment
 	 * @return created {@link Appointment} along with an HTTP status of 201 (Created)
@@ -57,7 +54,7 @@ public class AppointmentController {
 	}
 
 	/**
-	 * Updates an existing appointment identified by its ID, or throws an exception.
+	 * Updates an existing appointment.
 	 *
 	 * @param request {@link AppointmentRequestDTO} containing details of the appointment to update or create
 	 * @return {@link ResponseEntity} containing the updated or created {@link Appointment} and HTTP status

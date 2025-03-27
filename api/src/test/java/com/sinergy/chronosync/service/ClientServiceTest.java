@@ -111,6 +111,7 @@ class ClientServiceTest {
 			.lastName("Doe")
 			.email("john.doe@example.com")
 			.phone("123456789")
+			.firmId(firm.getId())
 			.build();
 
 		Client client = requestDto.toModel();

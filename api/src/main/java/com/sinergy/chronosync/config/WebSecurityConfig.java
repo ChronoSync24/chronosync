@@ -48,8 +48,7 @@ public class WebSecurityConfig {
 	);
 
 	private static final List<String> ADMIN_LIST_URL = List.of(
-		"/api/v1/user/create",
-		"/api/v1/user/enable"
+		"/api/v1/user/create"
 	);
 
 	/**

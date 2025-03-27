@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Appointment model class.
@@ -28,14 +28,13 @@ import java.util.Date;
 public class Appointment extends BaseEntity {
 
 	private String note;
-	private String startTime;
-	private String endTime;
-	private String date;
+	private LocalDateTime startDateTime;
+	private LocalDateTime endDateTime;
 
 	@JsonBackReference
 	@ManyToOne
-	@JoinColumn(name = "taskedEmployee_id")
-	private User taskedEmployee;
+	@JoinColumn(name = "employee_id")
+	private User employee;
 
 	@JsonBackReference
 	@ManyToOne
@@ -44,13 +43,8 @@ public class Appointment extends BaseEntity {
 
 	@JsonBackReference
 	@ManyToOne
-	@JoinColumn(name = "appointmentType_id")
+	@JoinColumn(name = "appointment_type_id")
 	private AppointmentType appointmentType;
-
-	@JsonBackReference
-	@ManyToOne
-	@JoinColumn(name = "creator_id")
-	private User creator;
 
 	@JsonBackReference
 	@ManyToOne

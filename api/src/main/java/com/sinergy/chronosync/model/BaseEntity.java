@@ -1,10 +1,16 @@
 package com.sinergy.chronosync.model;
 
+import com.sinergy.chronosync.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 /**
  * Base entity abstract class.
@@ -20,4 +26,39 @@ public abstract class BaseEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", updatable = false, nullable = false)
 	private Long id;
+
+	@CreatedBy
+	@ManyToOne
+	@JoinColumn(name = "created_by", updatable = false)
+	private User createdBy;
+
+	@LastModifiedBy
+	@ManyToOne
+	@JoinColumn(name = "modified_by")
+	private User modifiedBy;
+
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime created;
+
+	@Column(name = "modified_at")
+	private LocalDateTime modified;
+
+	@PrePersist
+	protected void onCreate() {
+		this.created = LocalDateTime.now(ZoneOffset.UTC);
+		this.modified = created;
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.modified = LocalDateTime.now(ZoneOffset.UTC);
+	}
+
+	/**
+	 * Retrieves a timestamp and converts to users local timezone.
+	 */
+	public static LocalDateTime convertToUserTimezone(LocalDateTime utcTime, ZoneId userZone) {
+		return utcTime.atZone(ZoneOffset.UTC).withZoneSameInstant(userZone).toLocalDateTime();
+	}
+
 }

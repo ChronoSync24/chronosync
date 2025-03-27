@@ -2,12 +2,13 @@ package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.AppointmentTypeFilterBuilder;
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
+import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.UserNotFoundException;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.repository.AppointmentTypeRepository;
 import com.sinergy.chronosync.service.AppointmentTypeService;
-import com.sinergy.chronosync.service.BaseService;
+import com.sinergy.chronosync.service.SecurityContextService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Service;
 public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 
 	private final AppointmentTypeRepository appointmentTypeRepository;
-	private final BaseService baseService;
+	private final SecurityContextService securityContextService;
 
 	/**
 	 * Retrieves all appointment types associated with the current user's firm.
@@ -33,7 +34,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 */
 	public Page<AppointmentType> getAppointmentTypes(PageRequest pageRequest) {
 		AppointmentTypeFilterBuilder filterBuilder = AppointmentTypeFilterBuilder.builder()
-			.firmId(baseService.getAuthUserFirm().getId())
+			.firmId(securityContextService.getAuthUserFirm().getId())
 			.build();
 
 		filterBuilder.setPageable(pageRequest);
@@ -50,7 +51,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	@Override
 	public AppointmentType createAppointmentType(AppointmentTypeRequestDTO requestDto) {
 		AppointmentType appointmentType = requestDto.toModel();
-		appointmentType.setFirm(baseService.getAuthUserFirm());
+		appointmentType.setFirm(securityContextService.getAuthUserFirm());
 
 		return appointmentTypeRepository.create(appointmentType);
 	}
@@ -77,7 +78,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	@Override
 	public void deleteAppointmentType(Long id) {
 		if (!appointmentTypeRepository.existsById(id)) {
-			throw new InvalidStateException("Appointment type does not exist.");
+			throw new EntityNotFoundException("Appointment type does not exist.");
 		}
 		appointmentTypeRepository.deleteById(id);
 	}

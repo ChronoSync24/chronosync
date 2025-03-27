@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,8 +53,8 @@ class AppointmentControllerTest {
 		Appointment appointment = Appointment.builder()
 			.id(1L)
 			.note("Test Appointment")
-			.startTime("10:00")
-			.endTime("11:00")
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
 			.build();
 		Page<Appointment> mockPage = new PageImpl<>(List.of(appointment), pageRequest, 1);
 
@@ -76,15 +77,15 @@ class AppointmentControllerTest {
 	void createAppointmentTest() {
 		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
 			.note("New Appointment")
-			.startTime("10:00")
-			.endTime("11:00")
+			.startDateTime("2025-02-02 12:45")
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
 			.build();
 
 		Appointment createdAppointment = Appointment.builder()
 			.id(1L)
 			.note("New Appointment")
-			.startTime("10:00")
-			.endTime("11:00")
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
 			.build();
 
 		when(appointmentService.createAppointment(requestDto)).thenReturn(createdAppointment);
@@ -107,15 +108,15 @@ class AppointmentControllerTest {
 		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
 			.id(1L)
 			.note("Updated Appointment")
-			.startTime("09:00")
-			.endTime("10:00")
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
 			.build();
 
 		Appointment updatedAppointment = Appointment.builder()
 			.id(1L)
 			.note("Updated Appointment")
-			.startTime("09:00")
-			.endTime("10:00")
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
 			.build();
 
 		when(appointmentService.updateAppointment(requestDto)).thenReturn(updatedAppointment);

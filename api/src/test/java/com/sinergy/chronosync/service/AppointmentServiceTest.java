@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +31,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link AppointmentServiceImpl}
+ */
 class AppointmentServiceImplTest {
 
 	@Mock
@@ -41,7 +45,7 @@ class AppointmentServiceImplTest {
 	@Mock
 	private AppointmentTypeRepository appointmentTypeRepository;
 	@Mock
-	private BaseService baseService;
+	private SecurityContextService securityContextService;
 
 	@InjectMocks
 	private AppointmentServiceImpl appointmentService;
@@ -62,8 +66,8 @@ class AppointmentServiceImplTest {
 		authUser.setRole(UserRole.EMPLOYEE);
 		authUser.setFirm(authFirm);
 
-		when(baseService.getAuthUser()).thenReturn(authUser);
-		when(baseService.getAuthUserFirm()).thenReturn(authFirm);
+		when(securityContextService.getAuthUser()).thenReturn(authUser);
+		when(securityContextService.getAuthUserFirm()).thenReturn(authFirm);
 	}
 
 	/**
@@ -71,17 +75,17 @@ class AppointmentServiceImplTest {
 	 * Verifies that an employee only gets appointments assigned to them.
 	 */
 	@Test
-	void getAppointmentsTest_ForEmployee() {
+	void getEmployeeAppointmentsTest() {
 		authUser.setRole(UserRole.EMPLOYEE);
 
 		PageRequest pageRequest = PageRequest.of(0, 10);
 		Appointment appointment = Appointment.builder()
 			.id(1L)
 			.note("Employee Appointment")
-			.startTime("10:00")
-			.endTime("11:00")
-			.creator(authUser)
-			.taskedEmployee(authUser)
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.createdBy(authUser)
+			.employee(authUser)
 			.firm(authFirm)
 			.build();
 
@@ -104,16 +108,16 @@ class AppointmentServiceImplTest {
 	 * Verifies that a manager retrieves appointments for the entire firm.
 	 */
 	@Test
-	void getAppointmentsTest_ForManager() {
+	void getManagerAppointmentsTest() {
 		authUser.setRole(UserRole.MANAGER);
 
 		PageRequest pageRequest = PageRequest.of(0, 10);
 		Appointment appointment = Appointment.builder()
 			.id(2L)
 			.note("Manager Appointment")
-			.startTime("09:00")
-			.endTime("10:00")
-			.creator(authUser)
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.createdBy(authUser)
 			.firm(authFirm)
 			.build();
 
@@ -138,13 +142,16 @@ class AppointmentServiceImplTest {
 	 */
 	@Test
 	void createAppointmentTest() {
+		User mockUser = new User();
+		Client mockClient = new Client();
+		AppointmentType mockAppointmentType = new AppointmentType();
 		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
 			.note("New Appointment")
-			.startTime("12:00")
-			.endTime("13:00")
-			.taskedEmployeeId(200L)
-			.clientId(300L)
-			.appointmentTypeId(400L)
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.employee(mockUser)
+			.client(mockClient)
+			.appointmentType(mockAppointmentType)
 			.build();
 
 		User taskedEmployee = new User();
@@ -159,20 +166,20 @@ class AppointmentServiceImplTest {
 		when(appointmentTypeRepository.findById(400L)).thenReturn(Optional.of(appointmentType));
 
 		Appointment appointmentToCreate = requestDto.toModel();
-		appointmentToCreate.setCreator(authUser);
+		appointmentToCreate.setCreatedBy(authUser);
 		appointmentToCreate.setFirm(authFirm);
-		appointmentToCreate.setTaskedEmployee(taskedEmployee);
+		appointmentToCreate.setEmployee(taskedEmployee);
 		appointmentToCreate.setClient(client);
 		appointmentToCreate.setAppointmentType(appointmentType);
 
 		Appointment createdAppointment = Appointment.builder()
 			.id(1L)
 			.note("New Appointment")
-			.startTime("12:00")
-			.endTime("13:00")
-			.creator(authUser)
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.createdBy(authUser)
 			.firm(authFirm)
-			.taskedEmployee(taskedEmployee)
+			.employee(taskedEmployee)
 			.client(client)
 			.appointmentType(appointmentType)
 			.build();
@@ -182,11 +189,11 @@ class AppointmentServiceImplTest {
 		Appointment result = appointmentService.createAppointment(requestDto);
 
 		assertThat(result).isNotNull();
-		assertThat(result.getId()).isEqualTo(1L);
-		assertThat(result.getNote()).isEqualTo("New Appointment");
-		assertThat(result.getCreator()).isEqualTo(authUser);
+		assertThat(result.getId()).isEqualTo(createdAppointment.getId());
+		assertThat(result.getNote()).isEqualTo(createdAppointment.getNote());
+		assertThat(result.getCreatedBy()).isEqualTo(authUser);
 		assertThat(result.getFirm()).isEqualTo(authFirm);
-		assertThat(result.getTaskedEmployee()).isEqualTo(taskedEmployee);
+		assertThat(result.getEmployee()).isEqualTo(taskedEmployee);
 		assertThat(result.getClient()).isEqualTo(client);
 		assertThat(result.getAppointmentType()).isEqualTo(appointmentType);
 
@@ -202,12 +209,12 @@ class AppointmentServiceImplTest {
 		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
 			.id(1L)
 			.note("Updated Appointment")
-			.startTime("14:00")
-			.endTime("15:00")
+			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
 			.build();
 
 		Appointment appointmentToUpdate = requestDto.toModel();
-		appointmentToUpdate.setCreator(authUser);
+		appointmentToUpdate.setCreatedBy(authUser);
 		appointmentToUpdate.setFirm(authFirm);
 
 		when(appointmentRepository.update(any(Appointment.class))).thenReturn(appointmentToUpdate);
@@ -217,8 +224,8 @@ class AppointmentServiceImplTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getId()).isEqualTo(1L);
 		assertThat(result.getNote()).isEqualTo("Updated Appointment");
-		assertThat(result.getStartTime()).isEqualTo("14:00");
-		assertThat(result.getEndTime()).isEqualTo("15:00");
+		assertThat(result.getStartDateTime()).isEqualTo("2025-02-02 12:45");
+		assertThat(result.getEndDateTime()).isEqualTo("2025-02-02 13:45");
 
 		verify(appointmentRepository, times(1)).update(any(Appointment.class));
 	}

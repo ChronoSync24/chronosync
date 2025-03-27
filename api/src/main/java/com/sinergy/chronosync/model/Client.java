@@ -18,11 +18,17 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @Entity
 @SuperBuilder
-@Table(name = "clients")
+@Table(
+	name = "clients",
+	uniqueConstraints = @UniqueConstraint(
+		name = "uq_client_firm_identity",
+		columnNames = {"firm_id", "first_name", "last_name", "email", "phone"}
+	)
+)
 public class Client extends Person {
 
 	@JsonBackReference
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "firm_id")
+	@JoinColumn(name = "firm_id", nullable = false)
 	private Firm firm;
 }
