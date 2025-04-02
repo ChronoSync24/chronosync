@@ -1,8 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
-import com.sinergy.chronosync.exception.InvalidStateException;
-import com.sinergy.chronosync.exception.UserNotFoundException;
+import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.model.user.User;
@@ -44,6 +43,9 @@ class AppointmentTypeServiceTest {
 	private SecurityContext securityContext;
 
 	@Mock
+	private SecurityContextService securityContextService;
+
+	@Mock
 	private Authentication authentication;
 
 	@InjectMocks
@@ -59,6 +61,10 @@ class AppointmentTypeServiceTest {
 		when(securityContext.getAuthentication()).thenReturn(authentication);
 		when(authentication.getName()).thenReturn("testUser");
 		SecurityContextHolder.setContext(securityContext);
+
+		Firm firm = new Firm();
+		firm.setId(1L);
+		when(securityContextService.getAuthUserFirm()).thenReturn(firm);
 	}
 
 	/**
@@ -83,29 +89,7 @@ class AppointmentTypeServiceTest {
 		assertEquals(1, result.getTotalElements());
 		assertEquals("Test Appointment Type", result.getContent().getFirst().getName());
 
-		verify(userRepository, times(1)).findOne(Mockito.<Specification<User>>any());
 		verify(appointmentTypeRepository, times(1)).findAll(
-			Mockito.<Specification<AppointmentType>>any(),
-			eq(pageRequest)
-		);
-	}
-
-	/**
-	 * Tests the getUserAppointmentTypes method when the user is not found.
-	 */
-	@Test
-	void getUserAppointmentTypesUserNotFoundExceptionTest() {
-		when(userRepository.findOne(Mockito.<Specification<User>>any())).thenReturn(Optional.empty());
-		PageRequest pageRequest = PageRequest.of(0, 10);
-		UserNotFoundException thrownException = assertThrows(
-			UserNotFoundException.class,
-			() -> appointmentTypeService.getAppointmentTypes(pageRequest)
-		);
-
-		assertEquals("User not found", thrownException.getMessage());
-
-		verify(userRepository, times(1)).findOne(Mockito.<Specification<User>>any());
-		verify(appointmentTypeRepository, never()).findAll(
 			Mockito.<Specification<AppointmentType>>any(),
 			eq(pageRequest)
 		);
@@ -135,7 +119,6 @@ class AppointmentTypeServiceTest {
 		assertEquals(30, createdAppointmentType.getDurationMinutes());
 		assertEquals(200.0, createdAppointmentType.getPrice());
 
-		verify(userRepository, times(1)).findOne(Mockito.<Specification<User>>any());
 		verify(appointmentTypeRepository, times(1)).create(Mockito.any(AppointmentType.class));
 	}
 
@@ -162,8 +145,8 @@ class AppointmentTypeServiceTest {
 
 		when(appointmentTypeRepository.existsById(appointmentTypeId)).thenReturn(false);
 
-		InvalidStateException thrownException = assertThrows(
-			InvalidStateException.class,
+		EntityNotFoundException thrownException = assertThrows(
+			EntityNotFoundException.class,
 			() -> appointmentTypeService.deleteAppointmentType(appointmentTypeId)
 		);
 
@@ -183,8 +166,6 @@ class AppointmentTypeServiceTest {
 			.durationMinutes(60)
 			.price(100.0)
 			.build();
-
-		AppointmentType existingAppointmentType = getAppointmentType();
 
 		when(appointmentTypeRepository.update(Mockito.any(AppointmentType.class))).thenReturn(requestDto.toModel());
 

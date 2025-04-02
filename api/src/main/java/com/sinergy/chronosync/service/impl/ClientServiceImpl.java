@@ -6,7 +6,6 @@ import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.model.Client;
-import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.repository.ClientRepository;
 import com.sinergy.chronosync.service.SecurityContextService;
 import com.sinergy.chronosync.service.ClientService;
@@ -56,11 +55,9 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	@Transactional
 	public Client createClient(ClientRequestDTO requestDto) {
-		Firm authFirm = securityContextService.getAuthUserFirm();
-
 		Client client = requestDto.toModel();
-		client.setFirm(authFirm);
-
+		client.setFirm(securityContextService.getAuthUserFirm());
+		client.setCreatedBy(securityContextService.getAuthUser());
 		try {
 			return clientRepository.create(client);
 		} catch (DataIntegrityViolationException e) {
@@ -77,6 +74,7 @@ public class ClientServiceImpl implements ClientService {
 	 */
 	@Override
 	public Client updateClient(ClientRequestDTO requestDto) {
+		requestDto.setModifiedBy(securityContextService.getAuthUser());
 		return clientRepository.update(requestDto.toModel());
 	}
 

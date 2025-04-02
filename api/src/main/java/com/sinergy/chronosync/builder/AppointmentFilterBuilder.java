@@ -2,11 +2,13 @@ package com.sinergy.chronosync.builder;
 
 import com.sinergy.chronosync.model.Appointment;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Builder;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +26,13 @@ import java.util.List;
 public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 
 	private String note;
-	private String startTime;
-	private String endTime;
-	private String date;
+	private LocalDateTime startDateTime;
+	private LocalDateTime endDateTime;
 	private Long clientId;
 	private Long taskedEmployeeId;
 	private Long appointmentTypeId;
-	private Long creatorId;
+	private Long createdById;
+	private Long modifiedById;
 	private Long firmId;
 
 	/**
@@ -44,33 +46,36 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<Appointment> root) {
 		List<Predicate> predicates = new ArrayList<>();
 
-		if (startTime != null && !startTime.isEmpty()) {
-			predicates.add(criteriaBuilder.equal(root.get("startTime"), "%" + startTime + "%"));
+		if (startDateTime != null) {
+			predicates.add(criteriaBuilder.equal(root.get("startDateTime"), startDateTime));
 		}
-		if (endTime != null && !endTime.isEmpty()) {
-			predicates.add(criteriaBuilder.like(root.get("endTime"), "%" + endTime + "%"));
+		if (endDateTime != null) {
+			predicates.add(criteriaBuilder.equal(root.get("endDateTime"), endDateTime));
 		}
 		if (note != null && !note.isEmpty()) {
 			predicates.add(criteriaBuilder.like(root.get("note"), "%" + note + "%"));
 		}
-		if (date != null && !date.isEmpty()) {
-			predicates.add(criteriaBuilder.like(root.get("date"), "%" + date + "%"));
-		}
 		if (clientId != null) {
-			predicates.add(criteriaBuilder.equal(root.get("client").get("id"), clientId));
+			Path<Long> clientIdPath = root.get("client").get("id");
+			predicates.add(criteriaBuilder.equal(clientIdPath, clientId));
 		}
 		if (appointmentTypeId != null) {
-			predicates.add(criteriaBuilder.equal(root.get("appointmentType").get("id"), appointmentTypeId));
+			Path<Long> appointmentTypeIdPath = root.get("appointmentType").get("id");
+			predicates.add(criteriaBuilder.equal(appointmentTypeIdPath, appointmentTypeId));
 		}
 		if (taskedEmployeeId != null) {
-			predicates.add(criteriaBuilder.equal(root.get("taskedEmployee").get("id"), taskedEmployeeId));
+			Path<Long> taskedEmployeeIdPath = root.get("taskedEmployee").get("id");
+			predicates.add(criteriaBuilder.equal(taskedEmployeeIdPath, taskedEmployeeId));
 		}
-		if (creatorId != null) {
-			predicates.add(criteriaBuilder.equal(root.get("creator").get("id"), creatorId));
+		if (createdById != null) {
+			Path<Long> createdByIdPath = root.get("createdBy").get("id");
+			predicates.add(criteriaBuilder.equal(createdByIdPath, createdById));
 		}
 		if (firmId != null) {
-			predicates.add(criteriaBuilder.equal(root.get("firm").get("id"), firmId));
+			Path<Long> firmIdPath = root.get("firm").get("id");
+			predicates.add(criteriaBuilder.equal(firmIdPath, firmId));
 		}
+
 		return predicates;
 	}
 

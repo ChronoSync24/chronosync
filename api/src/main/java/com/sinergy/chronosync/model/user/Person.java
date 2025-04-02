@@ -19,7 +19,6 @@ public abstract class Person extends BaseEntity {
 
 	private String firstName;
 	private String lastName;
-	private String identificationNumber;
 	private String address;
 	private String phone;
 	private String email;

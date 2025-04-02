@@ -1,7 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
-import com.sinergy.chronosync.exception.InvalidStateException;
+import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.model.Firm;
@@ -36,6 +36,9 @@ class ClientServiceTest {
 	private ClientRepository clientRepository;
 
 	@Mock
+	private SecurityContextService securityContextService;
+
+	@Mock
 	private UserRepository userRepository;
 
 	@InjectMocks
@@ -57,6 +60,7 @@ class ClientServiceTest {
 
 		Firm firm = new Firm();
 		firm.setId(1L);
+		when(securityContextService.getAuthUserFirm()).thenReturn(firm);
 
 		User user = new User();
 		user.setUsername("testUser");
@@ -91,8 +95,7 @@ class ClientServiceTest {
 		assertEquals(1, result.getTotalElements(), "Should contain 1 client");
 		assertEquals("John", result.getContent().getFirst().getFirstName());
 
-		verify(clientRepository, times(1))
-			.findAll(any(Specification.class), any(Pageable.class));
+		verify(clientRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
 	}
 
 	/**
@@ -194,7 +197,7 @@ class ClientServiceTest {
 		Long clientId = 1L;
 		when(clientRepository.existsById(clientId)).thenReturn(false);
 
-		InvalidStateException thrownException = assertThrows(InvalidStateException.class, () ->
+		EntityNotFoundException thrownException = assertThrows(EntityNotFoundException.class, () ->
 			clientService.deleteClient(clientId));
 
 		assertEquals("Client not found", thrownException.getMessage());

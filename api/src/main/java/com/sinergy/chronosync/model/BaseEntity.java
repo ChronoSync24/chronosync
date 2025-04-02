@@ -37,17 +37,11 @@ public abstract class BaseEntity implements Serializable {
 	@JoinColumn(name = "modified_by")
 	private User modifiedBy;
 
-	@Column(name = "created_at", nullable = false, updatable = false)
-	private LocalDateTime created;
-
 	@Column(name = "modified_at")
 	private LocalDateTime modified;
 
-	@PrePersist
-	protected void onCreate() {
-		this.created = LocalDateTime.now(ZoneOffset.UTC);
-		this.modified = created;
-	}
+	@Column(name = "created_at", updatable = false)
+	private LocalDateTime created;
 
 	@PreUpdate
 	protected void onUpdate() {

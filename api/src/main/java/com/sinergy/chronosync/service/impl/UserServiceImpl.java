@@ -3,10 +3,13 @@ package com.sinergy.chronosync.service.impl;
 import com.sinergy.chronosync.dto.request.UserRequestDTO;
 import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.repository.UserRepository;
+import com.sinergy.chronosync.service.SecurityContextService;
 import com.sinergy.chronosync.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 /**
  * User service implementation.
@@ -17,6 +20,7 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final SecurityContextService securityContextService;
 
 	/**
 	 * Creates new user.
@@ -27,6 +31,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User create(UserRequestDTO request) {
 		User user = request.toModel(false);
+		user.setCreatedBy(securityContextService.getAuthUser());
+		user.setModified(LocalDateTime.now());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
 		User createdUser = userRepository.save(user);

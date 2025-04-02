@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -40,19 +42,15 @@ public class AppointmentFilterBuilderTest {
 	@Mock
 	private Path<String> notePath;
 	@Mock
-	private Path<String> startTimePath;
+	private Path<LocalDateTime> startTimePath;
 	@Mock
-	private Path<String> endTimePath;
-	@Mock
-	private Path<String> datePath;
+	private Path<LocalDateTime> endTimePath;
 	@Mock
 	private Path<Long> clientIdPath;
 	@Mock
 	private Path<Long> taskedEmployeeIdPath;
 	@Mock
 	private Path<Long> appointmentTypeIdPath;
-	@Mock
-	private Path<Long> creatorIdPath;
 	@Mock
 	private Path<Long> firmIdPath;
 
@@ -75,74 +73,51 @@ public class AppointmentFilterBuilderTest {
 	@Test
 	void toSpecificationTest() {
 		String note = "Test appointment";
-		String startTime = "10:00";
-		String endTime = "11:00";
-		String date = "2025-07-07";
+		LocalDateTime startDateTime = LocalDateTime.parse("2025-02-02T10:00");
+		LocalDateTime endDateTime = LocalDateTime.parse("2025-02-02T11:00");
 		Long clientId = 2L;
 		Long taskedEmployeeId = 3L;
 		Long appointmentTypeId = 4L;
-		Long creatorId = 5L;
 		Long firmId = 1L;
 
 		AppointmentFilterBuilder filterBuilder = AppointmentFilterBuilder.builder()
 			.note(note)
-			.startTime(startTime)
-			.endTime(endTime)
-			.date(date)
+			.startDateTime(startDateTime)
+			.endDateTime(endDateTime)
 			.clientId(clientId)
 			.taskedEmployeeId(taskedEmployeeId)
 			.appointmentTypeId(appointmentTypeId)
-			.creatorId(creatorId)
 			.firmId(firmId)
 			.build();
 
 		when(root.<String>get("note")).thenReturn(notePath);
-		when(root.<String>get("startTime")).thenReturn(startTimePath);
-		when(root.<String>get("endTime")).thenReturn(endTimePath);
-		when(root.<String>get("date")).thenReturn(datePath);
-		when(root.<Long>get("client")).thenReturn(clientIdPath);
-		when(root.<Long>get("taskedEmployee")).thenReturn(taskedEmployeeIdPath);
-		when(root.<Long>get("appointmentType")).thenReturn(appointmentTypeIdPath);
-		when(root.<Long>get("creator")).thenReturn(creatorIdPath);
-		when(root.<Long>get("firm")).thenReturn(firmIdPath);
-
-		when(criteriaBuilder.like(notePath, "%" + note + "%")).thenReturn(predicate);
-		when(criteriaBuilder.like(startTimePath, "%" + startTime + "%")).thenReturn(predicate);
-		when(criteriaBuilder.like(endTimePath, "%" + endTime + "%")).thenReturn(predicate);
-		when(criteriaBuilder.like(datePath, "%" + date + "%")).thenReturn(predicate);
-
-		when(firmIdPath.<Long>get("id")).thenReturn(firmIdPath);
-		when(criteriaBuilder.equal(firmIdPath, firmId)).thenReturn(predicate);
-
+		when(root.<LocalDateTime>get("startDateTime")).thenReturn(startTimePath);
+		when(root.<LocalDateTime>get("endDateTime")).thenReturn(endTimePath);
 		when(clientIdPath.<Long>get("id")).thenReturn(clientIdPath);
-		when(criteriaBuilder.equal(clientIdPath, clientId)).thenReturn(predicate);
-
 		when(taskedEmployeeIdPath.<Long>get("id")).thenReturn(taskedEmployeeIdPath);
-		when(criteriaBuilder.equal(taskedEmployeeIdPath, taskedEmployeeId)).thenReturn(predicate);
-
 		when(appointmentTypeIdPath.<Long>get("id")).thenReturn(appointmentTypeIdPath);
+		when(firmIdPath.<Long>get("id")).thenReturn(firmIdPath);
+
+		when(criteriaBuilder.equal(startTimePath, startDateTime)).thenReturn(predicate);
+		when(criteriaBuilder.equal(endTimePath, endDateTime)).thenReturn(predicate);
+		when(criteriaBuilder.equal(clientIdPath, clientId)).thenReturn(predicate);
+		when(criteriaBuilder.equal(taskedEmployeeIdPath, taskedEmployeeId)).thenReturn(predicate);
 		when(criteriaBuilder.equal(appointmentTypeIdPath, appointmentTypeId)).thenReturn(predicate);
-
-		when(creatorIdPath.<Long>get("id")).thenReturn(creatorIdPath);
-		when(criteriaBuilder.equal(creatorIdPath, creatorId)).thenReturn(predicate);
-
+		when(criteriaBuilder.equal(firmIdPath, firmId)).thenReturn(predicate);
+		when(criteriaBuilder.like(notePath, "%" + note + "%")).thenReturn(predicate);
 		when(criteriaBuilder.and(any(Predicate[].class))).thenReturn(predicate);
 
 		Specification<Appointment> spec = filterBuilder.toSpecification();
 		assertNotNull(spec);
+		spec.toPredicate(root, query, criteriaBuilder);
 
-		Predicate result = spec.toPredicate(root, query, criteriaBuilder);
-		assertNotNull(result);
-
-		verify(criteriaBuilder).like(notePath, "%" + note + "%");
-		verify(criteriaBuilder).like(startTimePath, "%" + startTime + "%");
-		verify(criteriaBuilder).like(endTimePath, "%" + endTime + "%");
-		verify(criteriaBuilder).like(datePath, "%" + date + "%");
+		verify(criteriaBuilder).equal(startTimePath, startDateTime);
+		verify(criteriaBuilder).equal(endTimePath, endDateTime);
 		verify(criteriaBuilder).equal(clientIdPath, clientId);
 		verify(criteriaBuilder).equal(taskedEmployeeIdPath, taskedEmployeeId);
 		verify(criteriaBuilder).equal(appointmentTypeIdPath, appointmentTypeId);
-		verify(criteriaBuilder).equal(creatorIdPath, creatorId);
 		verify(criteriaBuilder).equal(firmIdPath, firmId);
+		verify(criteriaBuilder).like(notePath, "%" + note + "%");
 		verify(criteriaBuilder).and(any(Predicate[].class));
 	}
 }

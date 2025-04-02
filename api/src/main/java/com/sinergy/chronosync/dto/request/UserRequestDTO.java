@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * User registration request data transfer object.
  */
@@ -44,7 +46,6 @@ public class UserRequestDTO {
 		User user = new User();
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
-		user.setIdentificationNumber(identificationNumber);
 		user.setAddress(address);
 		user.setPhone(phone);
 		user.setEmail(email);
@@ -53,7 +54,7 @@ public class UserRequestDTO {
 		user.setRole(role);
 		user.setIsEnabled(isEnabled);
 		user.setIsLocked(false);
-
+		user.setCreated(LocalDateTime.now());
 		return user;
 	}
 }

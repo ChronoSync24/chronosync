@@ -1,7 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.AppointmentRequestDTO;
-import com.sinergy.chronosync.exception.InvalidStateException;
+import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.model.Appointment;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
@@ -79,29 +79,43 @@ class AppointmentServiceImplTest {
 		authUser.setRole(UserRole.EMPLOYEE);
 
 		PageRequest pageRequest = PageRequest.of(0, 10);
-		Appointment appointment = Appointment.builder()
+
+		Appointment assignedAppointment = Appointment.builder()
 			.id(1L)
 			.note("Employee Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.createdBy(authUser)
 			.employee(authUser)
 			.firm(authFirm)
 			.build();
 
-		Page<Appointment> mockPage = new PageImpl<>(List.of(appointment), pageRequest, 1);
+		User otherEmployee = mock(User.class);
+		when(otherEmployee.getId()).thenReturn(999L);
 
+		Appointment notAssignedAppointment = Appointment.builder()
+			.id(2L)
+			.note("Other Employee's Appointment")
+			.startDateTime(LocalDateTime.parse("2025-02-03T10:00"))
+			.endDateTime(LocalDateTime.parse("2025-02-03T11:00"))
+			.createdBy(otherEmployee)
+			.employee(otherEmployee)
+			.firm(authFirm)
+			.build();
+
+		Page<Appointment> mockPage = new PageImpl<>(List.of(assignedAppointment), pageRequest, 1);
 		when(appointmentRepository.findAll(Mockito.<Specification<Appointment>>any(), eq(pageRequest))).thenReturn(mockPage);
 
 		Page<Appointment> result = appointmentService.getAppointments(pageRequest);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getTotalElements()).isEqualTo(1);
-		assertThat(result.getContent().get(0).getNote()).isEqualTo("Employee Appointment");
+		assertThat(result.getContent()).containsExactly(assignedAppointment);
+		assertThat(result.getContent()).doesNotContain(notAssignedAppointment);
 
-		verify(appointmentRepository, times(1)).findAll(Mockito.<Specification<Appointment>>any(),
-			eq(pageRequest));
+		verify(appointmentRepository, times(1)).findAll(Mockito.<Specification<Appointment>>any(), eq(pageRequest));
 	}
+
 
 	/**
 	 * Tests getAppointments for a manager.
@@ -110,18 +124,23 @@ class AppointmentServiceImplTest {
 	@Test
 	void getManagerAppointmentsTest() {
 		authUser.setRole(UserRole.MANAGER);
-
+		Firm mockFirm = mock(Firm.class);
+		mockFirm.setId(1L);
 		PageRequest pageRequest = PageRequest.of(0, 10);
 		Appointment appointment = Appointment.builder()
 			.id(2L)
 			.note("Manager Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.createdBy(authUser)
 			.firm(authFirm)
 			.build();
 
-		Page<Appointment> mockPage = new PageImpl<>(List.of(appointment), pageRequest, 1);
+		Appointment mockAppointment = mock(Appointment.class);
+		mockAppointment.setFirm(mockFirm);
+		mockAppointment.setNote("Manager Appointment");
+
+		Page<Appointment> mockPage = new PageImpl<>(List.of(appointment), pageRequest, 2);
 
 		when(appointmentRepository.findAll(Mockito.<Specification<Appointment>>any(),
 			eq(pageRequest))).thenReturn(mockPage);
@@ -144,15 +163,6 @@ class AppointmentServiceImplTest {
 	void createAppointmentTest() {
 		User mockUser = new User();
 		Client mockClient = new Client();
-		AppointmentType mockAppointmentType = new AppointmentType();
-		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
-			.note("New Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
-			.employee(mockUser)
-			.client(mockClient)
-			.appointmentType(mockAppointmentType)
-			.build();
 
 		User taskedEmployee = new User();
 		taskedEmployee.setId(200L);
@@ -161,22 +171,30 @@ class AppointmentServiceImplTest {
 		AppointmentType appointmentType = new AppointmentType();
 		appointmentType.setId(400L);
 
+		AppointmentType mockAppointmentType = new AppointmentType();
+		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
+			.note("New Appointment")
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
+			.employee(mockUser)
+			.client(mockClient)
+			.appointmentType(mockAppointmentType)
+			.createdBy(authUser)
+			.firm(authFirm)
+			.employee(taskedEmployee)
+			.client(client)
+			.appointmentType(appointmentType)
+			.build();
+
 		when(userRepository.findById(200L)).thenReturn(Optional.of(taskedEmployee));
 		when(clientRepository.findById(300L)).thenReturn(Optional.of(client));
 		when(appointmentTypeRepository.findById(400L)).thenReturn(Optional.of(appointmentType));
 
-		Appointment appointmentToCreate = requestDto.toModel();
-		appointmentToCreate.setCreatedBy(authUser);
-		appointmentToCreate.setFirm(authFirm);
-		appointmentToCreate.setEmployee(taskedEmployee);
-		appointmentToCreate.setClient(client);
-		appointmentToCreate.setAppointmentType(appointmentType);
-
 		Appointment createdAppointment = Appointment.builder()
 			.id(1L)
 			.note("New Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.createdBy(authUser)
 			.firm(authFirm)
 			.employee(taskedEmployee)
@@ -209,23 +227,21 @@ class AppointmentServiceImplTest {
 		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
 			.id(1L)
 			.note("Updated Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
+			.createdBy(authUser)
+			.firm(authFirm)
 			.build();
 
-		Appointment appointmentToUpdate = requestDto.toModel();
-		appointmentToUpdate.setCreatedBy(authUser);
-		appointmentToUpdate.setFirm(authFirm);
-
-		when(appointmentRepository.update(any(Appointment.class))).thenReturn(appointmentToUpdate);
+		when(appointmentRepository.update(any(Appointment.class))).thenReturn(requestDto.toModel());
 
 		Appointment result = appointmentService.updateAppointment(requestDto);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getId()).isEqualTo(1L);
 		assertThat(result.getNote()).isEqualTo("Updated Appointment");
-		assertThat(result.getStartDateTime()).isEqualTo("2025-02-02 12:45");
-		assertThat(result.getEndDateTime()).isEqualTo("2025-02-02 13:45");
+		assertThat(result.getStartDateTime()).isEqualTo("2025-02-02T12:45");
+		assertThat(result.getEndDateTime()).isEqualTo("2025-02-02T13:45");
 
 		verify(appointmentRepository, times(1)).update(any(Appointment.class));
 	}
@@ -251,12 +267,13 @@ class AppointmentServiceImplTest {
 	 */
 	@Test
 	void deleteAppointmentNotFoundTest() {
-		Long id = 1L;
-		when(appointmentRepository.existsById(id)).thenReturn(false);
+		Appointment mockAppointment = new Appointment();
+		mockAppointment.setId(1L);
+		when(appointmentRepository.existsById(mockAppointment.getId())).thenReturn(false);
 
-		assertThrows(InvalidStateException.class, () -> appointmentService.deleteAppointment(id));
+		assertThrows(EntityNotFoundException.class, () -> appointmentService.deleteAppointment(mockAppointment.getId()));
 
-		verify(appointmentRepository, times(1)).existsById(id);
+		verify(appointmentRepository, times(1)).existsById(mockAppointment.getId());
 		verify(appointmentRepository, never()).deleteById(anyLong());
 	}
 }

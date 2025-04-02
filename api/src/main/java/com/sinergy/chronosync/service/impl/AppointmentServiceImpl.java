@@ -46,7 +46,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 				.taskedEmployeeId(authUser.getId())
 				.build();
 		}
-
 		return appointmentRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}
 
@@ -60,6 +59,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 	public Appointment createAppointment(AppointmentRequestDTO requestDto) {
 		Appointment appointment = requestDto.toModel();
 		appointment.setFirm(securityContextService.getAuthUserFirm());
+		appointment.setCreatedBy(securityContextService.getAuthUser());
 		return appointmentRepository.create(appointment);
 	}
 
@@ -71,6 +71,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 	 */
 	@Override
 	public Appointment updateAppointment(AppointmentRequestDTO requestDto) {
+		requestDto.setModifiedBy(securityContextService.getAuthUser());
 		return appointmentRepository.update(requestDto.toModel());
 	}
 

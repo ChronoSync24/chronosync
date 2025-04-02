@@ -53,8 +53,8 @@ class AppointmentControllerTest {
 		Appointment appointment = Appointment.builder()
 			.id(1L)
 			.note("Test Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.build();
 		Page<Appointment> mockPage = new PageImpl<>(List.of(appointment), pageRequest, 1);
 
@@ -77,15 +77,15 @@ class AppointmentControllerTest {
 	void createAppointmentTest() {
 		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
 			.note("New Appointment")
-			.startDateTime("2025-02-02 12:45")
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.build();
 
 		Appointment createdAppointment = Appointment.builder()
 			.id(1L)
 			.note("New Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.build();
 
 		when(appointmentService.createAppointment(requestDto)).thenReturn(createdAppointment);
@@ -108,15 +108,15 @@ class AppointmentControllerTest {
 		AppointmentRequestDTO requestDto = AppointmentRequestDTO.builder()
 			.id(1L)
 			.note("Updated Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.build();
 
 		Appointment updatedAppointment = Appointment.builder()
 			.id(1L)
 			.note("Updated Appointment")
-			.startDateTime(LocalDateTime.parse("2025-02-02 12:45"))
-			.endDateTime(LocalDateTime.parse("2025-02-02 13:45"))
+			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
+			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.build();
 
 		when(appointmentService.updateAppointment(requestDto)).thenReturn(updatedAppointment);

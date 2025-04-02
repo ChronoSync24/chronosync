@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 /**
  * Service implementation for managing appointment types.
  */
@@ -52,7 +54,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	public AppointmentType createAppointmentType(AppointmentTypeRequestDTO requestDto) {
 		AppointmentType appointmentType = requestDto.toModel();
 		appointmentType.setFirm(securityContextService.getAuthUserFirm());
-
+		appointmentType.setCreatedBy(securityContextService.getAuthUser());
 		return appointmentTypeRepository.create(appointmentType);
 	}
 
@@ -66,6 +68,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 */
 	@Override
 	public AppointmentType updateAppointmentType(AppointmentTypeRequestDTO requestDto) {
+		requestDto.setModifiedBy(securityContextService.getAuthUser());
 		return appointmentTypeRepository.update(requestDto.toModel());
 	}
 
