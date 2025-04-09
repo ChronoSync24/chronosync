@@ -93,6 +93,10 @@ public class AppointmentFilterBuilderTest {
 		when(root.<String>get("note")).thenReturn(notePath);
 		when(root.<LocalDateTime>get("startDateTime")).thenReturn(startTimePath);
 		when(root.<LocalDateTime>get("endDateTime")).thenReturn(endTimePath);
+		when(root.<Long>get("client")).thenReturn(clientIdPath);
+		when(root.<Long>get("firm")).thenReturn(firmIdPath);
+		when(root.<Long>get("appointmentType")).thenReturn(appointmentTypeIdPath);
+		when(root.<Long>get("taskedEmployee")).thenReturn(taskedEmployeeIdPath);
 		when(clientIdPath.<Long>get("id")).thenReturn(clientIdPath);
 		when(taskedEmployeeIdPath.<Long>get("id")).thenReturn(taskedEmployeeIdPath);
 		when(appointmentTypeIdPath.<Long>get("id")).thenReturn(appointmentTypeIdPath);

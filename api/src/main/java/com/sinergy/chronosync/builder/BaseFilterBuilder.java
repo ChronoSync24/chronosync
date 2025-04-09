@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class BaseFilterBuilder<T> implements FilterBuilder<T> {
 
 	// Default page size: 10
-	private Pageable pageable = PageRequest.of(0, 10); // Default to page 0 with 10 items per page
+	private Pageable pageable = PageRequest.of(0, 10);
 
 	/**
 	 * Returns the current pageable object which defines the pagination information.
