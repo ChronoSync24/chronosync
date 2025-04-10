@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 /**
  * User service implementation.
  */
@@ -32,7 +30,6 @@ public class UserServiceImpl implements UserService {
 	public User create(UserRequestDTO request) {
 		User user = request.toModel(false);
 		user.setCreatedBy(securityContextService.getAuthUser());
-		user.setModified(LocalDateTime.now());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
 		User createdUser = userRepository.save(user);

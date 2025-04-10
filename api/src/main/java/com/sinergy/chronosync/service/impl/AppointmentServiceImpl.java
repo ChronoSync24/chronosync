@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 /**
  * Service implementation for managing appointments.
  */
@@ -39,11 +41,11 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 		if (authUser.getRole() == UserRole.MANAGER || authUser.getRole() == UserRole.ADMINISTRATOR) {
 			filterBuilder = AppointmentFilterBuilder.builder()
-				.firmId(securityContextService.getAuthUserFirm().getId())
+				.firm(securityContextService.getAuthUserFirm())
 				.build();
 		} else {
 			filterBuilder = AppointmentFilterBuilder.builder()
-				.taskedEmployeeId(authUser.getId())
+				.employee(securityContextService.getAuthUser())
 				.build();
 		}
 		return appointmentRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
@@ -72,6 +74,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 	@Override
 	public Appointment updateAppointment(AppointmentRequestDTO requestDto) {
 		requestDto.setModifiedBy(securityContextService.getAuthUser());
+		requestDto.setModified(LocalDateTime.now());
 		return appointmentRepository.update(requestDto.toModel());
 	}
 

@@ -6,10 +6,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 /**
@@ -47,12 +45,4 @@ public abstract class BaseEntity implements Serializable {
 	protected void onUpdate() {
 		this.modified = LocalDateTime.now(ZoneOffset.UTC);
 	}
-
-	/**
-	 * Retrieves a timestamp and converts to users local timezone.
-	 */
-	public static LocalDateTime convertToUserTimezone(LocalDateTime utcTime, ZoneId userZone) {
-		return utcTime.atZone(ZoneOffset.UTC).withZoneSameInstant(userZone).toLocalDateTime();
-	}
-
 }

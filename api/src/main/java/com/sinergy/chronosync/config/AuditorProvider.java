@@ -6,6 +6,13 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
 
+/**
+ * AuditorProvider is a Spring-managed component that implements {@link AuditorAware}
+ * to provide the current authenticated {@link User} for auditing purposes.
+ *
+ * <p>This class relies on a custom {@link SecurityContextService} to obtain the currently
+ * authenticated user from the application's security context.</p>
+ */
 @Component
 public class AuditorProvider implements AuditorAware<User> {
 

@@ -69,6 +69,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	@Override
 	public AppointmentType updateAppointmentType(AppointmentTypeRequestDTO requestDto) {
 		requestDto.setModifiedBy(securityContextService.getAuthUser());
+		requestDto.setModified(LocalDateTime.now());
 		return appointmentTypeRepository.update(requestDto.toModel());
 	}
 

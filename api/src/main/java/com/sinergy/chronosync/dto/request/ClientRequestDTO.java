@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -28,6 +27,7 @@ public class ClientRequestDTO {
 	private Long firmId;
 	private User createdBy;
 	private User modifiedBy;
+	private LocalDateTime modified;
 
 	/**
 	 * Creates and returns Client model from Data Transfer Object.
@@ -43,8 +43,6 @@ public class ClientRequestDTO {
 			client.setAddress(address);
 			client.setCreated(LocalDateTime.now());
 			client.setCreatedBy(createdBy);
-			client.setModifiedBy(modifiedBy);
-			client.setModified(LocalDateTime.now());
 			return client;
 	}
 
