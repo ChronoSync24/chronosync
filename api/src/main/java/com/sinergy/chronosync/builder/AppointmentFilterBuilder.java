@@ -52,25 +52,16 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 		addEqualPredicate(predicates, root, criteriaBuilder, "startDateTime", startDateTime);
 		addEqualPredicate(predicates, root, criteriaBuilder, "endDateTime", endDateTime);
 		addLikePredicate(predicates, root, criteriaBuilder, "note", note);
-
-		if (client != null) {
-			predicates.add(criteriaBuilder.equal(root.get("client"), client));
-		}
-		if (appointmentType != null) {
-			predicates.add(criteriaBuilder.equal(root.get("appointmentType"), appointmentType));
-		}
-		if (employee != null) {
-			predicates.add(criteriaBuilder.equal(root.get("taskedEmployee"), employee));
-		}
-		if (createdBy != null) {
-			predicates.add(criteriaBuilder.equal(root.get("createdBy"), createdBy));
-		}
-		if (firm != null) {
-			predicates.add(criteriaBuilder.equal(root.get("firm"), firm));
-		}
+		addEqualPredicate(predicates, root, criteriaBuilder, "client", client);
+		addEqualPredicate(predicates, root, criteriaBuilder, "appointmentType", appointmentType);
+		addEqualPredicate(predicates, root, criteriaBuilder, "taskedEmployee", employee);
+		addEqualPredicate(predicates, root, criteriaBuilder, "createdBy", createdBy);
+		addEqualPredicate(predicates, root, criteriaBuilder, "modifiedBy", modifiedBy);
+		addEqualPredicate(predicates, root, criteriaBuilder, "firm", firm);
 
 		return predicates;
 	}
+
 
 
 	/**
