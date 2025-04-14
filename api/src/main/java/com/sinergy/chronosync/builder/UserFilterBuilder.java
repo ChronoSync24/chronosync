@@ -14,7 +14,7 @@ import java.util.List;
  *
  * <p>This class extends the {@link BaseFilterBuilder} and implements the
  * filter criteria for user attributes such as ID, first name, last name,
- * identification number, address, phone, email, username, and user role.</p>
+ * address, phone, email, username, and user role.</p>
  *
  * <p>The builder uses the {@link Specification} interface to dynamically
  * create predicates based on the provided filter values. If a filter value is
@@ -26,7 +26,6 @@ public class UserFilterBuilder extends BaseFilterBuilder<User> {
 	private static final String ID = "id";
 	private static final String FIRST_NAME = "first_name";
 	private static final String LAST_NAME = "last_name";
-	private static final String IDENTIFICATION_NUMBER = "identification_number";
 	private static final String ADDRESS = "address";
 	private static final String PHONE = "phone";
 	private static final String EMAIL = "email";
@@ -36,7 +35,6 @@ public class UserFilterBuilder extends BaseFilterBuilder<User> {
 	private Long id;
 	private String firstName;
 	private String lastName;
-	private String identificationNumber;
 	private String address;
 	private String phone;
 	private String email;
@@ -61,7 +59,6 @@ public class UserFilterBuilder extends BaseFilterBuilder<User> {
 			addEqualPredicate(predicates, root, criteriaBuilder, ID, id);
 			addLikePredicate(predicates, root, criteriaBuilder, FIRST_NAME, firstName);
 			addLikePredicate(predicates, root, criteriaBuilder, LAST_NAME, lastName);
-			addLikePredicate(predicates, root, criteriaBuilder, IDENTIFICATION_NUMBER, identificationNumber);
 			addLikePredicate(predicates, root, criteriaBuilder, ADDRESS, address);
 			addLikePredicate(predicates, root, criteriaBuilder, PHONE, phone);
 			addLikePredicate(predicates, root, criteriaBuilder, EMAIL, email);

@@ -4,6 +4,7 @@ import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.service.SecurityContextService;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
+
 import java.util.Optional;
 
 /**

@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 /**
  * User registration request data transfer object.
  */
@@ -18,7 +16,6 @@ public class UserRequestDTO {
 
 	private String firstName;
 	private String lastName;
-	private String identificationNumber;
 	private String address;
 	private String phone;
 	private String email;

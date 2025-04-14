@@ -41,7 +41,7 @@ public class WebSecurityConfig {
 		"/api/v1/auth/logout",
 		"/api/v1/client/**",
 		"/api/v1/appointment/**",
-		"/api/v1/auth/validate-token",
+		"/api/v1/auth/validate-token"
 	);
 
 	private static final List<String> MANAGER_LIST_URL = List.of(

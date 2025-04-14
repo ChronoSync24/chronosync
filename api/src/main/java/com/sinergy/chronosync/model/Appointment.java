@@ -30,8 +30,8 @@ public class Appointment extends BaseEntity {
 	private String note;
 	private LocalDateTime startDateTime;
 	private LocalDateTime endDateTime;
-	private Boolean paidAppointment;
-	private Boolean attendedAppointment;
+	private Boolean isPaid;
+	private Boolean isAttended;
 
 	@JsonBackReference
 	@ManyToOne

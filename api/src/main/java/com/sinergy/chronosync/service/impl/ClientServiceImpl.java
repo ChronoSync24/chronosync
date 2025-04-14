@@ -7,16 +7,14 @@ import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.repository.ClientRepository;
-import com.sinergy.chronosync.service.SecurityContextService;
 import com.sinergy.chronosync.service.ClientService;
+import com.sinergy.chronosync.service.SecurityContextService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 /**
  * Service implementation for managing clients.
