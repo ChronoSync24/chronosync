@@ -1,38 +1,42 @@
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 if (!API_BASE_URL) {
-	throw new Error('REACT_APP_API_BASE_URL is not defined in the environment variables.');
+  throw new Error('VITE_API_BASE_URL is not defined in the environment variables.');
 }
 
 export interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
-	body?: Record<string, any> | string;
+  body?: Record<string, any> | string;
 }
 
 const getAuthToken = (): string | null => {
-	return localStorage.getItem('authToken');
+  return localStorage.getItem('authToken');
 };
 
 export const apiClient = async <T>(endpoint: string, { body, ...options }: ApiRequestOptions = {}): Promise<T> => {
-	const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
 
-	const token = getAuthToken();
+  const token = getAuthToken();
 
-	const headers = {
-		'Content-Type': 'application/json',
-		...(token && { Authorization: `Bearer ${token}` }),
-		...options.headers,
-	};
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  };
 
-	const response = await fetch(url, {
-		...options,
-		headers,
-		body: body ? (typeof body === 'string' ? body : JSON.stringify(body)) : undefined,
-	});
+  const response = await fetch(url, {
+    ...options,
+    headers,
+    body: body ? (typeof body === 'string' ? body : JSON.stringify(body)) : undefined,
+  });
 
-	if (!response.ok) {
-		const error = await response.text();
-		throw new Error(`API Error: ${response.status} - ${error}`);
-	}
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
 
-	return response.json();
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return null as T;
+  }
+
+  return response.json() as Promise<T>;
 };
