@@ -24,7 +24,6 @@ public class UserRequestDTO {
 	private String email;
 	private String password;
 	private UserRole role;
-	private User createdBy;
 
 	/**
 	 * Returns username combining first letter of the first name and full last name.
@@ -55,8 +54,6 @@ public class UserRequestDTO {
 		user.setRole(role);
 		user.setIsEnabled(isEnabled);
 		user.setIsLocked(false);
-		user.setCreated(LocalDateTime.now());
-		user.setCreatedBy(createdBy);
 		return user;
 	}
 }

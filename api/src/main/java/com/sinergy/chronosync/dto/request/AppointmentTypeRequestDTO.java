@@ -27,9 +27,6 @@ public class AppointmentTypeRequestDTO {
 	private Currency currency;
 	private String colorCode;
 	private Firm firm;
-	private User createdBy;
-	private User modifiedBy;
-	private LocalDateTime modified;
 
 	/**
 	 * Creates and returns AppointmentType model from Data Transfer Object.
@@ -45,9 +42,6 @@ public class AppointmentTypeRequestDTO {
 			.currency(currency)
 			.colorCode(colorCode)
 			.firm(firm)
-			.createdBy(createdBy)
-			.modifiedBy(modifiedBy)
-			.created(LocalDateTime.now())
 			.build();
 	}
 }

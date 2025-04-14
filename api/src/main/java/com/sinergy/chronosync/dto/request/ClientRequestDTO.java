@@ -25,9 +25,6 @@ public class ClientRequestDTO {
 	private String address;
 	private String identificationNumber;
 	private Long firmId;
-	private User createdBy;
-	private User modifiedBy;
-	private LocalDateTime modified;
 
 	/**
 	 * Creates and returns Client model from Data Transfer Object.
@@ -41,8 +38,6 @@ public class ClientRequestDTO {
 			client.setEmail(email);
 			client.setPhone(phone);
 			client.setAddress(address);
-			client.setCreated(LocalDateTime.now());
-			client.setCreatedBy(createdBy);
 			return client;
 	}
 

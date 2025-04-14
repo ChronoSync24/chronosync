@@ -17,6 +17,10 @@ export const create = async (request: AppointmentRequestDTO): Promise<Appointmen
         const response = await apiClient<Appointment>(`${ENDPOINT_PREFIX}/create`, {
             method: 'POST',
             body: request,
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json',
+            },
         });
 
         return response;
@@ -38,6 +42,10 @@ export const update = async (request: AppointmentRequestDTO): Promise<Appointmen
         const response = await apiClient<Appointment>(`${ENDPOINT_PREFIX}`, {
             method: 'PUT',
             body: request,
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json',
+            },
         });
 
         return response;

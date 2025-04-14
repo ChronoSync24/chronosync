@@ -28,9 +28,8 @@ public class AppointmentRequestDTO {
 	private User employee;
 	private Client client;
 	private Firm firm;
-	private User createdBy;
-	private User modifiedBy;
-	private LocalDateTime modified;
+	private Boolean attendedAppointment;
+	private Boolean paidAppointment;
 
 	/**
 	 * Creates and returns Appointment model from Data Transfer Object.
@@ -47,8 +46,8 @@ public class AppointmentRequestDTO {
 			.employee(employee)
 			.client(client)
 			.firm(firm)
-			.createdBy(createdBy)
-			.created(LocalDateTime.now())
+			.paidAppointment(paidAppointment)
+			.attendedAppointment(attendedAppointment)
 			.build();
 	}
 }

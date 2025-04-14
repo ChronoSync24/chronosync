@@ -1,11 +1,16 @@
 package com.sinergy.chronosync.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sinergy.chronosync.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -18,6 +23,7 @@ import java.time.ZoneOffset;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
+@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity implements Serializable {
 
 	@Id
@@ -25,24 +31,23 @@ public abstract class BaseEntity implements Serializable {
 	@Column(name = "id", updatable = false, nullable = false)
 	private Long id;
 
+	@CreatedDate
+	@Column(name = "created_at", updatable = false)
+	private LocalDateTime createdAt;
+
+	@LastModifiedDate
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
+
+	@JsonBackReference
 	@CreatedBy
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "created_by", updatable = false)
 	private User createdBy;
 
+	@JsonBackReference
 	@LastModifiedBy
-	@ManyToOne
-	@JoinColumn(name = "modified_by")
-	private User modifiedBy;
-
-	@Column(name = "modified_at")
-	private LocalDateTime modified;
-
-	@Column(name = "created_at", updatable = false)
-	private LocalDateTime created;
-
-	@PreUpdate
-	protected void onUpdate() {
-		this.modified = LocalDateTime.now(ZoneOffset.UTC);
-	}
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "updated_by")
+	private User updatedBy;
 }

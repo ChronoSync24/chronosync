@@ -85,7 +85,6 @@ class AppointmentServiceImplTest {
 			.note("Employee Appointment")
 			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
 			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
-			.createdBy(authUser)
 			.employee(authUser)
 			.firm(authFirm)
 			.build();
@@ -98,7 +97,6 @@ class AppointmentServiceImplTest {
 			.note("Other Employee's Appointment")
 			.startDateTime(LocalDateTime.parse("2025-02-03T10:00"))
 			.endDateTime(LocalDateTime.parse("2025-02-03T11:00"))
-			.createdBy(otherEmployee)
 			.employee(otherEmployee)
 			.firm(authFirm)
 			.build();
@@ -179,7 +177,6 @@ class AppointmentServiceImplTest {
 			.employee(mockUser)
 			.client(mockClient)
 			.appointmentType(mockAppointmentType)
-			.createdBy(authUser)
 			.firm(authFirm)
 			.employee(taskedEmployee)
 			.client(client)
@@ -229,7 +226,6 @@ class AppointmentServiceImplTest {
 			.note("Updated Appointment")
 			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
 			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
-			.createdBy(authUser)
 			.firm(authFirm)
 			.build();
 

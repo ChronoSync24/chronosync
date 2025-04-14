@@ -29,7 +29,6 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User create(UserRequestDTO request) {
 		User user = request.toModel(false);
-		user.setCreatedBy(securityContextService.getAuthUser());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
 		User createdUser = userRepository.save(user);

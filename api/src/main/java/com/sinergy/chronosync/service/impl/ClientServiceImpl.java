@@ -59,7 +59,6 @@ public class ClientServiceImpl implements ClientService {
 	public Client createClient(ClientRequestDTO requestDto) {
 		Client client = requestDto.toModel();
 		client.setFirm(securityContextService.getAuthUserFirm());
-		client.setCreatedBy(securityContextService.getAuthUser());
 		try {
 			return clientRepository.create(client);
 		} catch (DataIntegrityViolationException e) {
@@ -76,8 +75,6 @@ public class ClientServiceImpl implements ClientService {
 	 */
 	@Override
 	public Client updateClient(ClientRequestDTO requestDto) {
-		requestDto.setModifiedBy(securityContextService.getAuthUser());
-		requestDto.setModified(LocalDateTime.now());
 		return clientRepository.update(requestDto.toModel());
 	}
 

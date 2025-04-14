@@ -15,4 +15,9 @@ export interface Appointment extends BaseEntity {
     client?:  Client;
     appointmentType?: AppointmentType;
     firm?: Firm;
+    createdAt?: string;
+    updatedAt?: string;
+    createdBy?: User;
+    updatedBy?: User;
+
 }

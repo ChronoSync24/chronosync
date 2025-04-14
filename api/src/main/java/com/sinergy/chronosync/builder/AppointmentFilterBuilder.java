@@ -34,9 +34,9 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 	private Client client;
 	private User employee;
 	private AppointmentType appointmentType;
-	private User createdBy;
-	private User modifiedBy;
 	private Firm firm;
+	private Boolean paidAppointment;
+	private Boolean attendedAppointment;
 
 	/**
 	 * Builds a list of predicates based on the provided filter criteria for querying {@link Appointment} entities.
@@ -55,9 +55,9 @@ public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 		addEqualPredicate(predicates, root, criteriaBuilder, "client", client);
 		addEqualPredicate(predicates, root, criteriaBuilder, "appointmentType", appointmentType);
 		addEqualPredicate(predicates, root, criteriaBuilder, "taskedEmployee", employee);
-		addEqualPredicate(predicates, root, criteriaBuilder, "createdBy", createdBy);
-		addEqualPredicate(predicates, root, criteriaBuilder, "modifiedBy", modifiedBy);
 		addEqualPredicate(predicates, root, criteriaBuilder, "firm", firm);
+		addEqualPredicate(predicates, root, criteriaBuilder, "paidAppointment", paidAppointment);
+		addEqualPredicate(predicates, root, criteriaBuilder, "attendedAppointment", attendedAppointment);
 
 		return predicates;
 	}
