@@ -60,3 +60,5 @@ pnpm-debug.log*
 *.~*
 *.iml
 *.xml
+.idea/dataSources/cd97732f-9ff1-4d74-8426-6ed5506696ce/storage_v2/_src_/database/chrono-sync.hZdqXg.meta
+*.meta

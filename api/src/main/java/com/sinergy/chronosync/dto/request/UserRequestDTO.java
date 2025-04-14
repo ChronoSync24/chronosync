@@ -16,7 +16,6 @@ public class UserRequestDTO {
 
 	private String firstName;
 	private String lastName;
-	private String identificationNumber;
 	private String address;
 	private String phone;
 	private String email;
@@ -44,7 +43,6 @@ public class UserRequestDTO {
 		User user = new User();
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
-		user.setIdentificationNumber(identificationNumber);
 		user.setAddress(address);
 		user.setPhone(phone);
 		user.setEmail(email);
@@ -53,7 +51,6 @@ public class UserRequestDTO {
 		user.setRole(role);
 		user.setIsEnabled(isEnabled);
 		user.setIsLocked(false);
-
 		return user;
 	}
 }

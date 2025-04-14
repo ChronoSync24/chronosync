@@ -5,6 +5,7 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Abstract Person class.
@@ -13,11 +14,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 public abstract class Person extends BaseEntity {
 
 	private String firstName;
 	private String lastName;
-	private String identificationNumber;
 	private String address;
 	private String phone;
 	private String email;

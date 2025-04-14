@@ -1,26 +1,20 @@
 package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.ClientFilterBuilder;
-import com.sinergy.chronosync.builder.UserFilterBuilder;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
+import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.RepositoryException;
-import com.sinergy.chronosync.exception.UserNotFoundException;
 import com.sinergy.chronosync.model.Client;
-import com.sinergy.chronosync.model.Firm;
-import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.repository.ClientRepository;
-import com.sinergy.chronosync.repository.UserRepository;
 import com.sinergy.chronosync.service.ClientService;
+import com.sinergy.chronosync.service.SecurityContextService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 /**
  * Service implementation for managing clients.
@@ -30,7 +24,7 @@ import java.util.Optional;
 public class ClientServiceImpl implements ClientService {
 
 	private final ClientRepository clientRepository;
-	private final UserRepository userRepository;
+	private final SecurityContextService securityContextService;
 
 	/**
 	 * Retrieves all clients associated with the current user's firm.
@@ -43,11 +37,17 @@ public class ClientServiceImpl implements ClientService {
 	 */
 	@Override
 	public Page<Client> getClients(PageRequest pageRequest) {
-		return clientRepository.findAll(ClientFilterBuilder.hasFirm(getAuthUserFirm().getId()), pageRequest);
+		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
+			.firmId(securityContextService.getAuthUserFirm().getId())
+			.build();
+
+		filterBuilder.setPageable(pageRequest);
+
+		return clientRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}
 
 	/**
-	 * Creates a new client or updates an existing to associate it with the current user's firm.
+	 * Creates a new client associated with the current user's firm.
 	 *
 	 * @param requestDto {@link ClientRequestDTO} containing client details
 	 * @return {@link Client} representing the saved client
@@ -55,29 +55,12 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	@Transactional
 	public Client createClient(ClientRequestDTO requestDto) {
-		Firm authUserFirm = getAuthUserFirm();
-
-		Specification<Client> spec = ClientFilterBuilder.builder()
-			.firstName(requestDto.getFirstName())
-			.lastName(requestDto.getLastName())
-			.email(requestDto.getEmail())
-			.phone(requestDto.getPhone())
-			.build().toSpecification();
-
-		Optional<Client> existingClientOptional = clientRepository.findOne(spec);
-
-		if (existingClientOptional.isPresent()) {
-			Client existingClient = existingClientOptional.get();
-			if (!existingClient.getFirms().contains(authUserFirm)) {
-				existingClient.getFirms().add(authUserFirm);
-				authUserFirm.getClients().add(existingClient);
-			}
-			return clientRepository.update(existingClient);
-		} else {
-			Client client = requestDto.toModel();
-			client.getFirms().add(authUserFirm);
-			authUserFirm.getClients().add(client);
+		Client client = requestDto.toModel();
+		client.setFirm(securityContextService.getAuthUserFirm());
+		try {
 			return clientRepository.create(client);
+		} catch (DataIntegrityViolationException e) {
+			throw new RepositoryException("A client with the same details already exists for this firm.");
 		}
 	}
 
@@ -102,35 +85,8 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public void deleteClient(Long id) {
 		if (!clientRepository.existsById(id)) {
-			throw new InvalidStateException("Client not found");
+			throw new EntityNotFoundException("Client not found");
 		}
 		clientRepository.deleteById(id);
-	}
-
-	/**
-	 * Retrieves the authenticated user's associated firm.
-	 *
-	 * <p>This method extracts the currently authenticated username from the security context
-	 * and constructs a filter to query the user repository. If the user is found, their associated
-	 * firm is returned.
-	 *
-	 * @return the {@link Firm} associated with the authenticated user
-	 * @throws UserNotFoundException if no user is found with the authenticated username
-	 * @throws InvalidStateException if the user is not associated with any firm
-	 */
-	private Firm getAuthUserFirm() {
-		UserFilterBuilder filterBuilder = UserFilterBuilder.builder()
-			.username(SecurityContextHolder.getContext().getAuthentication().getName())
-			.build();
-
-		User user = userRepository.findOne(filterBuilder.toSpecification())
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		Firm firm = user.getFirm();
-		if (firm == null) {
-			throw new InvalidStateException("User is not associated with any firm.");
-		}
-
-		return firm;
 	}
 }

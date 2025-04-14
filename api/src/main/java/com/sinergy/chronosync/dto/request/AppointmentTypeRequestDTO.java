@@ -1,8 +1,8 @@
 package com.sinergy.chronosync.dto.request;
 
+import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.appointmentType.Currency;
-import com.sinergy.chronosync.model.Firm;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

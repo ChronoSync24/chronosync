@@ -50,9 +50,6 @@ public class UserFilterBuilderTest {
 	private Path<String> lastNamePath;
 
 	@Mock
-	private Path<String> identificationNumberPath;
-
-	@Mock
 	private Path<String> addressPath;
 
 	@Mock
@@ -96,7 +93,6 @@ public class UserFilterBuilderTest {
 		Long id = 1L;
 		String firstName = "John";
 		String lastName = "Doe";
-		String identificationNumber = "123456";
 		String address = "123 Main St";
 		String phone = "555-1234";
 		String email = "john.doe@example.com";
@@ -107,7 +103,6 @@ public class UserFilterBuilderTest {
 			.id(id)
 			.firstName(firstName)
 			.lastName(lastName)
-			.identificationNumber(identificationNumber)
 			.address(address)
 			.phone(phone)
 			.email(email)
@@ -118,7 +113,6 @@ public class UserFilterBuilderTest {
 		when(root.<Long>get("id")).thenReturn(idPath);
 		when(root.<String>get("first_name")).thenReturn(firstNamePath);
 		when(root.<String>get("last_name")).thenReturn(lastNamePath);
-		when(root.<String>get("identification_number")).thenReturn(identificationNumberPath);
 		when(root.<String>get("address")).thenReturn(addressPath);
 		when(root.<String>get("phone")).thenReturn(phonePath);
 		when(root.<String>get("email")).thenReturn(emailPath);
@@ -128,8 +122,6 @@ public class UserFilterBuilderTest {
 		when(criteriaBuilder.equal(idPath, id)).thenReturn(predicate);
 		when(criteriaBuilder.like(firstNamePath, "%" + firstName + "%")).thenReturn(predicate);
 		when(criteriaBuilder.like(lastNamePath, "%" + lastName + "%")).thenReturn(predicate);
-		when(criteriaBuilder.like(identificationNumberPath, "%" + identificationNumber + "%"))
-			.thenReturn(predicate);
 		when(criteriaBuilder.like(addressPath, "%" + address + "%")).thenReturn(predicate);
 		when(criteriaBuilder.like(phonePath, "%" + phone + "%")).thenReturn(predicate);
 		when(criteriaBuilder.like(emailPath, "%" + email + "%")).thenReturn(predicate);
@@ -146,7 +138,6 @@ public class UserFilterBuilderTest {
 		verify(criteriaBuilder).equal(idPath, id);
 		verify(criteriaBuilder).like(firstNamePath, "%" + firstName + "%");
 		verify(criteriaBuilder).like(lastNamePath, "%" + lastName + "%");
-		verify(criteriaBuilder).like(identificationNumberPath, "%" + identificationNumber + "%");
 		verify(criteriaBuilder).like(addressPath, "%" + address + "%");
 		verify(criteriaBuilder).like(phonePath, "%" + phone + "%");
 		verify(criteriaBuilder).like(emailPath, "%" + email + "%");

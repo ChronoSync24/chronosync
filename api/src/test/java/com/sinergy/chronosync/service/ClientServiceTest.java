@@ -1,7 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
-import com.sinergy.chronosync.exception.InvalidStateException;
+import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.model.Firm;
@@ -36,6 +36,9 @@ class ClientServiceTest {
 	private ClientRepository clientRepository;
 
 	@Mock
+	private SecurityContextService securityContextService;
+
+	@Mock
 	private UserRepository userRepository;
 
 	@InjectMocks
@@ -57,6 +60,7 @@ class ClientServiceTest {
 
 		Firm firm = new Firm();
 		firm.setId(1L);
+		when(securityContextService.getAuthUserFirm()).thenReturn(firm);
 
 		User user = new User();
 		user.setUsername("testUser");
@@ -71,11 +75,16 @@ class ClientServiceTest {
 	@Test
 	void getClientsTest() {
 		PageRequest pageRequest = PageRequest.of(0, 10);
-		ClientRequestDTO newClient = ClientRequestDTO.builder().id(1L).firstName("John").lastName("Doe").email("john@doe.com").phone("123-456-789").build();
+		ClientRequestDTO newClient = ClientRequestDTO.builder()
+			.firstName("John")
+			.lastName("Doe")
+			.email("john@doe.com")
+			.phone("123-456-789")
+			.build();
 
 		Firm firm = new Firm();
 		firm.setId(1L);
-		newClient.toModel().getFirms().add(firm);
+		newClient.toModel().setFirm(firm);
 		Page<Client> clients = new PageImpl<>(List.of(newClient.toModel()));
 
 		when(clientRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(clients);
@@ -105,6 +114,7 @@ class ClientServiceTest {
 			.lastName("Doe")
 			.email("john.doe@example.com")
 			.phone("123456789")
+			.firmId(firm.getId())
 			.build();
 
 		Client client = requestDto.toModel();
@@ -129,9 +139,15 @@ class ClientServiceTest {
 	 */
 	@Test
 	void updateClientTest() {
-		ClientRequestDTO requestDto = ClientRequestDTO.builder().id(1L).firstName("Jane").lastName("Doe").email("jane.doe@example.com").phone("987654321").build();
+		ClientRequestDTO requestDto = ClientRequestDTO.builder()
+			.firstName("Jane")
+			.lastName("Doe")
+			.email("jane.doe@example.com")
+			.phone("987654321")
+			.build();
 
-		when(clientRepository.update(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(clientRepository.update(any(Client.class)))
+			.thenAnswer(invocation -> invocation.getArgument(0));
 
 		Client updatedClient = clientService.updateClient(requestDto);
 
@@ -148,7 +164,12 @@ class ClientServiceTest {
 	 */
 	@Test
 	void updateClientNotFoundTest() {
-		ClientRequestDTO requestDto = ClientRequestDTO.builder().id(1L).firstName("Jane").lastName("Doe").email("john.doe@example.com").phone("987654321").build();
+		ClientRequestDTO requestDto = ClientRequestDTO.builder()
+			.firstName("Jane")
+			.lastName("Doe")
+			.email("john.doe@example.com")
+			.phone("987654321")
+			.build();
 
 		when(clientRepository.update(any(Client.class))).thenThrow(RepositoryException.class);
 
@@ -163,11 +184,8 @@ class ClientServiceTest {
 	@Test
 	void deleteClientTest() {
 		Long clientId = 1L;
-
 		when(clientRepository.existsById(clientId)).thenReturn(true);
-
 		clientService.deleteClient(clientId);
-
 		verify(clientRepository, times(1)).deleteById(clientId);
 	}
 
@@ -177,10 +195,10 @@ class ClientServiceTest {
 	@Test
 	void deleteClientNotFoundTest() {
 		Long clientId = 1L;
-
 		when(clientRepository.existsById(clientId)).thenReturn(false);
 
-		InvalidStateException thrownException = assertThrows(InvalidStateException.class, () -> clientService.deleteClient(clientId));
+		EntityNotFoundException thrownException = assertThrows(EntityNotFoundException.class, () ->
+			clientService.deleteClient(clientId));
 
 		assertEquals("Client not found", thrownException.getMessage());
 		verify(clientRepository, never()).deleteById(clientId);

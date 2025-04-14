@@ -26,12 +26,17 @@ class UserServiceTest {
 	@Mock
 	private PasswordEncoder passwordEncoder;
 
+	@Mock
+	private SecurityContextService securityContextService;
+
 	@InjectMocks
 	private UserServiceImpl userService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
+		User user = new User();
+		when(securityContextService.getAuthUser()).thenReturn(user);
 	}
 
 	/**
