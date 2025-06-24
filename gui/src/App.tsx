@@ -5,6 +5,8 @@ import { ThemeContext, ThemeProviderWrapper } from './theme/ThemeContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
+import DashboardLayoutBasic from './components/DashboardLayoutBasic';
+import { APP_ROUTES } from './routes';
 
 const themeClasses: Record<'light' | 'dark', string> = {
   light: '',
@@ -20,8 +22,20 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path='/' element={<LandingPage />} />
           <Route path='/login' element={<LoginPage />} />
-          <Route path='/home' element={<HomePage />} />
+          {APP_ROUTES.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={
+                <DashboardLayoutBasic>
+                  {route.element}
+                </DashboardLayoutBasic>
+              }
+            />
+          ))}
+
         </Routes>
+
       </BrowserRouter>
     </Box>
   );
