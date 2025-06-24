@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { Box, Typography, Card, CardContent, Theme } from '@mui/material';
 import BusinessIcon from '@mui/icons-material/Business';
 import GroupsIcon from '@mui/icons-material/Groups';
-import HandShakeIcon from '@mui/icons-material/HandShake';
+import HandshakeIcon from '@mui/icons-material/Handshake';
 
 interface PerksSectionProps {
   theme: Theme;
@@ -121,7 +121,7 @@ const PerksSection = forwardRef<HTMLDivElement, PerksSectionProps>(({ theme }, r
                   border: `1px solid ${theme.palette.background.default}`,
                   backgroundColor: theme.palette.background.default,
                 }}>
-                <HandShakeIcon sx={{ fontSize: '3.5rem' }} color='primary' />
+                <HandshakeIcon sx={{ fontSize: '3.5rem' }} color='primary' />
               </div>
             </div>
             <div className='mb-6'>

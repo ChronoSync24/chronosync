@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import { ThemeContext, ThemeProviderWrapper } from './theme/ThemeContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import HomePage from './pages/HomePage';
 import DashboardLayoutBasic from './components/DashboardLayoutBasic';
 import { APP_ROUTES } from './routes';
 
