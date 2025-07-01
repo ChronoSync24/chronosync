@@ -1,0 +1,62 @@
+/* DynamicForm.css */
+
+.dynamic-form-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+  }
+  
+  .dynamic-form {
+    background-color: #E6E6FA;
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 30px 0 30px rgba(0, 0, 0, 0.05);
+    max-width: 30rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .dynamic-form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: black;
+  }
+  
+  .dynamic-input {
+    background-color: white;
+    font-size: 1.125rem;
+    color: #6A5BCD !important;
+    height: 2.5rem;
+    width: 100%;
+  }
+
+  .dynamic-form-field {
+    margin-bottom: 1.5rem;
+  }
+  
+  .dynamic-form-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 1rem;
+    border-radius: 1rem;
+  }
+  
+  .dynamic-button-cancel {
+    border-radius: 0.75rem !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 6rem !important;
+    width: 50%;
+  }
+  
+  .dynamic-button-submit {
+    border-radius: 0.75rem !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 6rem !important;
+    width: 50%;
+  }
+  
