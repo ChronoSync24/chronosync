@@ -46,6 +46,16 @@ const Input: React.FC<CustomInputProps> = ({ className, ...props }) => {
             variant="outlined"
             fullWidth
             size="small"
+            InputProps={{
+                ...props.InputProps,
+                sx: {
+                    borderRadius: '8px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderRadius: '8px',
+                    },
+                    ...props.InputProps?.sx,
+                },
+            }}
             {...props}
         />
     );

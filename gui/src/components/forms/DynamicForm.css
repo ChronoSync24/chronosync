@@ -10,18 +10,21 @@
   
   .dynamic-form {
     background-color: #E6E6FA;
-    padding: 2.5rem;
-    border-radius: 1.5rem;
-    box-shadow: 30px 0 30px rgba(0, 0, 0, 0.05);
-    max-width: 30rem;
+    padding: 2.5rem 4.5rem;
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    max-width: 40rem !important;
+    width: 100%;
+    min-width: 0;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
   
   .dynamic-form-title {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
     text-align: center;
     color: black;
   }
@@ -32,10 +35,14 @@
     color: #6A5BCD !important;
     height: 2.5rem;
     width: 100%;
+    border-radius: 8px !important;
   }
 
   .dynamic-form-field {
     margin-bottom: 1.5rem;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
   
   .dynamic-form-buttons {
@@ -43,20 +50,44 @@
     justify-content: center;
     margin-top: 1rem;
     gap: 1rem;
-    border-radius: 1rem;
+    border-radius: 8px;
+    width: 100%;
   }
   
-  .dynamic-button-cancel {
-    border-radius: 0.75rem !important;
-    font-size: 1rem !important;
-    padding: 0.75rem 6rem !important;
-    width: 50%;
-  }
-  
+  .dynamic-button-cancel,
   .dynamic-button-submit {
-    border-radius: 0.75rem !important;
+    border-radius: 8px !important;
     font-size: 1rem !important;
-    padding: 0.75rem 6rem !important;
+    padding: 0.75rem 0 !important;
     width: 50%;
+    min-width: 0;
+    box-shadow: none !important;
+  }
+  
+  @media (max-width: 900px) {
+    .dynamic-form {
+      padding: 2rem 2rem;
+      max-width: 70vw !important;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .dynamic-form {
+      padding: 1.25rem 0.75rem;
+      max-width: 90vw !important;
+    }
+    .dynamic-form-title {
+      font-size: 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+    .dynamic-form-buttons {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .dynamic-button-cancel,
+    .dynamic-button-submit {
+      width: 100%;
+      padding: 0.75rem 0 !important;
+    }
   }
   

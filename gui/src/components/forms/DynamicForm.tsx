@@ -35,6 +35,7 @@ import {
     Select,
     MenuItem,
     FormControl,
+    FormHelperText,
 } from "@mui/material";
 
 /**
@@ -97,6 +98,9 @@ export default function DynamicForm({
         return defaultValues;
     });
 
+    // Track errors for each field
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     /**
      * Handles changes to any input/select field.
      * @param name - The field name
@@ -104,6 +108,7 @@ export default function DynamicForm({
      */
     const handleChange = (name: string, value: string) => {
         setForm((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error on change
     };
 
     /**
@@ -115,6 +120,25 @@ export default function DynamicForm({
             return acc;
         }, {} as Record<string, string>);
         setForm(resetValues);
+        setErrors({});
+    };
+
+    /**
+     * Validates the form fields.
+     * @returns {boolean} True if valid, false otherwise
+     */
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        fields.forEach((field) => {
+            const value = form[field.name] || "";
+            if (!value.trim()) {
+                newErrors[field.name] = "This field is required.";
+            } else if (value.length > 50) {
+                newErrors[field.name] = "Maximum 50 characters allowed.";
+            }
+        });
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     /**
@@ -123,23 +147,26 @@ export default function DynamicForm({
      */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(form);
+        if (validate()) {
+            onSubmit(form);
+        }
     };
 
     return (
         <div className="dynamic-form-container">
-            <form onSubmit={handleSubmit} className="dynamic-form">
+            <form onSubmit={handleSubmit} className="dynamic-form" noValidate>
                 {/* Form Title */}
                 <h2 className="dynamic-form-title">{title}</h2>
 
                 {/* Render each field based on its type */}
                 {fields.map((field) => {
                     const value = form[field.name];
+                    const error = errors[field.name];
 
                     if (field.type === "select") {
                         return (
                             <div key={field.name} className="dynamic-form-field">
-                                <FormControl fullWidth>
+                                <FormControl fullWidth error={!!error}>
                                     <Select
                                         value={value}
                                         onChange={(e) => handleChange(field.name, e.target.value as string)}
@@ -157,9 +184,9 @@ export default function DynamicForm({
                                             </MenuItem>
                                         ))}
                                     </Select>
+                                    {error && <FormHelperText>{error}</FormHelperText>}
                                 </FormControl>
                             </div>
-
                         );
                     }
 
@@ -173,6 +200,9 @@ export default function DynamicForm({
                                 value={value}
                                 onChange={(e) => handleChange(field.name, e.target.value)}
                                 className="dynamic-input"
+                                inputProps={{ maxLength: 50 }}
+                                error={!!error}
+                                helperText={error}
                             />
                         </div>
                     );

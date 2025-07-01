@@ -17,7 +17,8 @@ const SecondaryButton: React.FC<SecondaryButtonProps> = ({ children, sx, classNa
         backgroundColor: '#fff',
         color: '#6A5BCD',
         '&:hover': {
-          backgroundColor: '#e6e6fa',
+          backgroundColor: '#4A3F8F',
+          color: '#fff',
         },
         ...sx,
       }}
