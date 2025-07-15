@@ -64,6 +64,7 @@ export interface TableColumn {
   key: string;
   label: string;
   align?: 'left' | 'center' | 'right';
+  width?: string | number;
   render?: (value: any, row: any) => React.ReactNode;
 }
 
@@ -90,7 +91,11 @@ const ReactTable: React.FC<ReusableTableProps> = ({
           <TableHead>
             <StyledHeaderRow>
               {columns.map((column) => (
-                <TableCell key={column.key} align={column.align || 'left'}>
+                <TableCell 
+                  key={column.key} 
+                  align={column.align || 'left'}
+                  sx={{ width: column.width }}
+                >
                   {column.label}
                 </TableCell>
               ))}
@@ -104,7 +109,11 @@ const ReactTable: React.FC<ReusableTableProps> = ({
                 sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
               >
                 {columns.map((column) => (
-                  <TableCell key={column.key} align={column.align || 'left'}>
+                  <TableCell 
+                    key={column.key} 
+                    align={column.align || 'left'}
+                    sx={{ width: column.width }}
+                  >
                     {column.render ? column.render(row[column.key], row) : row[column.key]}
                   </TableCell>
                 ))}

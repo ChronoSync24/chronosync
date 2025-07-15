@@ -48,10 +48,12 @@ export default function DashboardLayoutBasic({ children }: DashboardLayoutBasicP
             <Box>
               <IconButton
                 sx={{
+                  borderRadius: '8px',
                   color: theme.palette.text.primary,
                   '&:hover': {
                     backgroundColor: theme.palette.action.hover,
                   },
+                  marginRight: '8px',
                 }}
               >
                 <AccountCircleIcon />
