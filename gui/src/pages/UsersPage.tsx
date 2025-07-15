@@ -236,6 +236,7 @@ const UsersPage: React.FC = () => {
       key: 'id',
       label: 'ID',
       align: 'left',
+      width: '80px',
     },
     {
       key: 'name',
