@@ -2,10 +2,16 @@ import React from 'react';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ScienceIcon from '@mui/icons-material/Science';
 import PeopleIcon from '@mui/icons-material/People';
+import EventIcon from '@mui/icons-material/Event';
+import BusinessIcon from '@mui/icons-material/Business';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { type Navigation } from '@toolpad/core/AppProvider';
 import HomePage from './pages/HomePage';
 import TestsPage from './pages/TestsPage';
 import UsersPage from './pages/UsersPage';
+import AppointmentTypePage from './pages/AppointmentTypePage';
+import ClientsPage from './pages/ClientsPage';
+import AppointmentPage from './pages/AppointmentPage';
 
 export interface AppRoute {
   path: string;
@@ -32,6 +38,24 @@ export const APP_ROUTES: AppRoute[] = [
     title: 'Users',
     icon: <PeopleIcon />,
     element: <UsersPage />,
+  },
+  {
+    path: '/appointment-types',
+    title: 'Appointment Types',
+    icon: <EventIcon />,
+    element: <AppointmentTypePage />,
+  },
+  {
+    path: '/clients',
+    title: 'Clients',
+    icon: <BusinessIcon />,
+    element: <ClientsPage />,
+  },
+  {
+    path: '/appointments',
+    title: 'Appointments',
+    icon: <CalendarTodayIcon />,
+    element: <AppointmentPage />,
   }
 ];
 
