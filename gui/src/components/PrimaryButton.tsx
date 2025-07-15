@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button, ButtonProps } from '@mui/material';
 
-interface PrimaryButtonProps extends ButtonProps {
+interface PrimaryButtonProps extends Omit<ButtonProps, 'children'> {
   className?: string;
+  children?: React.ReactNode;
 }
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({ children, sx, className, ...props }) => {
