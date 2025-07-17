@@ -6,9 +6,14 @@ import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { AppointmentType } from '../models/appointmentType/AppointmentType';
 import { Currency } from '../models/appointmentType/Currency';
+import FormOverlay from '../components/forms/FormOverlay';
+import DynamicForm from '../components/forms/DynamicForm';
+import { appointmentTypeFormFields } from '../components/forms/FieldConfig';
+import { OverlayContext } from '../App';
 
 const AppointmentTypePage: React.FC = () => {
   const theme: Theme = useTheme();
+  const overlay = React.useContext(OverlayContext);
 
   // Sample data - replace with real data from your API
   const [appointmentTypes, setAppointmentTypes] = React.useState<AppointmentType[]>([
@@ -162,6 +167,22 @@ const AppointmentTypePage: React.FC = () => {
     setIsFiltersOpen(!isFiltersOpen);
   };
 
+  // Add handler for form submit
+  const handleFormSubmit = (formData: Record<string, string>) => {
+    setAppointmentTypes(prev => [
+      ...prev,
+      {
+        id: prev.length ? Math.max(...prev.map(a => a.id)) + 1 : 1,
+        name: formData.name,
+        durationMinutes: Number(formData.duration),
+        price: Number(formData.price),
+        colorCode: formData.color,
+        currency: formData.currency as Currency,
+      }
+    ]);
+    overlay.close();
+  };
+
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
@@ -287,7 +308,17 @@ const AppointmentTypePage: React.FC = () => {
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.secondary.main}`,
               }
-            }}>
+            }}
+            onClick={() => overlay.open(
+              <DynamicForm
+                title="Create Appointment Type"
+                fields={appointmentTypeFormFields}
+                onSubmit={handleFormSubmit}
+                onCancel={overlay.close}
+                noContainer={true}
+              />
+            )}
+          >
             <AddIcon fontSize='medium' />
           </IconButton>
         </Box>
