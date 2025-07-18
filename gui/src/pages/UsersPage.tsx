@@ -4,9 +4,13 @@ import ReactTable, { TableColumn } from '../components/ReactTable';
 import Filters, { FilterField } from '../components/Filters';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import { OverlayContext } from '../App';
+import DynamicForm from '../components/forms/DynamicForm';
+import { userFormFields } from '../components/forms/FieldConfig';
 
 const UsersPage: React.FC = () => {
   const theme: Theme = useTheme();
+  const overlay = React.useContext(OverlayContext);
 
   // Sample data - replace with real data from your API
   const [users, setUsers] = React.useState([
@@ -88,6 +92,19 @@ const UsersPage: React.FC = () => {
   const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
   const [filterValues, setFilterValues] = React.useState<Record<string, any>>({});
   const [filteredUsers, setFilteredUsers] = React.useState(users);
+  // Update editingUser type to match user object
+  const [editingUser, setEditingUser] = React.useState<{
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    status: string;
+    department: string;
+    age: number;
+    joinDate: string;
+    salary: number;
+    location: string;
+  } | null>(null);
 
   // Define filter fields for this page - more filters for testing
   const filterFields: FilterField[] = [
@@ -216,7 +233,48 @@ const UsersPage: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    console.log('Edit user:', id);
+    const user = users.find(u => u.id === id);
+    if (user) {
+      setEditingUser(user);
+      overlay.open(
+        <DynamicForm
+          title="Edit User"
+          fields={userFormFields}
+          initialValues={Object.fromEntries(Object.entries(user).map(([k, v]) => [k, String(v)]))}
+          onSubmit={handleEditFormSubmit}
+          onCancel={() => {
+            setEditingUser(null);
+            overlay.close();
+          }}
+          noContainer={true}
+        />
+      );
+    }
+  };
+
+  // Update handleEditFormSubmit to use the correct type
+  const handleEditFormSubmit = (formData: any) => {
+    setUsers((prev: any[]) =>
+      prev.map(u =>
+        u.id === editingUser?.id
+          ? {
+              ...u,
+              name: formData.name,
+              email: formData.email,
+              role: formData.role,
+              status: formData.status,
+              department: formData.department,
+              location: formData.location,
+              age: u.age,
+              joinDate: u.joinDate,
+              salary: u.salary,
+              id: u.id
+            }
+          : u
+      )
+    );
+    setEditingUser(null);
+    overlay.close();
   };
 
   const handleFilterChange = (key: string, value: any) => {
@@ -227,8 +285,23 @@ const UsersPage: React.FC = () => {
     setFilterValues({});
   };
 
-  const toggleFilters = () => {
-    setIsFiltersOpen(!isFiltersOpen);
+  const handleFormSubmit = (formData: Record<string, string>) => {
+    setUsers(prev => [
+      ...prev,
+      {
+        id: prev.length ? Math.max(...prev.map(u => u.id)) + 1 : 1,
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        status: formData.status,
+        department: formData.department,
+        location: formData.location,
+        age: 0,
+        joinDate: new Date().toISOString().split('T')[0],
+        salary: 0,
+      }
+    ]);
+    overlay.close();
   };
 
   const columns: TableColumn[] = [
@@ -295,6 +368,11 @@ const UsersPage: React.FC = () => {
     },
   ];
 
+  // Restore the toggleFilters function if missing
+  const toggleFilters = () => {
+    setIsFiltersOpen(!isFiltersOpen);
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -325,7 +403,17 @@ const UsersPage: React.FC = () => {
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.secondary.main}`,
               }
-          }}>
+          }}
+          onClick={() => overlay.open(
+            <DynamicForm
+              title="Create User"
+              fields={userFormFields}
+              onSubmit={handleFormSubmit}
+              onCancel={overlay.close}
+              noContainer={true}
+            />
+          )}
+          >
             <AddIcon fontSize='medium' />
           </IconButton>
         </Box>

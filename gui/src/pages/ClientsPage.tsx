@@ -5,9 +5,13 @@ import Filters, { FilterField } from '../components/Filters';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { Client } from '../models/Client';
+import { useOverlay } from '../hooks/useOverlay';
+import DynamicForm from '../components/forms/DynamicForm';
+import { clientFormFields } from '../components/forms/FieldConfig';
 
 const ClientsPage: React.FC = () => {
   const theme: Theme = useTheme();
+  const overlay = useOverlay();
 
   // Sample data - replace with real data from your API
   const [clients, setClients] = React.useState<Client[]>([
@@ -73,6 +77,7 @@ const ClientsPage: React.FC = () => {
   const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
   const [filterValues, setFilterValues] = React.useState<Record<string, any>>({});
   const [filteredClients, setFilteredClients] = React.useState(clients);
+  const [editingClient, setEditingClient] = React.useState<Client | null>(null);
 
   // Define filter fields for this page
   const filterFields: FilterField[] = [
@@ -137,7 +142,42 @@ const ClientsPage: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    console.log('Edit client:', id);
+    const client = clients.find(c => c.id === id);
+    if (client) {
+      setEditingClient(client);
+      overlay.open(
+        <DynamicForm
+          title="Edit Client"
+          fields={clientFormFields}
+          initialValues={Object.fromEntries(Object.entries(client).map(([k, v]) => [k, String(v)]))}
+          onSubmit={handleEditFormSubmit}
+          onCancel={() => {
+            setEditingClient(null);
+            overlay.close();
+          }}
+          noContainer={true}
+        />
+      );
+    }
+  };
+
+  const handleEditFormSubmit = (formData: Record<string, string>) => {
+    setClients(prev =>
+      prev.map(c =>
+        c.id === editingClient?.id
+          ? {
+              ...c,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              email: formData.email,
+              phone: formData.phone,
+              id: c.id // ensure id is preserved as number
+            }
+          : c
+      )
+    );
+    setEditingClient(null);
+    overlay.close();
   };
 
   const handleFilterChange = (key: string, value: any) => {
@@ -155,6 +195,20 @@ const ClientsPage: React.FC = () => {
   const formatPhone = (phone: string) => {
     // Simple phone formatting - you can enhance this based on your needs
     return phone;
+  };
+
+  const handleFormSubmit = (formData: Record<string, string>) => {
+    setClients(prev => [
+      ...prev,
+      {
+        id: prev.length ? Math.max(...prev.map(c => c.id)) + 1 : 1,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+      }
+    ]);
+    overlay.close();
   };
 
   const columns: TableColumn[] = [
@@ -230,7 +284,8 @@ const ClientsPage: React.FC = () => {
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.secondary.main}`,
               }
-          }}>
+            }}
+          >
             <FilterAltOutlinedIcon fontSize='medium' />
           </IconButton>
           <IconButton 
@@ -242,7 +297,17 @@ const ClientsPage: React.FC = () => {
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.secondary.main}`,
               }
-          }}>
+            }}
+            onClick={() => overlay.open(
+              <DynamicForm
+                title="Create Client"
+                fields={clientFormFields}
+                onSubmit={handleFormSubmit}
+                onCancel={overlay.close}
+                noContainer={true}
+              />
+            )}
+          >
             <AddIcon fontSize='medium' />
           </IconButton>
         </Box>

@@ -71,6 +71,7 @@ const AppointmentTypePage: React.FC = () => {
   const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
   const [filterValues, setFilterValues] = React.useState<Record<string, any>>({});
   const [filteredAppointmentTypes, setFilteredAppointmentTypes] = React.useState(appointmentTypes);
+  const [editingAppointmentType, setEditingAppointmentType] = React.useState<AppointmentType | null>(null);
 
   // Define filter fields for this page
   const filterFields: FilterField[] = [
@@ -152,7 +153,48 @@ const AppointmentTypePage: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    console.log('Edit appointment type:', id);
+    const item = appointmentTypes.find(a => a.id === id);
+    if (item) {
+      setEditingAppointmentType(item);
+      const initialValues = {
+        ...Object.fromEntries(Object.entries(item).map(([k, v]) => [k, String(v)])),
+        duration: String(item.durationMinutes),
+        color: item.colorCode,
+      };
+      overlay.open(
+        <DynamicForm
+          title="Edit Appointment Type"
+          fields={appointmentTypeFormFields}
+          initialValues={initialValues}
+          onSubmit={handleEditFormSubmit}
+          onCancel={() => {
+            setEditingAppointmentType(null);
+            overlay.close();
+          }}
+          noContainer={true}
+        />
+      );
+    }
+  };
+
+  const handleEditFormSubmit = (formData: Record<string, string>) => {
+    setAppointmentTypes(prev =>
+      prev.map(a =>
+        a.id === editingAppointmentType?.id
+          ? {
+              ...a,
+              name: formData.name,
+              durationMinutes: Number(formData.duration),
+              price: Number(formData.price),
+              colorCode: formData.color,
+              currency: Currency[formData.currency as keyof typeof Currency],
+              id: a.id // ensure id is preserved as number
+            }
+          : a
+      )
+    );
+    setEditingAppointmentType(null);
+    overlay.close();
   };
 
   const handleFilterChange = (key: string, value: any) => {
