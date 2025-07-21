@@ -9,7 +9,10 @@ export interface SelectFieldProps {
   value: string;
   onChange: (value: string) => void;
   options?: string[];
-  asyncOptions?: (input: string, page?: number) => Promise<{ options: string[] }>;
+  asyncOptions?: (
+    input: string,
+    page?: number
+  ) => Promise<{ options: string[] }>;
   loading?: boolean;
   disabled?: boolean;
   className?: string;
@@ -90,7 +93,9 @@ const SelectField: React.FC<SelectFieldProps> = ({
             ...params.InputProps,
             endAdornment: (
               <>
-                {loading ? <CircularProgress color='inherit' size={18} /> : null}
+                {loading ?
+                  <CircularProgress color='inherit' size={18} />
+                : null}
                 {params.InputProps.endAdornment}
               </>
             ),
@@ -101,4 +106,4 @@ const SelectField: React.FC<SelectFieldProps> = ({
   );
 };
 
-export default SelectField; 
+export default SelectField;

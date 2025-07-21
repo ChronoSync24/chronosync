@@ -5,8 +5,8 @@
  *
  */
 
-import React from "react";
-import TextField, { TextFieldProps } from "@mui/material/TextField";
+import React from 'react';
+import TextField, { TextFieldProps } from '@mui/material/TextField';
 
 /**
  * Props for the Input component.
@@ -28,15 +28,15 @@ const Input: React.FC<CustomInputProps> = ({ className, ...props }) => {
   return (
     <TextField
       className={className}
-      variant="outlined"
+      variant='outlined'
       fullWidth
-      size="small"
+      size='small'
       InputProps={{
         ...props.InputProps,
         sx: {
-          borderRadius: "8px",
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderRadius: "8px",
+          borderRadius: '8px',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderRadius: '8px',
           },
           ...props.InputProps?.sx,
         },

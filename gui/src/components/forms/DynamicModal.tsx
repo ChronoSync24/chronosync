@@ -140,10 +140,13 @@ export default function DynamicForm({
       handleReset();
     } else {
       setTouched(
-        fields.reduce((acc, field) => {
-          acc[field.name] = true;
-          return acc;
-        }, {} as Record<string, boolean>)
+        fields.reduce(
+          (acc, field) => {
+            acc[field.name] = true;
+            return acc;
+          },
+          {} as Record<string, boolean>
+        )
       );
     }
   };
