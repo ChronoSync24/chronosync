@@ -1,6 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentTypeRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.Firm;
@@ -57,7 +58,7 @@ class AppointmentTypeServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		
+
 		when(securityContext.getAuthentication()).thenReturn(authentication);
 		when(authentication.getName()).thenReturn("testUser");
 		SecurityContextHolder.setContext(securityContext);
@@ -83,7 +84,9 @@ class AppointmentTypeServiceTest {
 		when(appointmentTypeRepository.findAll(Mockito.<Specification<AppointmentType>>any(), eq(pageRequest)))
 			.thenReturn(appointmentTypes);
 
-		Page<AppointmentType> result = appointmentTypeService.getAppointmentTypes(pageRequest);
+        PaginatedAppointmentTypeRequestDTO paginatedRequest = new PaginatedAppointmentTypeRequestDTO();
+
+		Page<AppointmentType> result = appointmentTypeService.getAppointmentTypes(paginatedRequest);
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
