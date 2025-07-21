@@ -7,20 +7,22 @@
  * @module DynamicForm
  */
 
-import React, { useState, useCallback } from 'react';
-import Input from '../forms/Input';
+import React, { useState, useCallback, useEffect } from 'react';
+import Input from './Input';
 import PrimaryButton from '../PrimaryButton';
 import SecondaryButton from '../SecondaryButton';
-import './DynamicForm.css';
+import './DynamicModal.css';
 import {
   Select,
   MenuItem,
   FormControl,
   FormHelperText,
   CircularProgress,
+  Dialog,
+  DialogProps,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-import { FieldConfig } from '../forms/FieldConfig';
+import { FieldConfig } from './FieldConfig';
 
 function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
   let timeout: number;
@@ -36,6 +38,9 @@ type DynamicFormProps = {
   initialValues?: Record<string, string>;
   onSubmit: (formData: Record<string, string>) => void;
   onCancel?: () => void;
+  open: boolean;
+  onClose: () => void;
+  maxWidth?: DialogProps['maxWidth'];
 };
 
 export default function DynamicForm({
@@ -44,6 +49,9 @@ export default function DynamicForm({
   initialValues = {},
   onSubmit,
   onCancel,
+  open,
+  onClose,
+  maxWidth = 'sm',
 }: DynamicFormProps) {
   const [form, setForm] = useState<Record<string, string>>(() => {
     const defaultValues: Record<string, string> = {};
@@ -60,6 +68,16 @@ export default function DynamicForm({
   );
   const [loadingAsync, setLoadingAsync] = useState<Record<string, boolean>>({});
 
+  useEffect(() => {
+    const defaultValues: Record<string, string> = {};
+    fields.forEach((field: FieldConfig) => {
+      defaultValues[field.name] = initialValues[field.name] || '';
+    });
+    setForm(defaultValues);
+    setErrors({});
+    setTouched({});
+  }, [initialValues, fields]);
+
   // fetch for async dropdowns
   const fetchAsyncOptions = useCallback(
     debounce(async (field: FieldConfig, input: string) => {
@@ -75,77 +93,58 @@ export default function DynamicForm({
     []
   );
 
-  /**
-   * Handles changes to any input/select field.
-   * @param name - The field name
-   * @param value - The new value
-   */
   const handleChange = (name: string, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' })); // Clear error on change
   };
 
-  /**
-   * Handles blur event to mark field as touched
-   */
   const handleBlur = (name: string) => {
     setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
-  /**
-   * Resets the form to its initial values.
-   */
   const handleReset = () => {
     const resetValues = fields.reduce(
       (acc: Record<string, string>, field: FieldConfig) => {
         acc[field.name] = initialValues[field.name] || '';
         return acc;
       },
-      {} as Record<string, string>
+      {}
     );
     setForm(resetValues);
     setErrors({});
     setTouched({});
   };
 
-  /**
-   * Validates the form fields using the validation property in FieldConfig.
-   * @returns {boolean} True if valid, false otherwise
-   */
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    fields.forEach((field: FieldConfig) => {
-      const value = form[field.name] || '';
-      const v = field.validation;
-      if (v?.required && !value.trim()) {
-        newErrors[field.name] = 'This field is required.';
-      } else if (v?.minLength && value.length < v.minLength) {
-        newErrors[field.name] = `Minimum ${v.minLength} characters.`;
-      } else if (v?.maxLength && value.length > v.maxLength) {
-        newErrors[field.name] = `Maximum ${v.maxLength} characters allowed.`;
-      } else if (v?.pattern && !new RegExp(v.pattern).test(value)) {
-        newErrors[field.name] = 'Invalid format.';
-      } else if (v?.custom) {
-        const customError = v.custom(value);
-        if (customError) newErrors[field.name] = customError;
+    fields.forEach((field) => {
+      if (field.validation?.required && !form[field.name]) {
+        newErrors[field.name] = 'Required';
+      }
+      if (
+        field.validation?.maxLength &&
+        form[field.name] &&
+        form[field.name].length > field.validation.maxLength
+      ) {
+        newErrors[field.name] = `Max ${field.validation.maxLength} chars`;
       }
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  /**
-   * Handles form submission, prevents default, and calls onSubmit with form data.
-   * @param e - The form event
-   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mark all as touched for error display
-    const allTouched: Record<string, boolean> = {};
-    fields.forEach((f) => (allTouched[f.name] = true));
-    setTouched(allTouched);
     if (validate()) {
       onSubmit(form);
+      handleReset();
+    } else {
+      setTouched(
+        fields.reduce((acc, field) => {
+          acc[field.name] = true;
+          return acc;
+        }, {} as Record<string, boolean>)
+      );
     }
   };
 
@@ -157,7 +156,6 @@ export default function DynamicForm({
     }
   };
 
-  // Render a field based on its type and config
   const renderField = (field: FieldConfig) => {
     const value = form[field.name];
     const error = touched[field.name] && errors[field.name];
@@ -280,5 +278,9 @@ export default function DynamicForm({
     </form>
   );
 
-  return formContent;
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth={maxWidth} fullWidth>
+      {formContent}
+    </Dialog>
+  );
 }
