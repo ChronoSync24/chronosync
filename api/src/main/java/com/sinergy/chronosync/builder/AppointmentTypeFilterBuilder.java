@@ -41,7 +41,10 @@ public class AppointmentTypeFilterBuilder extends BaseFilterBuilder<AppointmentT
 			predicates.add(criteriaBuilder.equal(root.get("firm").get("id"), firmId));
 		}
 		if (name != null && !name.isEmpty()) {
-			predicates.add(criteriaBuilder.like(root.get("name"), "%" + name + "%"));
+			predicates.add(
+				criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + name.toLowerCase() + "%")
+			);
+
 		}
 		return predicates;
 	}

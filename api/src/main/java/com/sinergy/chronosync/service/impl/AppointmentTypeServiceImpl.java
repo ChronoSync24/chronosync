@@ -2,6 +2,7 @@ package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.AppointmentTypeFilterBuilder;
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentTypeRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.UserNotFoundException;
@@ -32,12 +33,13 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 *
 	 * @return {@link Page} of {@link AppointmentType} objects associated with the current user's firm.
 	 */
-	public Page<AppointmentType> getAppointmentTypes(PageRequest pageRequest) {
+	public Page<AppointmentType> getAppointmentTypes(PaginatedAppointmentTypeRequestDTO request) {
 		AppointmentTypeFilterBuilder filterBuilder = AppointmentTypeFilterBuilder.builder()
 			.firmId(securityContextService.getAuthUserFirm().getId())
+			.name(request.getName())
 			.build();
 
-		filterBuilder.setPageable(pageRequest);
+		filterBuilder.setPageable(PageRequest.of(request.getPage(), request.getPageSize()));
 
 		return appointmentTypeRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}
