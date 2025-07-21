@@ -7,8 +7,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
+  CircularProgress,
   styled,
 } from '@mui/material';
+import { PageableResponse } from '../models/BaseEntity';
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   '& .MuiTable-root': {
@@ -68,62 +71,111 @@ export interface TableColumn {
   render?: (value: any, row: any) => React.ReactNode;
 }
 
-export interface ReusableTableProps {
+export interface TableProps {
+  isLoading: boolean;
   columns: TableColumn[];
-  data: any[];
+  data: PageableResponse<any>;
   onRowClick?: (row: any) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
-const ReactTable: React.FC<ReusableTableProps> = ({
+const ReactTable: React.FC<TableProps> = ({
+  isLoading = false,
   columns,
   data,
   onRowClick,
+  onPageChange,
+  onPageSizeChange,
 }) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
+    onPageChange(newPage);
+  };
+
+  const handleRowsPerPageChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    onPageSizeChange(parseInt(event.target.value, 10));
+  };
+
   return (
-    <Box sx={{ 
-      '& .MuiTableContainer-root': { 
-        backgroundColor: 'transparent',
-        boxShadow: 'none',
-      }
-    }}>
+    <Box
+      sx={{
+        '& .MuiTableContainer-root': {
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+        },
+      }}>
       <StyledTableContainer sx={{ backgroundColor: 'transparent' }}>
-        <Table>
+        <Table sx={{ tableLayout: 'fixed' }}>
           <TableHead>
             <StyledHeaderRow>
               {columns.map((column) => (
-                <TableCell 
-                  key={column.key} 
+                <TableCell
+                  key={column.key}
                   align={column.align || 'left'}
-                  sx={{ width: column.width }}
-                >
+                  sx={{ width: column.width }}>
                   {column.label}
                 </TableCell>
               ))}
             </StyledHeaderRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => (
-              <StyledTableRow
-                key={index}
-                onClick={() => onRowClick?.(row)}
-                sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
-              >
-                {columns.map((column) => (
-                  <TableCell 
-                    key={column.key} 
-                    align={column.align || 'left'}
-                    sx={{ width: column.width }}
-                  >
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                  </TableCell>
-                ))}
+            {isLoading ?
+              <StyledTableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  align='center'
+                  sx={{ py: 4 }}>
+                  <CircularProgress size={24} />
+                </TableCell>
               </StyledTableRow>
-            ))}
+            : (data.content || []).map((row, index) => (
+                <StyledTableRow
+                  key={index}
+                  onClick={() => onRowClick?.(row)}
+                  sx={{ cursor: onRowClick ? 'pointer' : 'default' }}>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.key}
+                      align={column.align || 'left'}
+                      sx={{ width: column.width }}>
+                      {column.render ?
+                        column.render(row[column.key], row)
+                      : row[column.key]}
+                    </TableCell>
+                  ))}
+                </StyledTableRow>
+              ))
+            }
           </TableBody>
         </Table>
       </StyledTableContainer>
+
+      <TablePagination
+        component='div'
+        count={data.totalElements}
+        page={data.number}
+        onPageChange={handlePageChange}
+        rowsPerPage={data.size}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        sx={{
+          border: 'none',
+          backgroundColor: 'inherit',
+          '& .MuiTablePagination-toolbar': {
+            backgroundColor: 'inherit',
+            border: 'none',
+            padding: 0,
+          },
+          '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
+            {
+              margin: 0,
+            },
+        }}
+      />
     </Box>
   );
 };
 
-export default ReactTable; 
+export default ReactTable;
