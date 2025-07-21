@@ -1,96 +1,97 @@
 /* DynamicForm.css */
 
-.dynamic-form-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #ffffff;
-  }
-  
-  .dynamic-form {
-    background-color: #E6E6FA;
-    padding: 2.5rem 4.5rem;
-    border-radius: 8px;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    max-width: 40rem !important;
-    min-width: 32rem !important;
-    min-height: 32rem !important;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-  
-  .dynamic-form-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 2.5rem;
-    text-align: center;
-    color: black;
-  }
-  
-  .dynamic-input {
-    background-color: white;
-    font-size: 1.125rem;
-    color: #6A5BCD !important;
-    height: 2.5rem;
-    width: 100%;
-    border-radius: 8px !important;
-  }
+.dynamic-form {
+  background-color: #e6e6fa;
+  padding: 2.5rem 4.5rem;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  max-width: 40rem !important;
+  min-width: 32rem !important;
+  min-height: 32rem !important;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
 
-  .dynamic-form-field {
-    margin-bottom: 1.5rem;
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
+.modal-header {
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.dynamic-form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: black;
+  margin: 0;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dynamic-input {
+  background-color: white;
+  font-size: 1.125rem;
+  color: #6a5bcd !important;
+  height: 2.5rem;
+  width: 100%;
+  border-radius: 8px !important;
+}
+
+.dynamic-form-field {
+  width: 100%;
+  margin: 0;
+}
+
+.modal-footer {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+  gap: 1rem;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.dynamic-button-cancel,
+.dynamic-button-submit {
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  padding: 0.75rem 0 !important;
+  width: 50%;
+  min-width: 0;
+  box-shadow: none !important;
+}
+
+@media (max-width: 900px) {
+  .dynamic-form {
+    padding: 2rem 2rem;
+    max-width: 70vw !important;
   }
-  
+}
+
+@media (max-width: 600px) {
+  .dynamic-form {
+    padding: 1.25rem 0.75rem;
+    max-width: 90vw !important;
+  }
+  .dynamic-form-title {
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+  }
   .dynamic-form-buttons {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-    gap: 1rem;
-    border-radius: 8px;
-    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
   }
-  
   .dynamic-button-cancel,
   .dynamic-button-submit {
-    border-radius: 8px !important;
-    font-size: 1rem !important;
+    width: 100%;
     padding: 0.75rem 0 !important;
-    width: 50%;
-    min-width: 0;
-    box-shadow: none !important;
   }
-  
-  @media (max-width: 900px) {
-    .dynamic-form {
-      padding: 2rem 2rem;
-      max-width: 70vw !important;
-    }
-  }
-  
-  @media (max-width: 600px) {
-    .dynamic-form {
-      padding: 1.25rem 0.75rem;
-      max-width: 90vw !important;
-    }
-    .dynamic-form-title {
-      font-size: 1.1rem;
-      margin-bottom: 1.25rem;
-    }
-    .dynamic-form-buttons {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    .dynamic-button-cancel,
-    .dynamic-button-submit {
-      width: 100%;
-      padding: 0.75rem 0 !important;
-    }
-  }
+}
 
 .MuiAutocomplete-root .dynamic-input,
 .MuiAutocomplete-root .MuiOutlinedInput-root {
@@ -104,4 +105,3 @@
   height: 2.5rem !important;
   box-sizing: border-box;
 }
-  
