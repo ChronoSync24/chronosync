@@ -1,5 +1,7 @@
 import { AppointmentTypeRequestDTO } from '../dtos/requests/AppointmentTypeRequestDTO';
+import { PaginatedAppointmentTypeRequestDTO } from '../dtos/requests/PaginatedAppointmentTypeRequestDTO';
 import { AppointmentType } from '../models/appointmentType/AppointmentType';
+import { PageableResponse } from '../models/BaseEntity';
 import { apiClient } from '../utils/ApiClient';
 
 const ENDPOINT_PREFIX = '/appointment-type';
@@ -12,17 +14,22 @@ const ENDPOINT_PREFIX = '/appointment-type';
  *
  * @throws {Error} - Throws an error if the creation fails.
  */
-export const create = async (request: AppointmentTypeRequestDTO): Promise<AppointmentType> => {
-	try {
-		const response = await apiClient<AppointmentType>(`${ENDPOINT_PREFIX}/create`, {
-			method: 'POST',
-			body: request,
-		});
+export const create = async (
+  request: AppointmentTypeRequestDTO
+): Promise<AppointmentType> => {
+  try {
+    const response = await apiClient<AppointmentType>(
+      `${ENDPOINT_PREFIX}/create`,
+      {
+        method: 'POST',
+        body: request,
+      }
+    );
 
-		return response;
-	} catch (error) {
-		throw new Error('Appointment type creation failed.');
-	}
+    return response;
+  } catch (error) {
+    throw new Error('Appointment type creation failed.');
+  }
 };
 
 /**
@@ -33,17 +40,19 @@ export const create = async (request: AppointmentTypeRequestDTO): Promise<Appoin
  *
  * @throws {Error} - Throws an error if the update fails.
  */
-export const update = async (request: AppointmentTypeRequestDTO): Promise<AppointmentType> => {
-	try {
-		const response = await apiClient<AppointmentType>(`${ENDPOINT_PREFIX}`, {
-			method: 'PUT',
-			body: request,
-		});
+export const update = async (
+  request: AppointmentTypeRequestDTO
+): Promise<AppointmentType> => {
+  try {
+    const response = await apiClient<AppointmentType>(`${ENDPOINT_PREFIX}`, {
+      method: 'PUT',
+      body: request,
+    });
 
-		return response;
-	} catch (error) {
-		throw new Error('Appointment type update failed.');
-	}
+    return response;
+  } catch (error) {
+    throw new Error('Appointment type update failed.');
+  }
 };
 
 /**
@@ -54,11 +63,45 @@ export const update = async (request: AppointmentTypeRequestDTO): Promise<Appoin
  * @throws {Error} - Throws an error if the creation fails.
  */
 export const remove = async (id: number): Promise<void> => {
-	try {
-		await apiClient<AppointmentType>(`${ENDPOINT_PREFIX}/${id}`, {
-			method: 'DELETE',
-		});
-	} catch (error) {
-		throw new Error('Appointment type deletion failed.');
-	}
+  try {
+    await apiClient<AppointmentType>(`${ENDPOINT_PREFIX}?id=${id}`, {
+      method: 'DELETE',
+    });
+  } catch (error) {
+    throw new Error('Appointment type deletion failed.');
+  }
+};
+
+/**
+ * Fetches appointment types.
+ *
+ * @param {PaginatedAppointmentTypeRequestDTO} request - Paginated Appointment type get request
+ * @returns {Promise<PageableResponse<AppointmentType>>} - Promise that resolves to the paginated appointment types.
+ *
+ * @throws {Error} - Throws an error if the fetching fails.
+ */
+export const get = async (
+  request: PaginatedAppointmentTypeRequestDTO = {
+    name: '',
+    page: 0,
+    pageSize: 10,
+  }
+): Promise<PageableResponse<AppointmentType>> => {
+  try {
+    const response = await apiClient<PageableResponse<AppointmentType>>(
+      `${ENDPOINT_PREFIX}/search`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json',
+        },
+        body: request,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    throw new Error('Appointment type creation failed.');
+  }
 };
