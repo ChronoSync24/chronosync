@@ -1,6 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.AppointmentRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.model.Appointment;
 import com.sinergy.chronosync.model.Client;
@@ -107,7 +108,8 @@ class AppointmentServiceImplTest {
 		Page<Appointment> mockPage = new PageImpl<>(List.of(assignedAppointment), pageRequest, 1);
 		when(appointmentRepository.findAll(Mockito.<Specification<Appointment>>any(), eq(pageRequest))).thenReturn(mockPage);
 
-		Page<Appointment> result = appointmentService.getAppointments(pageRequest);
+		PaginatedAppointmentRequestDTO paginatedRequest = new PaginatedAppointmentRequestDTO();
+		Page<Appointment> result = appointmentService.getAppointments(paginatedRequest);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getTotalElements()).isEqualTo(1);
@@ -146,7 +148,8 @@ class AppointmentServiceImplTest {
 		when(appointmentRepository.findAll(Mockito.<Specification<Appointment>>any(),
 			eq(pageRequest))).thenReturn(mockPage);
 
-		Page<Appointment> result = appointmentService.getAppointments(pageRequest);
+		PaginatedAppointmentRequestDTO paginatedRequest = new PaginatedAppointmentRequestDTO();
+		Page<Appointment> result = appointmentService.getAppointments(paginatedRequest);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getTotalElements()).isEqualTo(1);

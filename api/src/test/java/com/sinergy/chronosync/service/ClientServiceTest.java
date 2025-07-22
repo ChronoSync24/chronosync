@@ -1,6 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.model.Client;
@@ -17,7 +18,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
@@ -74,7 +74,7 @@ class ClientServiceTest {
 	 */
 	@Test
 	void getClientsTest() {
-		PageRequest pageRequest = PageRequest.of(0, 10);
+		PaginatedClientRequestDTO pageRequest = new PaginatedClientRequestDTO();
 		ClientRequestDTO newClient = ClientRequestDTO.builder()
 			.firstName("John")
 			.lastName("Doe")

@@ -1,6 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.AppointmentRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentRequestDTO;
 import com.sinergy.chronosync.model.Appointment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +16,7 @@ public interface AppointmentService {
 	 *
 	 * @return {@link Page} of {@link Appointment} containing all appointments for the authenticated user.
 	 */
-	Page<Appointment> getAppointments(PageRequest pageRequest);
+	Page<Appointment> getAppointments(PaginatedAppointmentRequestDTO request);
 
 	/**
 	 * Creates a new appointment and stores it in the database.

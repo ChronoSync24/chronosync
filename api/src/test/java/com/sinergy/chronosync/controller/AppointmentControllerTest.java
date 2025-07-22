@@ -2,6 +2,8 @@ package com.sinergy.chronosync.controller;
 
 import com.sinergy.chronosync.dto.request.AppointmentRequestDTO;
 import com.sinergy.chronosync.dto.request.BasePaginationRequest;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.model.Appointment;
 import com.sinergy.chronosync.service.AppointmentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,17 +40,13 @@ class AppointmentControllerTest {
 	}
 
 	/**
-	 * Tests the {@link AppointmentController#getAppointments(BasePaginationRequest)} method.
+	 * Tests the {@link AppointmentController#getAppointments(PaginatedAppointmentRequestDTO)} method.
 	 * Verifies that the service is called with the correct parameters and the response is valid.
 	 */
 	@Test
 	void getAppointmentsTest() {
 		int page = 0;
 		int size = 10;
-		BasePaginationRequest paginationRequest = new BasePaginationRequest();
-		paginationRequest.setPage(page);
-		paginationRequest.setPageSize(size);
-		PageRequest pageRequest = PageRequest.of(page, size);
 
 		Appointment appointment = Appointment.builder()
 			.id(1L)
@@ -56,11 +54,13 @@ class AppointmentControllerTest {
 			.startDateTime(LocalDateTime.parse("2025-02-02T12:45"))
 			.endDateTime(LocalDateTime.parse("2025-02-02T13:45"))
 			.build();
-		Page<Appointment> mockPage = new PageImpl<>(List.of(appointment), pageRequest, 1);
+		Page<Appointment> mockPage = new PageImpl<>(List.of(appointment), PageRequest.of(page, size), 1);
+
+		PaginatedAppointmentRequestDTO pageRequest = new PaginatedAppointmentRequestDTO();
 
 		when(appointmentService.getAppointments(pageRequest)).thenReturn(mockPage);
 
-		ResponseEntity<Page<Appointment>> response = appointmentController.getAppointments(paginationRequest);
+		ResponseEntity<Page<Appointment>> response = appointmentController.getAppointments(pageRequest);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).isNotNull();

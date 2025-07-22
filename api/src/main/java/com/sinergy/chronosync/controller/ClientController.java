@@ -1,12 +1,11 @@
 package com.sinergy.chronosync.controller;
 
-import com.sinergy.chronosync.dto.request.BasePaginationRequest;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.service.impl.ClientServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +25,9 @@ public class ClientController {
 	 */
 	@PostMapping("/search")
 	public ResponseEntity<Page<Client>> getClients(
-		@RequestBody BasePaginationRequest paginationRequest
+		@RequestBody PaginatedClientRequestDTO paginationRequest
 	) {
-		PageRequest pageRequest = PageRequest.of(paginationRequest.getPage(), paginationRequest.getPageSize());
-		Page<Client> clients = clientService.getClients(pageRequest);
+		Page<Client> clients = clientService.getClients(paginationRequest);
 		return ResponseEntity.ok(clients);
 	}
 

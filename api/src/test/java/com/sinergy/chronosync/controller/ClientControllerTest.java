@@ -2,6 +2,7 @@ package com.sinergy.chronosync.controller;
 
 import com.sinergy.chronosync.dto.request.BasePaginationRequest;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.service.impl.ClientServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +38,7 @@ class ClientControllerTest {
 	}
 
 	/**
-	 * Tests the {@link ClientController#getClients(BasePaginationRequest)} method.
+	 * Tests the {@link ClientController#getClients(PaginatedClientRequestDTO)} method.
 	 * Verifies that the service is called with the correct parameters and the response is valid.
 	 */
 	@Test
@@ -52,15 +53,11 @@ class ClientControllerTest {
 			.build();
 		Page<Client> mockPage = new PageImpl<>(List.of(client), PageRequest.of(page, size), 1);
 
-		BasePaginationRequest paginationRequest = new BasePaginationRequest();
-		paginationRequest.setPage(page);
-		paginationRequest.setPageSize(size);
-
-		PageRequest pageRequest = PageRequest.of(page, size);
+		PaginatedClientRequestDTO pageRequest = new PaginatedClientRequestDTO();
 
 		when(clientService.getClients(pageRequest)).thenReturn(mockPage);
 
-		ResponseEntity<Page<Client>> response = clientController.getClients(paginationRequest);
+		ResponseEntity<Page<Client>> response = clientController.getClients(pageRequest);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).isNotNull();

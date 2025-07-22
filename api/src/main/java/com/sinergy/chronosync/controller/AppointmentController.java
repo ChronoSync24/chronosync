@@ -2,6 +2,7 @@ package com.sinergy.chronosync.controller;
 
 import com.sinergy.chronosync.dto.request.AppointmentRequestDTO;
 import com.sinergy.chronosync.dto.request.BasePaginationRequest;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentRequestDTO;
 import com.sinergy.chronosync.model.Appointment;
 import com.sinergy.chronosync.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +31,9 @@ public class AppointmentController {
 	 */
 	@PostMapping("/search")
 	public ResponseEntity<Page<Appointment>> getAppointments(
-		@RequestBody BasePaginationRequest paginationRequest
+		@RequestBody PaginatedAppointmentRequestDTO paginationRequest
 	) {
-		int page = paginationRequest.getPage();
-		int size = paginationRequest.getPageSize();
-		PageRequest pageRequest = PageRequest.of(page, size);
-		Page<Appointment> appointments = appointmentService.getAppointments(pageRequest);
+		Page<Appointment> appointments = appointmentService.getAppointments(paginationRequest);
 		return ResponseEntity.ok(appointments);
 	}
 

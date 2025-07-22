@@ -2,6 +2,7 @@ package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.ClientFilterBuilder;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.RepositoryException;
@@ -32,16 +33,16 @@ public class ClientServiceImpl implements ClientService {
 	 * This method checks the current logged-in user's firm and returns
 	 * a list of {@link Client} objects linked to that firm's ID.
 	 *
-	 * @param pageRequest The pagination and sorting information
+	 * @param request The pagination and sorting information
 	 * @return {@link Page} clients associated with the authenticated user's firm
 	 */
 	@Override
-	public Page<Client> getClients(PageRequest pageRequest) {
+	public Page<Client> getClients(PaginatedClientRequestDTO request) {
 		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
 			.firmId(securityContextService.getAuthUserFirm().getId())
 			.build();
 
-		filterBuilder.setPageable(pageRequest);
+		filterBuilder.setPageable(PageRequest.of(request.getPage(), request.getPageSize()));
 
 		return clientRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}

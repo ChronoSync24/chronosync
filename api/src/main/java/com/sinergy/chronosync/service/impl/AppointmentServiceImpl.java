@@ -2,6 +2,7 @@ package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.AppointmentFilterBuilder;
 import com.sinergy.chronosync.dto.request.AppointmentRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.model.Appointment;
@@ -33,7 +34,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 	 * @return {@link Page} of {@link Appointment} objects associated with the current user.
 	 */
 	@Override
-	public Page<Appointment> getAppointments(PageRequest pageRequest) {
+	public Page<Appointment> getAppointments(PaginatedAppointmentRequestDTO request) {
 		User authUser = securityContextService.getAuthUser();
 		AppointmentFilterBuilder filterBuilder;
 
