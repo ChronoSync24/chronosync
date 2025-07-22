@@ -210,34 +210,6 @@ export default function DynamicForm({
       );
     }
 
-    // Static dropdown
-    if (field.type === 'select' && field.options) {
-      return (
-        <div key={field.name} className='dynamic-form-field'>
-          <FormControl fullWidth error={!!error}>
-            <Select
-              value={value}
-              onChange={(e) =>
-                handleChange(field.name, e.target.value as string)
-              }
-              displayEmpty
-              className='dynamic-input'
-              onBlur={() => handleBlur(field.name)}>
-              <MenuItem value='' disabled>
-                {field.placeholder}
-              </MenuItem>
-              {field.options.map((opt: string) => (
-                <MenuItem key={opt} value={opt}>
-                  {opt}
-                </MenuItem>
-              ))}
-            </Select>
-            {error && <FormHelperText>{error}</FormHelperText>}
-          </FormControl>
-        </div>
-      );
-    }
-
     // Text/number input fields
     return (
       <div key={field.name} className='dynamic-form-field'>
