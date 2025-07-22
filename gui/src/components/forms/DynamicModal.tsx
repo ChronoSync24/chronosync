@@ -13,10 +13,6 @@ import PrimaryButton from '../PrimaryButton';
 import SecondaryButton from '../SecondaryButton';
 import './DynamicModal.css';
 import {
-  Select,
-  MenuItem,
-  FormControl,
-  FormHelperText,
   CircularProgress,
   Dialog,
   DialogProps,
@@ -96,10 +92,6 @@ export default function DynamicForm({
   const handleChange = (name: string, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' })); // Clear error on change
-  };
-
-  const handleBlur = (name: string) => {
-    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   const handleReset = () => {
@@ -187,7 +179,6 @@ export default function DynamicForm({
                 placeholder={field.placeholder}
                 value={value}
                 onChange={(e) => handleChange(field.name, e.target.value)}
-                onBlur={() => handleBlur(field.name)}
                 className='dynamic-input'
                 error={!!error}
                 helperText={error}
@@ -219,7 +210,6 @@ export default function DynamicForm({
           label={field.label}
           value={value}
           onChange={(e) => handleChange(field.name, e.target.value)}
-          onBlur={() => handleBlur(field.name)}
           className='dynamic-input'
           inputProps={{ maxLength: field.validation?.maxLength || 50 }}
           error={!!error}
