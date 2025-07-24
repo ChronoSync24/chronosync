@@ -1,0 +1,96 @@
+import { Appointment } from '../../models/Appointment';
+import { Currency } from '../../models/appointmentType/Currency';
+import { UserRole } from '../../models/user/UserRole';
+
+const now = new Date();
+const monday = new Date(now);
+monday.setDate(now.getDate() - now.getDay() + 1);
+
+export const mockAppointments: Appointment[] = [
+  {
+    id: 1,
+    note: 'Initial consultation for new project',
+    startDateTime: new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 1, 10, 0).toISOString(),
+    endDateTime: new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 1, 11, 0).toISOString(),
+    employee: {
+      id: 1,
+      username: 'jdoe',
+      password: '',
+      role: UserRole.EMPLOYEE,
+      isLocked: false,
+      isEnabled: true,
+      firstName: 'John',
+      lastName: 'Doe',
+      identificationNumber: '123456789',
+      address: '123 Main St',
+      phone: '555-1234',
+      email: 'jdoe@example.com',
+      firm: { id: 1, name: 'Acme Corp' },
+    },
+    client: {
+      id: 1,
+      firstName: 'Alice',
+      lastName: 'Smith',
+      email: 'alice.smith@example.com',
+      phone: '555-9876',
+      firm: { id: 1, name: 'Acme Corp' },
+    },
+    appointmentType: {
+      id: 1,
+      name: 'Consultation',
+      durationMinutes: 60,
+      price: 100,
+      colorCode: '#1976d2',
+      currency: Currency.USD,
+      firm: { id: 1, name: 'Acme Corp' },
+    },
+    firm: { id: 1, name: 'Acme Corp' },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: undefined,
+    updatedBy: undefined,
+  },
+  {
+    id: 2,
+    note: 'Follow-up appointment',
+    startDateTime: new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 3, 12, 30).toISOString(),
+    endDateTime: new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 3, 13, 0).toISOString(),
+    employee: {
+      id: 2,
+      username: 'msmith',
+      password: '',
+      role: UserRole.EMPLOYEE,
+      isLocked: false,
+      isEnabled: true,
+      firstName: 'Mary',
+      lastName: 'Smith',
+      identificationNumber: '987654321',
+      address: '456 Oak Ave',
+      phone: '555-5678',
+      email: 'msmith@example.com',
+      firm: { id: 2, name: 'Beta LLC' },
+    },
+    client: {
+      id: 2,
+      firstName: 'Bob',
+      lastName: 'Johnson',
+      email: 'bob.johnson@example.com',
+      phone: '555-4321',
+      firm: { id: 2, name: 'Beta LLC' },
+    },
+    appointmentType: {
+      id: 2,
+      name: 'Follow-up',
+      durationMinutes: 90,
+      price: 60,
+      colorCode: '#43a047',
+      currency: Currency.USD,
+      firm: { id: 2, name: 'Beta LLC' },
+    },
+    firm: { id: 2, name: 'Beta LLC' },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: undefined,
+    updatedBy: undefined,
+  },
+];

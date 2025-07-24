@@ -102,23 +102,31 @@ const ReactTable: React.FC<ReusableTableProps> = ({
             </StyledHeaderRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => (
-              <StyledTableRow
-                key={index}
-                onClick={() => onRowClick?.(row)}
-                sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
-              >
-                {columns.map((column) => (
-                  <TableCell 
-                    key={column.key} 
-                    align={column.align || 'left'}
-                    sx={{ width: column.width }}
-                  >
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                  </TableCell>
-                ))}
+            {data.length === 0 ? (
+              <StyledTableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  No data available.
+                </TableCell>
               </StyledTableRow>
-            ))}
+            ) : (
+              data.map((row, index) => (
+                <StyledTableRow
+                  key={row.id ?? index} // Prefer unique id if available
+                  onClick={() => onRowClick?.(row)}
+                  sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                >
+                  {columns.map((column) => (
+                    <TableCell 
+                      key={column.key} 
+                      align={column.align || 'left'}
+                      sx={{ width: column.width }}
+                    >
+                      {column.render ? column.render(row[column.key], row) : row[column.key]}
+                    </TableCell>
+                  ))}
+                </StyledTableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </StyledTableContainer>

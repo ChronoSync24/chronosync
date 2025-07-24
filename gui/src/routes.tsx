@@ -11,6 +11,8 @@ import TestsPage from './pages/TestsPage';
 import UsersPage from './pages/UsersPage';
 import AppointmentTypePage from './pages/AppointmentTypePage';
 import ClientsPage from './pages/ClientsPage';
+import AppointmentPage from './pages/AppointmentPage';
+import { CalendarIcon } from '@mui/x-date-pickers/icons';
 
 export interface AppRoute {
   path: string;
@@ -38,7 +40,7 @@ export const APP_ROUTES: AppRoute[] = [
     icon: <PeopleIcon />,
     element: <UsersPage />,
   },
-  {
+  { // TODO: Change icon
     path: '/appointment-types',
     title: 'Appointment Types',
     icon: <EventIcon />,
@@ -49,7 +51,13 @@ export const APP_ROUTES: AppRoute[] = [
     title: 'Clients',
     icon: <BusinessIcon />,
     element: <ClientsPage />,
-  }
+  },
+  {
+    path: '/appointments',
+    title: 'Appointments',
+    icon: <CalendarIcon />,
+    element: <AppointmentPage />,
+  },
 ];
 
 export const NAVIGATION: Navigation = APP_ROUTES.map((route) => ({
