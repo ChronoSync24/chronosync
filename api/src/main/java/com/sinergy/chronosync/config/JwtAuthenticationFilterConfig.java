@@ -1,7 +1,5 @@
 package com.sinergy.chronosync.config;
 
-import com.sinergy.chronosync.builder.TokenFilterBuilder;
-import com.sinergy.chronosync.repository.TokenRepository;
 import com.sinergy.chronosync.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,14 +8,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Class that represents JSON Web Token Authentication Filter.
@@ -26,57 +26,74 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilterConfig extends OncePerRequestFilter {
 
-	private final JwtUtils jwtUtils;
-	private final UserDetailsService userDetailsService;
-	private final TokenRepository tokenRepository;
+    private final JwtUtils jwtUtils;
 
-	/**
-	 * Filters incoming requests to authenticate users based on JWT tokens.
-	 * </br> </br>
-	 * <i>Extracts the JWT from the Authorization header, validates it,
-	 * and sets the authentication in the security context if valid.</i>
-	 *
-	 * @param request     {@link HttpServletRequest} HTTP request
-	 * @param response    {@link HttpServletResponse} HTTP response
-	 * @param filterChain {@link FilterChain} filter chain to continue processing
-	 * @throws ServletException {@link ServletException} if a servlet-related error occurs
-	 * @throws IOException      {@link IOException} if an I/O error occurs
-	 */
-	@Override
-	protected void doFilterInternal(
-		@NonNull HttpServletRequest request,
-		@NonNull HttpServletResponse response,
-		@NonNull FilterChain filterChain
-	) throws ServletException, IOException {
-		final String authHeader = request.getHeader("Authorization");
-		final String jwt;
-		final String username;
+    /**
+     * Filters incoming requests to authenticate users based on JWT tokens.
+     * </br> </br>
+     * <i>Extracts the JWT from the Authorization header, validates it,
+     * and sets the authentication in the security context if valid.</i>
+     *
+     * @param request     {@link HttpServletRequest} HTTP request
+     * @param response    {@link HttpServletResponse} HTTP response
+     * @param filterChain {@link FilterChain} filter chain to continue processing
+     * @throws ServletException {@link ServletException} if a servlet-related error occurs
+     * @throws IOException      {@link IOException} if an I/O error occurs
+     */
+    @Override
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
 
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        final String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+		String jwt = authHeader.substring(7);
+
+		if (jwtUtils.isTokenExpired(jwt)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		jwt = authHeader.substring(7);
-		username = jwtUtils.extractUsername(jwt);
+		String username = jwtUtils.extractUsername(jwt);
+		Long userId = jwtUtils.extractUserId(jwt);
+		Long firmId = jwtUtils.extractFirmId(jwt);
+		List<String> roles = jwtUtils.extractRoles(jwt);
 
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-			Boolean isTokenValid = tokenRepository
-				.findOne(TokenFilterBuilder.builder().jwtString(jwt).build().toSpecification())
-				.map(t -> jwtUtils.isTokenValid(t.jwtString, userDetails))
-				.orElse(false);
+		List<GrantedAuthority> authorities = roles.stream()
+				.map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toList());
 
-			if (jwtUtils.isTokenValid(jwt, userDetails) && isTokenValid) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-					userDetails,
+		if (
+			userId != 0 &&
+			firmId != 0 &&
+			!roles.isEmpty() &&
+			username != null &&
+			SecurityContextHolder.getContext().getAuthentication() == null
+		) {
+			JwtUserPrincipal userPrincipal = new JwtUserPrincipal(
+					userId,
+					firmId,
+					username,
+					authorities
+			);
+
+			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+					userPrincipal,
 					null,
-					userDetails.getAuthorities()
-				);
-				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authToken);
-			}
+					userPrincipal.getAuthorities()
+			);
+
+			authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			SecurityContextHolder.getContext().setAuthentication(authToken);
 		}
 		filterChain.doFilter(request, response);
 	}
+
 }
