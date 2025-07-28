@@ -24,26 +24,25 @@ type CustomInputProps = TextFieldProps & {
  * @param {CustomInputProps} props - The props for the component
  * @returns {JSX.Element} The rendered input field
  */
-const Input: React.FC<CustomInputProps> = ({ className, ...props }) => {
+const TextInput: React.FC<CustomInputProps> = ({ className, sx, ...props }) => {
   return (
     <TextField
       className={className}
       variant='outlined'
       fullWidth
       size='small'
-      InputProps={{
-        ...props.InputProps,
-        sx: {
+      sx={{
+        '& .MuiOutlinedInput-root': {
           borderRadius: '8px',
           '& .MuiOutlinedInput-notchedOutline': {
             borderRadius: '8px',
           },
-          ...props.InputProps?.sx,
         },
+        ...sx,
       }}
       {...props}
     />
   );
 };
 
-export default Input;
+export default TextInput;
