@@ -22,6 +22,10 @@ export const create = async (
       `${ENDPOINT_PREFIX}/create`,
       {
         method: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json',
+        },
         body: request,
       }
     );
@@ -46,6 +50,10 @@ export const update = async (
   try {
     const response = await apiClient<AppointmentType>(`${ENDPOINT_PREFIX}`, {
       method: 'PUT',
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+        'Content-Type': 'application/json',
+      },
       body: request,
     });
 
@@ -66,6 +74,10 @@ export const remove = async (id: number): Promise<void> => {
   try {
     await apiClient<AppointmentType>(`${ENDPOINT_PREFIX}?id=${id}`, {
       method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error) {
     throw new Error('Appointment type deletion failed.');

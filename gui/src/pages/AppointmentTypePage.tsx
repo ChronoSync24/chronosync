@@ -6,27 +6,27 @@ import {
   Theme,
   useTheme,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  CircularProgress,
 } from '@mui/material';
 import ReactTable from '../components/ReactTable';
 import Filters from '../components/Filters';
+import DynamicModal from '../components/forms/DynamicModal';
+import ConfirmationDialog from '../components/ConfirmationDialog';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { AppointmentType } from '../models/appointmentType/AppointmentType';
 import {
   get as getAppointmentTypes,
   remove,
+  create,
+  update,
 } from '../services/AppointmentTypeService';
 import { PaginatedAppointmentTypeRequestDTO } from '../dtos/requests/PaginatedAppointmentTypeRequestDTO';
+import { AppointmentTypeRequestDTO } from '../dtos/requests/AppointmentTypeRequestDTO';
 import { PageableResponse } from '../models/BaseEntity';
 import { getAppointmentTypeColumns } from '../configs/ColumnConfigs';
 import { appointmentTypeFilterFields } from '../configs/FilterConfigs';
+import { appointmentTypeFormFields } from '../configs/forms/AppointmentTypeFormConfig';
+import { Currency } from '../models/appointmentType/Currency';
 
 const AppointmentTypePage: React.FC = () => {
   const theme: Theme = useTheme();
@@ -54,6 +54,9 @@ const AppointmentTypePage: React.FC = () => {
     severity: 'success' | 'error';
   } | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
   useEffect(() => {
     if (alert) {
       const timer = setTimeout(() => {
@@ -70,6 +73,7 @@ const AppointmentTypePage: React.FC = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [appointmentType, setAppointmentType] =
     useState<AppointmentType | null>(null);
+  const [isCreate, setIsCreate] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -122,6 +126,19 @@ const AppointmentTypePage: React.FC = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleEdit = (row: any) => {
+    setAppointmentType(row);
+    handleOpenModal(false);
+  };
+
+  const handleOpenModal = (isCreate: boolean) => {
+    setIsModalOpen(true);
+    setIsCreate(isCreate);
+    if (isCreate) {
+      setAppointmentType(null); // Reset for create mode
+    }
+  };
+
   const handleConfirmDelete = () => {
     if (!appointmentType) return;
 
@@ -159,12 +176,56 @@ const AppointmentTypePage: React.FC = () => {
     setAppointmentType(null);
   };
 
-  const handleEdit = (id: number) => {
-    console.log('Edit appointment type:', id);
-  };
-
   const handleFilterChange = (key: string, value: any) => {
     setFilterValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleFormSubmit = async (formData: Record<string, string>) => {
+    setIsCreating(true);
+
+    try {
+      const requestData: AppointmentTypeRequestDTO = {
+        id: isCreate ? 0 : appointmentType!.id,
+        name: formData.name,
+        durationMinutes: parseInt(formData.durationMinutes),
+        price: parseFloat(formData.price),
+        colorCode: formData.colorCode,
+        currency: formData.currency as Currency,
+      };
+
+      if (isCreate) {
+        await create(requestData);
+      } else {
+        await update(requestData);
+      }
+
+      setAlert({
+        message: (
+          <span>
+            Appointment type{' '}
+            <Typography component='span' sx={{ fontWeight: 'bold' }}>
+              {formData.name}
+            </Typography>{' '}
+            was successfully {isCreate ? 'created' : 'updated'}.
+          </span>
+        ),
+        severity: 'success',
+      });
+
+      setIsModalOpen(false);
+      refetchData();
+    } catch (error) {
+      console.error(
+        `Error ${isCreate ? 'creating' : 'updating'} appointment type:`,
+        error
+      );
+      setAlert({
+        message: `Failed to ${isCreate ? 'create' : 'update'} appointment type. Please try again.`,
+        severity: 'error',
+      });
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const columns = getAppointmentTypeColumns({ handleEdit, handleDelete });
@@ -196,6 +257,7 @@ const AppointmentTypePage: React.FC = () => {
             <FilterAltOutlinedIcon fontSize='medium' />
           </IconButton>
           <IconButton
+            onClick={() => handleOpenModal(true)}
             sx={{
               borderRadius: '8px',
               color: theme.palette.secondary.main,
@@ -236,54 +298,59 @@ const AppointmentTypePage: React.FC = () => {
         />
       </Box>
 
-      <Dialog
+      <ConfirmationDialog
         open={isDeleteDialogOpen}
-        onClose={deleteLoading ? undefined : handleCloseDeleteDialog}>
-        <DialogTitle>
-          {deleteLoading ? 'Deleting...' : 'Confirm Deletion'}
-        </DialogTitle>
-        <DialogContent>
-          {deleteLoading ?
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
-              <CircularProgress size={24} />
-              <Typography>
-                Deleting appointment type{' '}
-                <Typography component='span' sx={{ fontWeight: 'bold' }}>
-                  {appointmentType?.name}
-                </Typography>
-                ...
-              </Typography>
-            </Box>
-          : <>
-              <DialogContentText>
-                Are you sure you want to delete the appointment type{' '}
-                <Typography component='span' sx={{ fontWeight: 'bold' }}>
-                  {appointmentType?.name}
-                </Typography>
-                ?
-              </DialogContentText>
-              <DialogContentText sx={{ mt: 1 }}>
-                This action cannot be undone.
-              </DialogContentText>
-            </>
-          }
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={handleCloseDeleteDialog}
-            color='primary'
-            disabled={deleteLoading}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirmDelete}
-            color='error'
-            variant='contained'
-            disabled={deleteLoading}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title='Confirm Deletion'
+        loadingTitle='Deleting...'
+        message={
+          <>
+            Are you sure you want to delete the appointment type{' '}
+            <Typography component='span' sx={{ fontWeight: 'bold' }}>
+              {appointmentType?.name}
+            </Typography>
+            ?
+          </>
+        }
+        loadingMessage={
+          <>
+            Deleting appointment type{' '}
+            <Typography component='span' sx={{ fontWeight: 'bold' }}>
+              {appointmentType?.name}
+            </Typography>
+            ...
+          </>
+        }
+        confirmText='Delete'
+        cancelText='Cancel'
+        confirmColor='error'
+        loading={deleteLoading}
+      />
+
+      <DynamicModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+        onCancel={() => setIsModalOpen(false)}
+        title={
+          isCreate ? 'Create New Appointment Type' : 'Edit Appointment Type'
+        }
+        fields={appointmentTypeFormFields}
+        isCreate={isCreate}
+        isLoading={isCreating}
+        initialValues={
+          isCreate || !appointmentType ?
+            {}
+          : {
+              name: appointmentType.name,
+              durationMinutes: appointmentType.durationMinutes.toString(),
+              price: appointmentType.price.toString(),
+              colorCode: appointmentType.colorCode,
+              currency: appointmentType.currency,
+            }
+        }
+      />
     </Box>
   );
 };
