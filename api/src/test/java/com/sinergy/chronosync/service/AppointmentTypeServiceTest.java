@@ -170,7 +170,7 @@ class AppointmentTypeServiceTest {
 			.price(100.0)
 			.build();
 
-		when(appointmentTypeRepository.update(Mockito.any(AppointmentType.class))).thenReturn(requestDto.toModel());
+		when(appointmentTypeRepository.update(Mockito.any(AppointmentType.class))).thenReturn(requestDto.toModel(new Firm()));
 
 		AppointmentType updatedAppointmentType = appointmentTypeService.updateAppointmentType(requestDto);
 

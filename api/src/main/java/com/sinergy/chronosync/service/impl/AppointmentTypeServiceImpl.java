@@ -52,9 +52,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 */
 	@Override
 	public AppointmentType createAppointmentType(AppointmentTypeRequestDTO requestDto) {
-		AppointmentType appointmentType = requestDto.toModel();
-		appointmentType.setFirm(securityContextService.getAuthUserFirm());
-		return appointmentTypeRepository.create(appointmentType);
+		return appointmentTypeRepository.create(requestDto.toModel(securityContextService.getAuthUserFirm()));
 	}
 
 	/**
@@ -67,7 +65,7 @@ public class AppointmentTypeServiceImpl implements AppointmentTypeService {
 	 */
 	@Override
 	public AppointmentType updateAppointmentType(AppointmentTypeRequestDTO requestDto) {
-		return appointmentTypeRepository.update(requestDto.toModel());
+		return appointmentTypeRepository.update(requestDto.toModel(securityContextService.getAuthUserFirm()));
 	}
 
 	/**
