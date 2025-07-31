@@ -1,32 +1,12 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { TableColumn } from '../components/ReactTable';
-import { Currency } from '../models/appointmentType/Currency';
+import { TableColumn } from '../../components/ReactTable';
+import { formatDuration, formatPrice } from '../../utils/formatters';
 
 interface ColumnConfigProps {
   handleEdit: (row: any) => void;
   handleDelete: (row: any) => void;
 }
-
-const formatDuration = (minutes: number) => {
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (hours > 0 && remainingMinutes > 0) {
-    return `${hours}h ${remainingMinutes}m`;
-  } else if (hours > 0) {
-    return `${hours}h`;
-  } else {
-    return `${remainingMinutes}m`;
-  }
-};
-
-const formatPrice = (price: number, currency: Currency) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-  }).format(price);
-};
 
 export const getAppointmentTypeColumns = ({
   handleEdit,

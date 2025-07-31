@@ -1,4 +1,4 @@
-import { FilterField } from '../components/Filters';
+import { FilterField } from '../../components/Filters';
 
 /**
  * Configuration for the appointment type filter fields.
