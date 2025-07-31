@@ -27,6 +27,7 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 	private String lastName;
 	private String email;
 	private String phone;
+	private String uniqueIdentifier;
 	private Long firmId;
 
 	/**
@@ -44,16 +45,34 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 			predicates.add(criteriaBuilder.equal(root.get("firm").get("id"), firmId));
 		}
 		if (firstName != null && !firstName.isEmpty()) {
-			predicates.add(criteriaBuilder.like(root.get("firstName"), "%" + firstName + "%"));
+			predicates.add(
+				criteriaBuilder.like(
+					criteriaBuilder.lower(root.get("firstName")), "%" + firstName.toLowerCase() + "%")
+			);
 		}
 		if (lastName != null && !lastName.isEmpty()) {
-			predicates.add(criteriaBuilder.like(root.get("lastName"), "%" + lastName + "%"));
+			predicates.add(
+				criteriaBuilder.like(
+					criteriaBuilder.lower(root.get("lastName")), "%" + lastName.toLowerCase() + "%")
+			);
 		}
 		if (email != null && !email.isEmpty()) {
-			predicates.add(criteriaBuilder.like(root.get("email"), "%" + email + "%"));
+			predicates.add(
+				criteriaBuilder.like(
+					criteriaBuilder.lower(root.get("email")), "%" + email.toLowerCase() + "%")
+			);
 		}
 		if (phone != null && !phone.isEmpty()) {
-			predicates.add(criteriaBuilder.like(root.get("phone"), "%" + phone + "%"));
+			predicates.add(
+				criteriaBuilder.like(
+					criteriaBuilder.lower(root.get("phone")), "%" + phone.toLowerCase() + "%")
+			);
+		}
+		if (uniqueIdentifier != null && !uniqueIdentifier.isEmpty()) {
+			predicates.add(
+				criteriaBuilder.like(
+					criteriaBuilder.lower(root.get("uniqueIdentifier")), "%" + uniqueIdentifier.toLowerCase() + "%")
+			);
 		}
 		return predicates;
 	}
