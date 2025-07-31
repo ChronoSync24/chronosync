@@ -54,7 +54,22 @@ public class ClientFilterBuilderTest {
 	private Path<String> phoneNumberPath;
 
 	@Mock
+	private Path<Object> firmPath;
+
+	@Mock
 	private Path<Long> firmIdPath;
+
+	@Mock
+	private Expression<String> lowerFirstNamePath;
+
+	@Mock
+	private Expression<String> lowerLastNamePath;
+
+	@Mock
+	private Expression<String> lowerEmailPath;
+
+	@Mock
+	private Expression<String> lowerPhoneNumberPath;
 
 	private AutoCloseable mocks;
 
@@ -80,7 +95,6 @@ public class ClientFilterBuilderTest {
 		String email = "test@test.com";
 		String phone = "+555-555-555";
 
-
 		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
 			.firmId(firmId)
 			.firstName(firstName)
@@ -89,18 +103,26 @@ public class ClientFilterBuilderTest {
 			.phone(phone)
 			.build();
 
-		when(root.<Long>get("firm")).thenReturn(firmIdPath);
-		when(root.<String>get("firstName")).thenReturn(firstNamePath);
-		when(root.<String>get("lastName")).thenReturn(lastNamePath);
-		when(root.<String>get("email")).thenReturn(emailPath);
-		when(root.<String>get("phone")).thenReturn(phoneNumberPath);
-
-		when(firmIdPath.<Long>get("id")).thenReturn(firmIdPath);
+		when(root.get("firm")).thenReturn(firmPath);
+		when(firmPath.<Long>get("id")).thenReturn(firmIdPath);
 		when(criteriaBuilder.equal(firmIdPath, firmId)).thenReturn(predicate);
-		when(criteriaBuilder.like(firstNamePath, "%" + firstName + "%")).thenReturn(predicate);
-		when(criteriaBuilder.like(lastNamePath, "%" + lastName + "%")).thenReturn(predicate);
-		when(criteriaBuilder.like(emailPath, "%" + email + "%")).thenReturn(predicate);
-		when(criteriaBuilder.like(phoneNumberPath, "%" + phone + "%")).thenReturn(predicate);
+
+		when(root.<String>get("firstName")).thenReturn(firstNamePath);
+		when(criteriaBuilder.lower(firstNamePath)).thenReturn(lowerFirstNamePath);
+		when(criteriaBuilder.like(lowerFirstNamePath, "%" + firstName.toLowerCase() + "%")).thenReturn(predicate);
+
+		when(root.<String>get("lastName")).thenReturn(lastNamePath);
+		when(criteriaBuilder.lower(lastNamePath)).thenReturn(lowerLastNamePath);
+		when(criteriaBuilder.like(lowerLastNamePath, "%" + lastName.toLowerCase() + "%")).thenReturn(predicate);
+
+		when(root.<String>get("email")).thenReturn(emailPath);
+		when(criteriaBuilder.lower(emailPath)).thenReturn(lowerEmailPath);
+		when(criteriaBuilder.like(lowerEmailPath, "%" + email.toLowerCase() + "%")).thenReturn(predicate);
+
+		when(root.<String>get("phone")).thenReturn(phoneNumberPath);
+		when(criteriaBuilder.lower(phoneNumberPath)).thenReturn(lowerPhoneNumberPath);
+		when(criteriaBuilder.like(lowerPhoneNumberPath, "%" + phone.toLowerCase() + "%")).thenReturn(predicate);
+
 		when(criteriaBuilder.and(any(Predicate[].class))).thenReturn(predicate);
 
 		Specification<Client> specification = filterBuilder.toSpecification();
@@ -110,10 +132,18 @@ public class ClientFilterBuilderTest {
 		specification.toPredicate(root, query, criteriaBuilder);
 
 		verify(criteriaBuilder).equal(firmIdPath, firmId);
-		verify(criteriaBuilder).like(firstNamePath, "%" + firstName + "%");
-		verify(criteriaBuilder).like(lastNamePath, "%" + lastName + "%");
-		verify(criteriaBuilder).like(emailPath, "%" + email + "%");
-		verify(criteriaBuilder).like(phoneNumberPath, "%" + phone + "%");
+
+		verify(criteriaBuilder).lower(firstNamePath);
+		verify(criteriaBuilder).like(lowerFirstNamePath, "%" + firstName.toLowerCase() + "%");
+
+		verify(criteriaBuilder).lower(lastNamePath);
+		verify(criteriaBuilder).like(lowerLastNamePath, "%" + lastName.toLowerCase() + "%");
+
+		verify(criteriaBuilder).lower(emailPath);
+		verify(criteriaBuilder).like(lowerEmailPath, "%" + email.toLowerCase() + "%");
+
+		verify(criteriaBuilder).lower(phoneNumberPath);
+		verify(criteriaBuilder).like(lowerPhoneNumberPath, "%" + phone.toLowerCase() + "%");
 
 		verify(criteriaBuilder).and(any(Predicate[].class));
 	}
