@@ -28,6 +28,9 @@ import { appointmentTypeFilterFields } from '../configs/FilterConfigs';
 import { appointmentTypeFormFields } from '../configs/forms/AppointmentTypeFormConfig';
 import { Currency } from '../models/appointmentType/Currency';
 
+/**
+ * Appointment type page component.
+ */
 const AppointmentTypePage: React.FC = () => {
   const theme: Theme = useTheme();
 

@@ -11,6 +11,22 @@ import {
   Typography,
 } from '@mui/material';
 
+/**
+ * Props for the ConfirmationDialog component
+ * @param {boolean} open - Controls whether the dialog is visible
+ * @param {() => void} onClose - Callback fired when dialog should close
+ * @param {() => void} onConfirm - Callback fired when user confirms the action
+ * @param {string} [title] - Dialog title text (default: "Confirm Action")
+ * @param {string} [loadingTitle] - Title shown during loading state (default: "Processing...")
+ * @param {string | React.ReactElement} message - Main message content displayed in dialog
+ * @param {string | React.ReactElement} [loadingMessage] - Message shown during loading state
+ * @param {string} [confirmText] - Text for the confirm button (default: "Confirm")
+ * @param {string} [cancelText] - Text for the cancel button (default: "Cancel")
+ * @param {'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success'} [confirmColor] - Color theme for confirm button (default: "primary")
+ * @param {'text' | 'outlined' | 'contained'} [confirmVariant] - Style variant for confirm button (default: "contained")
+ * @param {boolean} [loading] - Shows loading spinner and disables interaction
+ * @param {boolean} [disabled] - Disables both action buttons
+ */
 export interface ConfirmationDialogProps {
   open: boolean;
   onClose: () => void;
@@ -33,6 +49,11 @@ export interface ConfirmationDialogProps {
   disabled?: boolean;
 }
 
+/**
+ * A reusable confirmation dialog component with loading state support.
+ * Displays a modal dialog for user confirmation with customizable messaging,
+ * button styling, and optional loading indicators.
+ */
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   open,
   onClose,

@@ -21,6 +21,15 @@ import { useTheme } from '@mui/material/styles';
 import ClearIcon from '@mui/icons-material/Clear';
 import PrimaryButton from './PrimaryButton';
 
+/**
+ * Configuration for a single filter field.
+ *
+ * @param {string} key - Unique identifier for the filter field
+ * @param {string} label - Display label for the field
+ * @param {'text' | 'number' | 'select' | 'multiselect' | 'date'} type - Type of input field to render
+ * @param {{ value: string | number; label: string }[]} [options] - Available options for select/multiselect fields
+ * @param {string} [placeholder] - Placeholder text for text/number inputs
+ */
 export interface FilterField {
   key: string;
   label: string;
@@ -29,6 +38,16 @@ export interface FilterField {
   placeholder?: string;
 }
 
+/**
+ * Props for the Filters component.
+ *
+ * @param {boolean} isOpen - Controls whether the filter panel is visible
+ * @param {FilterField[]} fields - Array of filter field configurations
+ * @param {Record<string, any>} values - Current filter values by field key
+ * @param {(key: string, value: any) => void} onFilterChange - Callback fired when a filter value changes
+ * @param {() => void} onClearFilters - Callback fired when clearing all filters
+ * @param {() => void} [onApplyFilters] - Optional callback for applying filters (shows Apply button if provided)
+ */
 export interface FiltersProps {
   isOpen: boolean;
   fields: FilterField[];
@@ -38,6 +57,11 @@ export interface FiltersProps {
   onApplyFilters?: () => void;
 }
 
+/**
+ * A collapsible filter panel component supporting multiple field types.
+ * Renders text, number, select, multiselect, and date filters with
+ * automatic sorting and displays active filters as chips.
+ */
 const Filters: React.FC<FiltersProps> = ({
   isOpen,
   fields,

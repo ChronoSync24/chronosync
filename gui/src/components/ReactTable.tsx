@@ -63,6 +63,15 @@ const StyledHeaderRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+/**
+ * Configuration for a table column.
+ *
+ * @param {string} key - Unique identifier and data property key
+ * @param {string} label - Display header text for the column
+ * @param {'left' | 'center' | 'right'} [align] - Text alignment within the column (default: 'left')
+ * @param {string | number} [width] - Column width as string or number
+ * @param {(value: any, row: any) => React.ReactNode} [render] - Custom render function for cell content
+ */
 export interface TableColumn {
   key: string;
   label: string;
@@ -71,6 +80,16 @@ export interface TableColumn {
   render?: (value: any, row: any) => React.ReactNode;
 }
 
+/**
+ * Props for the ReactTable component.
+ *
+ * @param {boolean} isLoading - Shows loading spinner when true
+ * @param {TableColumn[]} columns - Array of column configurations
+ * @param {PageableResponse<any>} data - Paginated response data to display
+ * @param {(row: any) => void} [onRowClick] - Optional callback fired when a row is clicked
+ * @param {(page: number) => void} onPageChange - Callback fired when page number changes
+ * @param {(pageSize: number) => void} onPageSizeChange - Callback fired when page size changes
+ */
 export interface TableProps {
   isLoading: boolean;
   columns: TableColumn[];
@@ -80,6 +99,11 @@ export interface TableProps {
   onPageSizeChange: (pageSize: number) => void;
 }
 
+/**
+ * A reusable data table component with pagination and custom styling.
+ * Features loading states, configurable columns, optional row click handlers,
+ * and integrated pagination controls.
+ */
 const ReactTable: React.FC<TableProps> = ({
   isLoading = false,
   columns,

@@ -1,10 +1,3 @@
-/**
- * This component renders a form based on a configuration array of fields, supporting text, number, and select inputs.
- * It manages its own form state, supports initial values, and provides callbacks for submission and reset.
- *
- * @module DynamicModal
- */
-
 import React, { useState, useEffect } from 'react';
 import TextInput from './TextInput';
 import PrimaryButton from '../PrimaryButton';
@@ -14,6 +7,20 @@ import './DynamicModal.css';
 import { CircularProgress, Dialog, DialogProps, Box } from '@mui/material';
 import { FieldConfig } from './FieldConfig';
 
+/**
+ * Props for the DynamicModal component.
+ *
+ * @param {string} title - The title of the modal
+ * @param {FieldConfig[]} fields - The fields to display in the modal
+ * @param {Record<string, string>} [initialValues] - The initial values for the fields
+ * @param {(formData: Record<string, string>) => void} onSubmit - The function to call when the form is submitted
+ * @param {() => void} [onCancel] - The function to call when the form is cancelled
+ * @param {boolean} open - Whether the modal is open
+ * @param {() => void} onClose - The function to call when the modal is closed
+ * @param {DialogProps['maxWidth']} [maxWidth] - The maximum width of the modal
+ * @param {boolean} [isLoading] - Whether the modal is loading
+ * @param {boolean} [isCreate] - Whether the modal is creating a new record
+ */
 type DynamicModalProps = {
   title: string;
   fields: FieldConfig[];
@@ -27,6 +34,11 @@ type DynamicModalProps = {
   isCreate?: boolean;
 };
 
+/**
+ * A reusable modal component with dynamic form fields and validation.
+ * Supports text, number, and select inputs, with optional initial values,
+ * validation rules, and asynchronous option loading.
+ */
 export default function DynamicModal({
   title,
   fields,
@@ -45,7 +57,6 @@ export default function DynamicModal({
       defaultValues[field.name] = initialValues[field.name] || '';
     });
 
-    console.log('defaultValues', defaultValues);
     return defaultValues;
   });
 
@@ -128,6 +139,7 @@ export default function DynamicModal({
     const value = form[field.name];
     const error = touched[field.name] && errors[field.name];
 
+    // Select input field
     if (field.type === 'select' && field.options) {
       return (
         <div key={field.name} className='dynamic-form-field'>

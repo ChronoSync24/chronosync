@@ -1,6 +1,11 @@
 import { FieldConfig } from '../../components/forms/FieldConfig';
 import { OptionType } from '../../components/SelectField';
 
+/**
+ * Options for the currency field.
+ *
+ * @type {OptionType[]}
+ */
 const currencyOptions: OptionType[] = [
   { value: 'EUR', label: 'EUR' },
   { value: 'CHF', label: 'CHF' },
@@ -9,6 +14,11 @@ const currencyOptions: OptionType[] = [
   { value: 'USD', label: 'USD' },
 ];
 
+/**
+ * Configuration for the appointment type form fields.
+ *
+ * @type {FieldConfig[]}
+ */
 export const appointmentTypeFormFields: FieldConfig[] = [
   {
     name: 'name',
