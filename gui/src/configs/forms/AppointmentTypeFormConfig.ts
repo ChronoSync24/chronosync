@@ -25,21 +25,35 @@ export const appointmentTypeFormFields: FieldConfig[] = [
     label: 'Appointment Name',
     placeholder: 'Enter appointment type name',
     type: 'text',
-    validation: { required: true, maxLength: 50 },
+    validation: {
+      required: true,
+      maxLength: 50,
+      minLength: 3,
+    },
   },
   {
     name: 'durationMinutes',
     label: 'Duration (minutes)',
     placeholder: 'Enter duration in minutes',
     type: 'number',
-    validation: { required: true },
+    validation: {
+      required: true,
+      minLength: 1,
+      maxLength: 10,
+      pattern: '^[0-9]+$',
+    },
   },
   {
     name: 'price',
     label: 'Price',
     placeholder: 'Enter price',
     type: 'number',
-    validation: { required: true },
+    validation: {
+      required: true,
+      minLength: 1,
+      maxLength: 10,
+      pattern: '^[0-9]+$',
+    },
   },
   {
     name: 'currency',

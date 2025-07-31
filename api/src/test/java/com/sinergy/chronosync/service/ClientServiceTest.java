@@ -1,6 +1,7 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.model.Client;
@@ -17,7 +18,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
@@ -74,7 +74,7 @@ class ClientServiceTest {
 	 */
 	@Test
 	void getClientsTest() {
-		PageRequest pageRequest = PageRequest.of(0, 10);
+		PaginatedClientRequestDTO paginatedRequest = new PaginatedClientRequestDTO();
 		ClientRequestDTO newClient = ClientRequestDTO.builder()
 			.firstName("John")
 			.lastName("Doe")
@@ -84,12 +84,12 @@ class ClientServiceTest {
 
 		Firm firm = new Firm();
 		firm.setId(1L);
-		newClient.toModel().setFirm(firm);
-		Page<Client> clients = new PageImpl<>(List.of(newClient.toModel()));
+
+		Page<Client> clients = new PageImpl<>(List.of(newClient.toModel(firm)));
 
 		when(clientRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(clients);
 
-		Page<Client> result = clientService.getClients(pageRequest);
+		Page<Client> result = clientService.getClients(paginatedRequest);
 
 		assertNotNull(result, "Result should not be null");
 		assertEquals(1, result.getTotalElements(), "Should contain 1 client");
@@ -114,10 +114,9 @@ class ClientServiceTest {
 			.lastName("Doe")
 			.email("john.doe@example.com")
 			.phone("123456789")
-			.firmId(firm.getId())
 			.build();
 
-		Client client = requestDto.toModel();
+		Client client = requestDto.toModel(firm);
 		client.setId(1L);
 
 		when(userRepository.findOne(Mockito.<Specification<User>>any())).thenReturn(Optional.of(user));

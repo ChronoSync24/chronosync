@@ -3,6 +3,7 @@ package com.sinergy.chronosync.repository;
 import com.sinergy.chronosync.builder.ClientFilterBuilder;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
 import com.sinergy.chronosync.model.Client;
+import com.sinergy.chronosync.model.Firm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -51,7 +52,10 @@ class ClientRepositoryTest {
 			.phone("123-456-789")
 			.build();
 
-		List<Client> clients = List.of(clientDTO.toModel());
+		Firm firm = new Firm();
+		firm.setId(1L);
+
+		List<Client> clients = List.of(clientDTO.toModel(firm));
 
 		when(clientRepository.findAll(Mockito.<Specification<Client>>any())).thenReturn(clients);
 
@@ -96,7 +100,10 @@ class ClientRepositoryTest {
 			.phone("123-456-789")
 			.build();
 
-		Client clientModel = client.toModel();
+		Firm firm = new Firm();
+		firm.setId(1L);
+
+		Client clientModel = client.toModel(firm);
 
 		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
 			.firstName("John")

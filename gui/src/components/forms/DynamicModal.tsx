@@ -104,6 +104,20 @@ export default function DynamicModal({
       ) {
         newErrors[field.name] = `Max ${field.validation.maxLength} chars`;
       }
+      if (
+        field.validation?.minLength &&
+        form[field.name] &&
+        form[field.name].length < field.validation.minLength
+      ) {
+        newErrors[field.name] = `Min ${field.validation.minLength} chars`;
+      }
+      if (
+        field.validation?.pattern &&
+        form[field.name] &&
+        !new RegExp(field.validation.pattern).test(form[field.name])
+      ) {
+        newErrors[field.name] = 'Invalid pattern';
+      }
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
