@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Paginated appointment type request DTO.
+ */
 @Getter
 @Setter
 @RequiredArgsConstructor
