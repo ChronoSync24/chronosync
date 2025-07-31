@@ -23,9 +23,10 @@ import {
 import { PaginatedAppointmentTypeRequestDTO } from '../dtos/requests/PaginatedAppointmentTypeRequestDTO';
 import { AppointmentTypeRequestDTO } from '../dtos/requests/AppointmentTypeRequestDTO';
 import { PageableResponse } from '../models/BaseEntity';
-import { getAppointmentTypeColumns } from '../configs/ColumnConfigs';
-import { appointmentTypeFilterFields } from '../configs/FilterConfigs';
+import { getAppointmentTypeColumns } from '../configs/columns/AppointmentTypeColumnsConfig';
+import { appointmentTypeFilterFields } from '../configs/filters/AppointmentTypeFilterConfig';
 import { appointmentTypeFormFields } from '../configs/forms/AppointmentTypeFormConfig';
+import { extractFormValues } from '../utils/formHelpers';
 import { Currency } from '../models/appointmentType/Currency';
 
 /**
@@ -345,13 +346,7 @@ const AppointmentTypePage: React.FC = () => {
         initialValues={
           isCreate || !appointmentType ?
             {}
-          : {
-              name: appointmentType.name,
-              durationMinutes: appointmentType.durationMinutes.toString(),
-              price: appointmentType.price.toString(),
-              colorCode: appointmentType.colorCode,
-              currency: appointmentType.currency,
-            }
+          : extractFormValues(appointmentType, appointmentTypeFormFields)
         }
       />
     </Box>
