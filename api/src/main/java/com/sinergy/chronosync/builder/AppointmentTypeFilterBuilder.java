@@ -42,10 +42,10 @@ public class AppointmentTypeFilterBuilder extends BaseFilterBuilder<AppointmentT
 		}
 		if (name != null && !name.isEmpty()) {
 			predicates.add(
-				criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + name.toLowerCase() + "%")
+				criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%")
 			);
-
 		}
+
 		return predicates;
 	}
 

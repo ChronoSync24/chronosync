@@ -14,33 +14,33 @@ import java.util.List;
 @AllArgsConstructor
 public class JwtUserPrincipal implements UserDetails {
 
-    private Long id;
-    private Long firmId;
-    private String username;
-    private List<GrantedAuthority> authorities;
+	private Long id;
+	private Long firmId;
+	private String username;
+	private List<GrantedAuthority> authorities;
 
-    @Override
-    public String getPassword() {
-        return null; // Not needed for JWT authentication
-    }
+	@Override
+	public String getPassword() {
+		return null; // Not needed for JWT authentication
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 }

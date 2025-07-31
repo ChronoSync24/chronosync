@@ -10,5 +10,5 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class PaginatedAppointmentTypeRequestDTO extends BasePaginationRequest {
-    private String name;
+	private String name;
 }

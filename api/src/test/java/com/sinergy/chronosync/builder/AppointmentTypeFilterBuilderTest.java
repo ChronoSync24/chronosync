@@ -75,9 +75,9 @@ public class AppointmentTypeFilterBuilderTest {
 		String name = "Test Appointment";
 
 		AppointmentTypeFilterBuilder filterBuilder = AppointmentTypeFilterBuilder.builder()
-				.firmId(firmId)
-				.name(name)
-				.build();
+			.firmId(firmId)
+			.name(name)
+			.build();
 
 		when(root.get("firm")).thenReturn(firmPath);
 		when(firmPath.<Long>get("id")).thenReturn(firmIdPath);

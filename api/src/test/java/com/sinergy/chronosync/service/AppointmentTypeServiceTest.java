@@ -84,7 +84,7 @@ class AppointmentTypeServiceTest {
 		when(appointmentTypeRepository.findAll(Mockito.<Specification<AppointmentType>>any(), eq(pageRequest)))
 			.thenReturn(appointmentTypes);
 
-        PaginatedAppointmentTypeRequestDTO paginatedRequest = new PaginatedAppointmentTypeRequestDTO();
+		PaginatedAppointmentTypeRequestDTO paginatedRequest = new PaginatedAppointmentTypeRequestDTO();
 
 		Page<AppointmentType> result = appointmentTypeService.getAppointmentTypes(paginatedRequest);
 
@@ -184,6 +184,7 @@ class AppointmentTypeServiceTest {
 
 	/**
 	 * Gets mock user.
+	 *
 	 * @return {@link User} mocked user class
 	 */
 	private User getUser() {
@@ -199,6 +200,7 @@ class AppointmentTypeServiceTest {
 
 	/**
 	 * Gets mock appointment type.
+	 *
 	 * @return {@link AppointmentType}
 	 */
 	private AppointmentType getAppointmentType() {

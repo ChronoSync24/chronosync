@@ -23,9 +23,9 @@ public class SecurityContextService {
 	 */
 	private JwtUserPrincipal getUserPrincipal() {
 		return (JwtUserPrincipal) SecurityContextHolder
-				.getContext()
-				.getAuthentication()
-				.getPrincipal();
+			.getContext()
+			.getAuthentication()
+			.getPrincipal();
 	}
 
 	/**
