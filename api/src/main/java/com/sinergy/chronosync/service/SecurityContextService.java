@@ -1,11 +1,10 @@
 package com.sinergy.chronosync.service;
 
-import com.sinergy.chronosync.builder.UserFilterBuilder;
+import com.sinergy.chronosync.config.JwtUserPrincipal;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.UserNotFoundException;
 import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.model.user.User;
-import com.sinergy.chronosync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SecurityContextService {
 
-	private final UserRepository userRepository;
+	/**
+	 * Helper function that extracts UserPrincipal from Security Context Holder.
+	 *
+	 * @return {@link JwtUserPrincipal}
+	 */
+	private JwtUserPrincipal getUserPrincipal() {
+		return (JwtUserPrincipal) SecurityContextHolder
+			.getContext()
+			.getAuthentication()
+			.getPrincipal();
+	}
 
 	/**
 	 * Retrieves the authenticated user.
@@ -28,13 +37,10 @@ public class SecurityContextService {
 	 * @throws UserNotFoundException if no user is found with the authenticated username
 	 */
 	public User getAuthUser() {
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		User user = new User();
+		user.setId(getUserPrincipal().getId());
 
-		return userRepository.findOne(UserFilterBuilder.builder()
-				.username(username)
-				.build()
-				.toSpecification())
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		return user;
 	}
 
 	/**
@@ -49,11 +55,13 @@ public class SecurityContextService {
 	 * @throws InvalidStateException if the user is not associated with any firm
 	 */
 	public Firm getAuthUserFirm() {
-		User user = getAuthUser();
-		Firm firm = user.getFirm();
-		if (firm == null) {
+		Firm firm = new Firm();
+		firm.setId(getUserPrincipal().getFirmId());
+
+		if (firm.getId() == null) {
 			throw new InvalidStateException("User is not associated with any firm.");
 		}
+
 		return firm;
 	}
 }

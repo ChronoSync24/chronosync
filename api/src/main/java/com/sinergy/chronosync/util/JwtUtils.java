@@ -1,18 +1,21 @@
 package com.sinergy.chronosync.util;
 
 import com.sinergy.chronosync.exception.TokenException;
+import com.sinergy.chronosync.model.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -65,6 +68,36 @@ public class JwtUtils {
 	}
 
 	/**
+	 * Extracts user id claim from the JWT.
+	 *
+	 * @param jwtString {@link String} JWT from which to extract the claim
+	 * @return {@link Long} user id
+	 */
+	public Long extractUserId(String jwtString) {
+		return extractClaim(jwtString, claims -> claims.get("user_id", Long.class));
+	}
+
+	/**
+	 * Extracts firm id claim from the JWT.
+	 *
+	 * @param jwtString {@link String} JWT from which to extract the claim
+	 * @return {@link Long} firm id
+	 */
+	public Long extractFirmId(String jwtString) {
+		return extractClaim(jwtString, claims -> claims.get("firm_id", Long.class));
+	}
+
+	/**
+	 * Extracts roles from the JWT.
+	 *
+	 * @param jwtString {@link String} JWT from which to extract the claim
+	 * @return {@link List<String>} list of user roles
+	 */
+	public List<String> extractRoles(String jwtString) {
+		return extractClaim(jwtString, claims -> claims.get("roles", List.class));
+	}
+
+	/**
 	 * Builds a JWT string with the specified additional claims and user details.
 	 *
 	 * @param additionalClaims a {@link Map} of additional claims to include in the token
@@ -72,24 +105,22 @@ public class JwtUtils {
 	 * @return {@link String} representing the generated JWT string
 	 */
 	private String buildJWTString(Map<String, Object> additionalClaims, UserDetails userDetails) {
+		if (userDetails instanceof User user) {
+			additionalClaims.put("user_id", user.getId());
+			additionalClaims.put("firm_id", user.getFirm().getId());
+			additionalClaims.put("roles", user.getAuthorities().stream()
+				.map(GrantedAuthority::getAuthority)
+				.toList());
+		}
+
 		return Jwts
 			.builder()
 			.claims(additionalClaims)
 			.subject(userDetails.getUsername())
 			.issuedAt(new Date(System.currentTimeMillis()))
 			.expiration(new Date(System.currentTimeMillis() + 1000 * 3600 * JWT_EXPIRATION))
-			.signWith(getSigningKey())
+			.signWith(getSigningKey(), Jwts.SIG.HS256)
 			.compact();
-	}
-
-	/**
-	 * Checks if the given JWT has expired.
-	 *
-	 * @param jwtString {@link String} JWT to check for expiration
-	 * @return {@code true} if the token is expired, {@code false} otherwise
-	 */
-	private boolean isTokenExpired(String jwtString) {
-		return extractExpiration(jwtString).before(new Date());
 	}
 
 	/**
@@ -100,6 +131,16 @@ public class JwtUtils {
 	 */
 	private Date extractExpiration(String jwtString) {
 		return extractClaim(jwtString, Claims::getExpiration);
+	}
+
+	/**
+	 * Checks if the given JWT has expired.
+	 *
+	 * @param jwtString {@link String} JWT to check for expiration
+	 * @return {@code true} if the token is expired, {@code false} otherwise
+	 */
+	public boolean isTokenExpired(String jwtString) {
+		return extractExpiration(jwtString).before(new Date());
 	}
 
 	/**

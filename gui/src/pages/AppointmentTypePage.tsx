@@ -1,271 +1,252 @@
-import React from 'react';
-import { Box, Typography, Button, IconButton, Theme, useTheme, Chip } from '@mui/material';
-import ReactTable, { TableColumn } from '../components/ReactTable';
-import Filters, { FilterField } from '../components/Filters';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Box,
+  Typography,
+  IconButton,
+  Theme,
+  useTheme,
+  Alert,
+} from '@mui/material';
+import ReactTable from '../components/ReactTable';
+import Filters from '../components/Filters';
+import DynamicModal from '../components/forms/DynamicModal';
+import ConfirmationDialog from '../components/ConfirmationDialog';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { AppointmentType } from '../models/appointmentType/AppointmentType';
+import {
+  get as getAppointmentTypes,
+  remove,
+  create,
+  update,
+} from '../services/AppointmentTypeService';
+import { PaginatedAppointmentTypeRequestDTO } from '../dtos/requests/PaginatedAppointmentTypeRequestDTO';
+import { AppointmentTypeRequestDTO } from '../dtos/requests/AppointmentTypeRequestDTO';
+import { PageableResponse } from '../models/BaseEntity';
+import { getAppointmentTypeColumns } from '../configs/ColumnConfigs';
+import { appointmentTypeFilterFields } from '../configs/FilterConfigs';
+import { appointmentTypeFormFields } from '../configs/forms/AppointmentTypeFormConfig';
 import { Currency } from '../models/appointmentType/Currency';
 
+/**
+ * Appointment type page component.
+ */
 const AppointmentTypePage: React.FC = () => {
   const theme: Theme = useTheme();
 
-  // Sample data - replace with real data from your API
-  const [appointmentTypes, setAppointmentTypes] = React.useState<AppointmentType[]>([
-    {
-      id: 1,
-      name: 'Initial Consultation',
-      durationMinutes: 60,
-      price: 150.00,
-      colorCode: '#4CAF50',
-      currency: Currency.USD
+  const [appointmentTypes, setAppointmentTypes] = useState<
+    PageableResponse<AppointmentType>
+  >({
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+    number: 0,
+    size: 0,
+    first: false,
+    last: false,
+    empty: false,
+  });
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [filterValues, setFilterValues] = useState<Record<string, any>>({});
+  const [debouncedFilterValues, setDebouncedFilterValues] = useState<
+    Record<string, any>
+  >({});
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{
+    message: string | React.ReactElement;
+    severity: 'success' | 'error';
+  } | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    if (alert) {
+      const timer = setTimeout(() => {
+        setAlert(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [appointmentType, setAppointmentType] =
+    useState<AppointmentType | null>(null);
+  const [isCreate, setIsCreate] = useState(false);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedFilterValues(filterValues);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [filterValues]);
+
+  const fetchAppointmentTypes = useCallback(
+    (filters = debouncedFilterValues, page = currentPage, size = pageSize) => {
+      setLoading(true);
+
+      const request: PaginatedAppointmentTypeRequestDTO = {
+        name: filters.name || '',
+        page: page,
+        pageSize: size,
+      };
+
+      getAppointmentTypes(request)
+        .then((result) => {
+          setAppointmentTypes(result);
+        })
+        .catch((error) => {
+          console.error('Error fetching appointment types:', error);
+          setAlert({
+            message: 'Failed to fetch appointment types. Please try again.',
+            severity: 'error',
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     },
-    {
-      id: 2,
-      name: 'Follow-up Session',
-      durationMinutes: 30,
-      price: 75.00,
-      colorCode: '#2196F3',
-      currency: Currency.USD
-    },
-    {
-      id: 3,
-      name: 'Emergency Visit',
-      durationMinutes: 45,
-      price: 200.00,
-      colorCode: '#F44336',
-      currency: Currency.USD
-    },
-    {
-      id: 4,
-      name: 'Annual Checkup',
-      durationMinutes: 90,
-      price: 250.00,
-      colorCode: '#9C27B0',
-      currency: Currency.USD
-    },
-    {
-      id: 5,
-      name: 'Quick Consultation',
-      durationMinutes: 15,
-      price: 50.00,
-      colorCode: '#FF9800',
-      currency: Currency.USD
-    },
-    {
-      id: 6,
-      name: 'Specialist Review',
-      durationMinutes: 120,
-      price: 300.00,
-      colorCode: '#607D8B',
-      currency: Currency.USD
-    },
-  ]);
+    [debouncedFilterValues, currentPage, pageSize]
+  );
 
-  // Filters state
-  const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
-  const [filterValues, setFilterValues] = React.useState<Record<string, any>>({});
-  const [filteredAppointmentTypes, setFilteredAppointmentTypes] = React.useState(appointmentTypes);
+  const refetchData = useCallback(() => {
+    fetchAppointmentTypes();
+  }, [fetchAppointmentTypes]);
 
-  // Define filter fields for this page
-  const filterFields: FilterField[] = [
-    {
-      key: 'name',
-      label: 'Name',
-      type: 'text',
-      placeholder: 'Search by name...',
-    },
-    {
-      key: 'durationMinutes',
-      label: 'Duration (minutes)',
-      type: 'number',
-      placeholder: 'Enter duration...',
-    },
-    {
-      key: 'price',
-      label: 'Price',
-      type: 'number',
-      placeholder: 'Enter price...',
-    },
-    {
-      key: 'currency',
-      label: 'Currency',
-      type: 'select',
-      options: [
-        { value: Currency.USD, label: 'USD' },
-        { value: Currency.EUR, label: 'EUR' },
-        { value: Currency.CHF, label: 'CHF' },
-        { value: Currency.GBP, label: 'GBP' },
-        { value: Currency.BAM, label: 'BAM' },
-      ],
-    },
-    {
-      key: 'colorCode',
-      label: 'Color',
-      type: 'text',
-      placeholder: 'Search by color...',
-    },
-  ];
+  useEffect(() => {
+    fetchAppointmentTypes();
+  }, [fetchAppointmentTypes]);
 
-  // Filter logic
-  const applyFilters = React.useCallback(() => {
-    let filtered = [...appointmentTypes];
-
-    Object.entries(filterValues).forEach(([key, value]) => {
-      if (!value || (Array.isArray(value) && value.length === 0)) return;
-
-      filtered = filtered.filter((appointmentType) => {
-        const appointmentTypeValue = appointmentType[key as keyof typeof appointmentType];
-
-        if (Array.isArray(value)) {
-          return value.includes(appointmentTypeValue);
-        }
-
-        // Handle number filtering (exact match for now, could be enhanced with ranges)
-        if (typeof value === 'number' || (!isNaN(Number(value)) && value !== '')) {
-          return Number(appointmentTypeValue) === Number(value);
-        }
-
-        if (typeof appointmentTypeValue === 'string' && typeof value === 'string') {
-          return appointmentTypeValue.toLowerCase().includes(value.toLowerCase());
-        }
-
-        return appointmentTypeValue === value;
-      });
-    });
-
-    setFilteredAppointmentTypes(filtered);
-  }, [filterValues, appointmentTypes]);
-
-  // Apply filters whenever filter values change
-  React.useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
-
-  const handleDelete = (id: number) => {
-    setAppointmentTypes(appointmentTypes.filter(appointmentType => appointmentType.id !== id));
+  const handleDelete = (row: any) => {
+    setAppointmentType(row);
+    setIsDeleteDialogOpen(true);
   };
 
-  const handleEdit = (id: number) => {
-    console.log('Edit appointment type:', id);
+  const handleEdit = (row: any) => {
+    setAppointmentType(row);
+    handleOpenModal(false);
   };
 
-  const handleFilterChange = (key: string, value: any) => {
-    setFilterValues(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleClearFilters = () => {
-    setFilterValues({});
-  };
-
-  const toggleFilters = () => {
-    setIsFiltersOpen(!isFiltersOpen);
-  };
-
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    if (hours > 0 && remainingMinutes > 0) {
-      return `${hours}h ${remainingMinutes}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    } else {
-      return `${remainingMinutes}m`;
+  const handleOpenModal = (isCreate: boolean) => {
+    setIsModalOpen(true);
+    setIsCreate(isCreate);
+    if (isCreate) {
+      setAppointmentType(null); // Reset for create mode
     }
   };
 
-  const formatPrice = (price: number, currency: Currency) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-    }).format(price);
+  const handleConfirmDelete = () => {
+    if (!appointmentType) return;
+
+    setDeleteLoading(true);
+    remove(appointmentType.id)
+      .then(() => {
+        setAlert({
+          message: (
+            <span>
+              Appointment type{' '}
+              <Typography component='span' sx={{ fontWeight: 'bold' }}>
+                {appointmentType.name}
+              </Typography>{' '}
+              was successfully deleted.
+            </span>
+          ),
+          severity: 'success',
+        });
+        handleCloseDeleteDialog();
+        refetchData();
+      })
+      .catch((error) => {
+        console.error('Error deleting appointment type:', error);
+        setAlert({
+          message: 'Failed to delete appointment type. Please try again.',
+          severity: 'error',
+        });
+        handleCloseDeleteDialog();
+      });
   };
 
-  const columns: TableColumn[] = [
-    {
-      key: 'id',
-      label: 'ID',
-      align: 'left',
-      width: '80px',
-    },
-    {
-      key: 'name',
-      label: 'Name',
-      align: 'left',
-    },
-    {
-      key: 'durationMinutes',
-      label: 'Duration',
-      align: 'left',
-      render: (value) => formatDuration(value),
-    },
-    {
-      key: 'price',
-      label: 'Price',
-      align: 'left',
-      render: (value, row) => formatPrice(value, row.currency),
-    },
-    {
-      key: 'currency',
-      label: 'Currency',
-      align: 'left',
-    },
-    {
-      key: 'colorCode',
-      label: 'Color',
-      align: 'left',
-      render: (value) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box
-            sx={{
-              width: 20,
-              height: 20,
-              borderRadius: '50%',
-              backgroundColor: value,
-              border: '1px solid #ddd',
-            }}
-          />
-          <Typography variant="body2">{value}</Typography>
-        </Box>
-      ),
-    },
-    {
-      key: 'actions',
-      label: '',
-      align: 'right',
-      render: (_, row) => (
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'right' }}>
-          <Button
-            variant="outlined"
-            color="secondary"
-            size="small"
-            onClick={() => handleEdit(row.id)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            size="small"
-            onClick={() => handleDelete(row.id)}
-          >
-            Delete
-          </Button>
-        </Box>
-      ),
-    },
-  ];
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setDeleteLoading(false);
+    setAppointmentType(null);
+  };
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilterValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleFormSubmit = async (formData: Record<string, string>) => {
+    setIsCreating(true);
+
+    try {
+      const requestData: AppointmentTypeRequestDTO = {
+        id: isCreate ? 0 : appointmentType!.id,
+        name: formData.name,
+        durationMinutes: parseInt(formData.durationMinutes),
+        price: parseFloat(formData.price),
+        colorCode: formData.colorCode,
+        currency: formData.currency as Currency,
+      };
+
+      if (isCreate) {
+        await create(requestData);
+      } else {
+        await update(requestData);
+      }
+
+      setAlert({
+        message: (
+          <span>
+            Appointment type{' '}
+            <Typography component='span' sx={{ fontWeight: 'bold' }}>
+              {formData.name}
+            </Typography>{' '}
+            was successfully {isCreate ? 'created' : 'updated'}.
+          </span>
+        ),
+        severity: 'success',
+      });
+
+      setIsModalOpen(false);
+      refetchData();
+    } catch (error) {
+      console.error(
+        `Error ${isCreate ? 'creating' : 'updating'} appointment type:`,
+        error
+      );
+      setAlert({
+        message: `Failed to ${isCreate ? 'create' : 'update'} appointment type. Please try again.`,
+        severity: 'error',
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const columns = getAppointmentTypeColumns({ handleEdit, handleDelete });
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+        <Typography variant='h4' gutterBottom>
           Appointment Types
         </Typography>
         <Box>
           <IconButton
-            onClick={toggleFilters}
+            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
             sx={{
               borderRadius: '8px',
               marginRight: '8px',
@@ -274,11 +255,12 @@ const AppointmentTypePage: React.FC = () => {
               '&:hover': {
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.secondary.main}`,
-              }
+              },
             }}>
             <FilterAltOutlinedIcon fontSize='medium' />
           </IconButton>
           <IconButton
+            onClick={() => handleOpenModal(true)}
             sx={{
               borderRadius: '8px',
               color: theme.palette.secondary.main,
@@ -286,28 +268,92 @@ const AppointmentTypePage: React.FC = () => {
               '&:hover': {
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.secondary.main}`,
-              }
+              },
             }}>
             <AddIcon fontSize='medium' />
           </IconButton>
         </Box>
       </Box>
 
-      {/* Filters */}
       <Filters
         isOpen={isFiltersOpen}
-        fields={filterFields}
+        fields={appointmentTypeFilterFields}
         values={filterValues}
         onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
+        onClearFilters={() => setFilterValues({})}
       />
+
+      {alert && (
+        <Box sx={{ mt: 2 }}>
+          <Alert onClose={() => setAlert(null)} severity={alert.severity}>
+            {alert.message}
+          </Alert>
+        </Box>
+      )}
 
       <Box sx={{ mt: 2 }}>
         <ReactTable
+          isLoading={loading}
           columns={columns}
-          data={filteredAppointmentTypes}
+          data={appointmentTypes}
+          onPageChange={(newPage) => setCurrentPage(newPage)}
+          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
         />
       </Box>
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title='Confirm Deletion'
+        loadingTitle='Deleting...'
+        message={
+          <>
+            Are you sure you want to delete the appointment type{' '}
+            <Typography component='span' sx={{ fontWeight: 'bold' }}>
+              {appointmentType?.name}
+            </Typography>
+            ?
+          </>
+        }
+        loadingMessage={
+          <>
+            Deleting appointment type{' '}
+            <Typography component='span' sx={{ fontWeight: 'bold' }}>
+              {appointmentType?.name}
+            </Typography>
+            ...
+          </>
+        }
+        confirmText='Delete'
+        cancelText='Cancel'
+        confirmColor='error'
+        loading={deleteLoading}
+      />
+
+      <DynamicModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+        onCancel={() => setIsModalOpen(false)}
+        title={
+          isCreate ? 'Create New Appointment Type' : 'Edit Appointment Type'
+        }
+        fields={appointmentTypeFormFields}
+        isCreate={isCreate}
+        isLoading={isCreating}
+        initialValues={
+          isCreate || !appointmentType ?
+            {}
+          : {
+              name: appointmentType.name,
+              durationMinutes: appointmentType.durationMinutes.toString(),
+              price: appointmentType.price.toString(),
+              colorCode: appointmentType.colorCode,
+              currency: appointmentType.currency,
+            }
+        }
+      />
     </Box>
   );
 };

@@ -7,8 +7,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
+  CircularProgress,
   styled,
 } from '@mui/material';
+import { PageableResponse } from '../models/BaseEntity';
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   '& .MuiTable-root': {
@@ -60,6 +63,15 @@ const StyledHeaderRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+/**
+ * Configuration for a table column.
+ *
+ * @param {string} key - Unique identifier and data property key
+ * @param {string} label - Display header text for the column
+ * @param {'left' | 'center' | 'right'} [align] - Text alignment within the column (default: 'left')
+ * @param {string | number} [width] - Column width as string or number
+ * @param {(value: any, row: any) => React.ReactNode} [render] - Custom render function for cell content
+ */
 export interface TableColumn {
   key: string;
   label: string;
@@ -68,62 +80,126 @@ export interface TableColumn {
   render?: (value: any, row: any) => React.ReactNode;
 }
 
-export interface ReusableTableProps {
+/**
+ * Props for the ReactTable component.
+ *
+ * @param {boolean} isLoading - Shows loading spinner when true
+ * @param {TableColumn[]} columns - Array of column configurations
+ * @param {PageableResponse<any>} data - Paginated response data to display
+ * @param {(row: any) => void} [onRowClick] - Optional callback fired when a row is clicked
+ * @param {(page: number) => void} onPageChange - Callback fired when page number changes
+ * @param {(pageSize: number) => void} onPageSizeChange - Callback fired when page size changes
+ */
+export interface TableProps {
+  isLoading: boolean;
   columns: TableColumn[];
-  data: any[];
+  data: PageableResponse<any>;
   onRowClick?: (row: any) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
-const ReactTable: React.FC<ReusableTableProps> = ({
+/**
+ * A reusable data table component with pagination and custom styling.
+ * Features loading states, configurable columns, optional row click handlers,
+ * and integrated pagination controls.
+ */
+const ReactTable: React.FC<TableProps> = ({
+  isLoading = false,
   columns,
   data,
   onRowClick,
+  onPageChange,
+  onPageSizeChange,
 }) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
+    onPageChange(newPage);
+  };
+
+  const handleRowsPerPageChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    onPageSizeChange(parseInt(event.target.value, 10));
+  };
+
   return (
-    <Box sx={{ 
-      '& .MuiTableContainer-root': { 
-        backgroundColor: 'transparent',
-        boxShadow: 'none',
-      }
-    }}>
+    <Box
+      sx={{
+        '& .MuiTableContainer-root': {
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+        },
+      }}>
       <StyledTableContainer sx={{ backgroundColor: 'transparent' }}>
-        <Table>
+        <Table sx={{ tableLayout: 'fixed' }}>
           <TableHead>
             <StyledHeaderRow>
               {columns.map((column) => (
-                <TableCell 
-                  key={column.key} 
+                <TableCell
+                  key={column.key}
                   align={column.align || 'left'}
-                  sx={{ width: column.width }}
-                >
+                  sx={{ width: column.width }}>
                   {column.label}
                 </TableCell>
               ))}
             </StyledHeaderRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => (
-              <StyledTableRow
-                key={index}
-                onClick={() => onRowClick?.(row)}
-                sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
-              >
-                {columns.map((column) => (
-                  <TableCell 
-                    key={column.key} 
-                    align={column.align || 'left'}
-                    sx={{ width: column.width }}
-                  >
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                  </TableCell>
-                ))}
+            {isLoading ?
+              <StyledTableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  align='center'
+                  sx={{ py: 4 }}>
+                  <CircularProgress size={24} />
+                </TableCell>
               </StyledTableRow>
-            ))}
+            : (data.content || []).map((row, index) => (
+                <StyledTableRow
+                  key={index}
+                  onClick={() => onRowClick?.(row)}
+                  sx={{ cursor: onRowClick ? 'pointer' : 'default' }}>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.key}
+                      align={column.align || 'left'}
+                      sx={{ width: column.width }}>
+                      {column.render ?
+                        column.render(row[column.key], row)
+                      : row[column.key]}
+                    </TableCell>
+                  ))}
+                </StyledTableRow>
+              ))
+            }
           </TableBody>
         </Table>
       </StyledTableContainer>
+
+      <TablePagination
+        component='div'
+        count={data.totalElements}
+        page={data.number}
+        onPageChange={handlePageChange}
+        rowsPerPage={data.size}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        sx={{
+          border: 'none',
+          backgroundColor: 'inherit',
+          '& .MuiTablePagination-toolbar': {
+            backgroundColor: 'inherit',
+            border: 'none',
+            padding: 0,
+          },
+          '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
+            {
+              margin: 0,
+            },
+        }}
+      />
     </Box>
   );
 };
 
-export default ReactTable; 
+export default ReactTable;

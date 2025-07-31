@@ -1,9 +1,10 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentTypeRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
-import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.Firm;
+import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.repository.AppointmentTypeRepository;
 import com.sinergy.chronosync.repository.UserRepository;
@@ -57,7 +58,7 @@ class AppointmentTypeServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		
+
 		when(securityContext.getAuthentication()).thenReturn(authentication);
 		when(authentication.getName()).thenReturn("testUser");
 		SecurityContextHolder.setContext(securityContext);
@@ -83,7 +84,9 @@ class AppointmentTypeServiceTest {
 		when(appointmentTypeRepository.findAll(Mockito.<Specification<AppointmentType>>any(), eq(pageRequest)))
 			.thenReturn(appointmentTypes);
 
-		Page<AppointmentType> result = appointmentTypeService.getAppointmentTypes(pageRequest);
+		PaginatedAppointmentTypeRequestDTO paginatedRequest = new PaginatedAppointmentTypeRequestDTO();
+
+		Page<AppointmentType> result = appointmentTypeService.getAppointmentTypes(paginatedRequest);
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -167,7 +170,7 @@ class AppointmentTypeServiceTest {
 			.price(100.0)
 			.build();
 
-		when(appointmentTypeRepository.update(Mockito.any(AppointmentType.class))).thenReturn(requestDto.toModel());
+		when(appointmentTypeRepository.update(Mockito.any(AppointmentType.class))).thenReturn(requestDto.toModel(new Firm()));
 
 		AppointmentType updatedAppointmentType = appointmentTypeService.updateAppointmentType(requestDto);
 
@@ -181,6 +184,7 @@ class AppointmentTypeServiceTest {
 
 	/**
 	 * Gets mock user.
+	 *
 	 * @return {@link User} mocked user class
 	 */
 	private User getUser() {
@@ -196,6 +200,7 @@ class AppointmentTypeServiceTest {
 
 	/**
 	 * Gets mock appointment type.
+	 *
 	 * @return {@link AppointmentType}
 	 */
 	private AppointmentType getAppointmentType() {

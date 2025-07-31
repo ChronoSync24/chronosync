@@ -1,6 +1,8 @@
 package com.sinergy.chronosync.builder;
 
-import com.sinergy.chronosync.model.*;
+import com.sinergy.chronosync.model.Appointment;
+import com.sinergy.chronosync.model.Client;
+import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.model.user.User;
 import jakarta.persistence.criteria.*;

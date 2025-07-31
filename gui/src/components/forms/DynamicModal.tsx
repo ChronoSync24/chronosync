@@ -1,34 +1,27 @@
-/**
- * A reusable, dynamic form generator for React applications using TypeScript and Material-UI.
- *
- * This component renders a form based on a configuration array of fields, supporting text, number, and select inputs.
- * It manages its own form state, supports initial values, and provides callbacks for submission and reset.
- *
- * @module DynamicForm
- */
-
-import React, { useState, useCallback, useEffect } from 'react';
-import Input from './Input';
+import React, { useState, useEffect } from 'react';
+import TextInput from './TextInput';
 import PrimaryButton from '../PrimaryButton';
 import SecondaryButton from '../SecondaryButton';
+import SelectField from '../SelectField';
 import './DynamicModal.css';
-import {
-  CircularProgress,
-  Dialog,
-  DialogProps,
-} from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
+import { CircularProgress, Dialog, DialogProps, Box } from '@mui/material';
 import { FieldConfig } from './FieldConfig';
 
-function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
-  let timeout: number;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = window.setTimeout(() => fn(...args), delay);
-  };
-}
-
-type DynamicFormProps = {
+/**
+ * Props for the DynamicModal component.
+ *
+ * @param {string} title - The title of the modal
+ * @param {FieldConfig[]} fields - The fields to display in the modal
+ * @param {Record<string, string>} [initialValues] - The initial values for the fields
+ * @param {(formData: Record<string, string>) => void} onSubmit - The function to call when the form is submitted
+ * @param {() => void} [onCancel] - The function to call when the form is cancelled
+ * @param {boolean} open - Whether the modal is open
+ * @param {() => void} onClose - The function to call when the modal is closed
+ * @param {DialogProps['maxWidth']} [maxWidth] - The maximum width of the modal
+ * @param {boolean} [isLoading] - Whether the modal is loading
+ * @param {boolean} [isCreate] - Whether the modal is creating a new record
+ */
+type DynamicModalProps = {
   title: string;
   fields: FieldConfig[];
   initialValues?: Record<string, string>;
@@ -37,9 +30,16 @@ type DynamicFormProps = {
   open: boolean;
   onClose: () => void;
   maxWidth?: DialogProps['maxWidth'];
+  isLoading?: boolean;
+  isCreate?: boolean;
 };
 
-export default function DynamicForm({
+/**
+ * A reusable modal component with dynamic form fields and validation.
+ * Supports text, number, and select inputs, with optional initial values,
+ * validation rules, and asynchronous option loading.
+ */
+export default function DynamicModal({
   title,
   fields,
   initialValues = {},
@@ -48,21 +48,20 @@ export default function DynamicForm({
   open,
   onClose,
   maxWidth = 'sm',
-}: DynamicFormProps) {
+  isLoading = false,
+  isCreate = false,
+}: DynamicModalProps) {
   const [form, setForm] = useState<Record<string, string>>(() => {
     const defaultValues: Record<string, string> = {};
     fields.forEach((field: FieldConfig) => {
       defaultValues[field.name] = initialValues[field.name] || '';
     });
+
     return defaultValues;
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [asyncOptions, setAsyncOptions] = useState<Record<string, string[]>>(
-    {}
-  );
-  const [loadingAsync, setLoadingAsync] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const defaultValues: Record<string, string> = {};
@@ -74,24 +73,9 @@ export default function DynamicForm({
     setTouched({});
   }, [initialValues, fields]);
 
-  // fetch for async dropdowns
-  const fetchAsyncOptions = useCallback(
-    debounce(async (field: FieldConfig, input: string) => {
-      if (!field.asyncOptions) return;
-      setLoadingAsync((prev) => ({ ...prev, [field.name]: true }));
-      try {
-        const result = await field.asyncOptions(input, 1); // page 1 for now
-        setAsyncOptions((prev) => ({ ...prev, [field.name]: result.options }));
-      } finally {
-        setLoadingAsync((prev) => ({ ...prev, [field.name]: false }));
-      }
-    }, 500),
-    []
-  );
-
   const handleChange = (name: string, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' })); // Clear error on change
+    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleReset = () => {
@@ -155,63 +139,39 @@ export default function DynamicForm({
     const value = form[field.name];
     const error = touched[field.name] && errors[field.name];
 
-    // Async dropdown
-    if (field.asyncOptions) {
+    // Select input field
+    if (field.type === 'select' && field.options) {
       return (
         <div key={field.name} className='dynamic-form-field'>
-          <Autocomplete
-            freeSolo={false}
-            options={asyncOptions[field.name] || []}
-            loading={loadingAsync[field.name]}
-            value={value || ''}
-            onInputChange={(_e, inputValue, reason) => {
-              if (reason === 'input') {
-                fetchAsyncOptions(field, inputValue);
-              }
-            }}
-            onChange={(_e, newValue) =>
-              handleChange(field.name, newValue || '')
-            }
-            renderInput={(params) => (
-              <Input
-                {...params}
-                label={field.label}
-                placeholder={field.placeholder}
-                value={value}
-                onChange={(e) => handleChange(field.name, e.target.value)}
-                className='dynamic-input'
-                error={!!error}
-                helperText={error}
-                InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {loadingAsync[field.name] ?
-                        <CircularProgress color='inherit' size={18} />
-                      : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
+          <SelectField
+            label={field.label || field.name}
+            placeholder={field.placeholder}
+            value={value}
+            onChange={(newValue) => handleChange(field.name, String(newValue))}
+            options={field.options}
+            error={!!error}
+            helperText={error || undefined}
+            className='dynamic-input'
           />
         </div>
       );
     }
 
-    // Text/number input fields
+    // Text/number/color input fields
     return (
       <div key={field.name} className='dynamic-form-field'>
-        <Input
+        <TextInput
           type={field.type}
           placeholder={field.placeholder}
           label={field.label}
           value={value}
           onChange={(e) => handleChange(field.name, e.target.value)}
           className='dynamic-input'
-          inputProps={{ maxLength: field.validation?.maxLength || 50 }}
+          slotProps={{
+            htmlInput: {
+              maxLength: field.validation?.maxLength || 50,
+            },
+          }}
           error={!!error}
           helperText={error}
         />
@@ -219,33 +179,38 @@ export default function DynamicForm({
     );
   };
 
-  // Main render
-  const formContent = (
-    <form onSubmit={handleSubmit} className='dynamic-form' noValidate>
-      <div className='modal-header'>
-        <h2 className='dynamic-form-title'>{title}</h2>
-      </div>
-      <div className='modal-body'>
-        {/* Render each field based on its type */}
-        {fields.map(renderField)}
-      </div>
-      <div className='modal-footer dynamic-form-buttons'>
-        <SecondaryButton
-          type='button'
-          onClick={handleCancel}
-          className='dynamic-button-cancel'>
-          Cancel
-        </SecondaryButton>
-        <PrimaryButton type='submit' className='dynamic-button-submit'>
-          Create
-        </PrimaryButton>
-      </div>
-    </form>
-  );
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth={maxWidth} fullWidth>
-      {formContent}
+      <form onSubmit={handleSubmit} className='dynamic-form' noValidate>
+        <div className='modal-header'>
+          <h2 className='dynamic-form-title'>{title}</h2>
+        </div>
+        {isLoading ?
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '120px',
+            }}>
+            <CircularProgress />
+          </Box>
+        : <>
+            <div className='modal-body'>{fields.map(renderField)}</div>
+            <div className='modal-footer dynamic-form-buttons'>
+              <SecondaryButton
+                type='button'
+                onClick={handleCancel}
+                className='dynamic-button-cancel'>
+                Cancel
+              </SecondaryButton>
+              <PrimaryButton type='submit' className='dynamic-button-submit'>
+                {isCreate ? 'Create' : 'Update'}
+              </PrimaryButton>
+            </div>
+          </>
+        }
+      </form>
     </Dialog>
   );
 }

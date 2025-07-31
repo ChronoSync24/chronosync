@@ -23,14 +23,14 @@ public class AppointmentTypeRequestDTO {
 	private Double price;
 	private Currency currency;
 	private String colorCode;
-	private Firm firm;
+	private Long firmId;
 
 	/**
 	 * Creates and returns AppointmentType model from Data Transfer Object.
 	 *
 	 * @return {@link AppointmentType} user model
 	 */
-	public AppointmentType toModel() {
+	public AppointmentType toModel(Firm firm) {
 		return AppointmentType.builder()
 			.id(id)
 			.name(name)

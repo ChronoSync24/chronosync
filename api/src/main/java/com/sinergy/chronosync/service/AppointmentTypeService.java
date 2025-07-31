@@ -1,9 +1,9 @@
 package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentTypeRequestDTO;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 /**
  * Service interface for managing appointment types.
@@ -15,7 +15,7 @@ public interface AppointmentTypeService {
 	 *
 	 * @return {@link Page} of {@link AppointmentType} containing all appointment types for the user's firm
 	 */
-	Page<AppointmentType> getAppointmentTypes(PageRequest pageRequest);
+	Page<AppointmentType> getAppointmentTypes(PaginatedAppointmentTypeRequestDTO request);
 
 	/**
 	 * Creates a new appointment type and stores it in the database.

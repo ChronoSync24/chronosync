@@ -47,6 +47,12 @@ public class AppointmentTypeFilterBuilderTest {
 	@Mock
 	private Path<String> namePath;
 
+	@Mock
+	private Path<Object> firmPath;
+
+	@Mock
+	private Expression<String> loweredNameExpression;
+
 	private AutoCloseable mocks;
 
 	@BeforeEach
@@ -73,12 +79,14 @@ public class AppointmentTypeFilterBuilderTest {
 			.name(name)
 			.build();
 
-		when(root.<Long>get("firm")).thenReturn(firmIdPath);
-		when(root.<String>get("name")).thenReturn(namePath);
-
-		when(firmIdPath.<Long>get("id")).thenReturn(firmIdPath);
+		when(root.get("firm")).thenReturn(firmPath);
+		when(firmPath.<Long>get("id")).thenReturn(firmIdPath);
 		when(criteriaBuilder.equal(firmIdPath, firmId)).thenReturn(predicate);
-		when(criteriaBuilder.like(namePath, "%" + name + "%")).thenReturn(predicate);
+
+		when(root.<String>get("name")).thenReturn(namePath);
+		when(criteriaBuilder.lower(namePath)).thenReturn(loweredNameExpression);
+		when(criteriaBuilder.like(loweredNameExpression, "%" + name.toLowerCase() + "%")).thenReturn(predicate);
+
 		when(criteriaBuilder.and(any(Predicate[].class))).thenReturn(predicate);
 
 		Specification<AppointmentType> specification = filterBuilder.toSpecification();
@@ -88,8 +96,8 @@ public class AppointmentTypeFilterBuilderTest {
 		specification.toPredicate(root, query, criteriaBuilder);
 
 		verify(criteriaBuilder).equal(firmIdPath, firmId);
-		verify(criteriaBuilder).like(namePath, "%" + name + "%");
+		verify(criteriaBuilder).lower(namePath);
+		verify(criteriaBuilder).like(loweredNameExpression, "%" + name.toLowerCase() + "%");
 		verify(criteriaBuilder).and(any(Predicate[].class));
 	}
 }
-

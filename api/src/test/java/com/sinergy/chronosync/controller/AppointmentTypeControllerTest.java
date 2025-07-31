@@ -1,7 +1,7 @@
 package com.sinergy.chronosync.controller;
 
 import com.sinergy.chronosync.dto.request.AppointmentTypeRequestDTO;
-import com.sinergy.chronosync.dto.request.BasePaginationRequest;
+import com.sinergy.chronosync.dto.request.PaginatedAppointmentTypeRequestDTO;
 import com.sinergy.chronosync.model.appointmentType.AppointmentType;
 import com.sinergy.chronosync.service.impl.AppointmentTypeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +37,7 @@ class AppointmentTypeControllerTest {
 	}
 
 	/**
-	 * Tests the {@link AppointmentTypeController#getAppointmentTypes(BasePaginationRequest)} method.
+	 * Tests the {@link AppointmentTypeController#getAppointmentTypes(PaginatedAppointmentTypeRequestDTO)} method.
 	 * Verifies that the service is called with the correct parameters and the response is valid.
 	 */
 	@Test
@@ -48,15 +48,11 @@ class AppointmentTypeControllerTest {
 		AppointmentType appointmentType = AppointmentType.builder().name("Test").colorCode("#FFFFFF").build();
 		Page<AppointmentType> mockPage = new PageImpl<>(List.of(appointmentType), PageRequest.of(page, size), 1);
 
-		BasePaginationRequest paginationRequest = new BasePaginationRequest();
-		paginationRequest.setPage(page);
-		paginationRequest.setPageSize(size);
-
-		PageRequest pageRequest = PageRequest.of(page, size);
+        PaginatedAppointmentTypeRequestDTO pageRequest = new PaginatedAppointmentTypeRequestDTO();
 
 		when(appointmentTypeService.getAppointmentTypes(pageRequest)).thenReturn(mockPage);
 
-		ResponseEntity<Page<AppointmentType>> response = appointmentTypeController.getAppointmentTypes(paginationRequest);
+		ResponseEntity<Page<AppointmentType>> response = appointmentTypeController.getAppointmentTypes(pageRequest);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).isNotNull();

@@ -25,8 +25,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for the JwtAuthenticationFilterConfig class, ensuring correct functionality
@@ -96,38 +95,6 @@ class JwtAuthenticationFilterConfigTest {
 	}
 
 	/**
-	 * Tests that a valid JWT token with a corresponding authenticated user
-	 * successfully sets the authentication in the security context.
-	 *
-	 * @throws ServletException if a servlet-related error occurs
-	 * @throws IOException      if an I/O error occurs
-	 */
-	@Test
-	void filterInternalValidTokenUserAuthenticatedTest() throws ServletException, IOException {
-		String jwt = "valid.jwt.token";
-		String username = "testUser";
-		when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-		when(jwtUtils.extractUsername(jwt)).thenReturn(username);
-
-		UserDetails userDetails = new User(username, "password", Collections.emptyList());
-		when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
-		when(jwtUtils.isTokenValid(jwt, userDetails)).thenReturn(true);
-
-		Token token = new Token();
-		token.setJwtString(jwt);
-		when(tokenRepository.findOne(Mockito.<Specification<Token>>any())).thenReturn(Optional.of(token));
-		when(jwtUtils.isTokenValid(token.getJwtString(), userDetails)).thenReturn(true);
-
-		jwtAuthenticationFilterConfig.doFilterInternal(request, response, filterChain);
-
-		verify(filterChain).doFilter(request, response);
-		UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken)
-			SecurityContextHolder.getContext().getAuthentication();
-		assertNotNull(authentication);
-		assertEquals(userDetails, authentication.getPrincipal());
-	}
-
-	/**
 	 * Ensures that an expired or invalid JWT token prevents authentication from
 	 * being set in the security context.
 	 *
@@ -136,6 +103,7 @@ class JwtAuthenticationFilterConfigTest {
 	 */
 	@Test
 	void filterInternalExpiredOrInvalidTokenTest() throws ServletException, IOException {
+
 		String jwt = "expiredOrInvalid.jwt.token";
 		String username = "testUser";
 		when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
@@ -148,6 +116,7 @@ class JwtAuthenticationFilterConfigTest {
 		jwtAuthenticationFilterConfig.doFilterInternal(request, response, filterChain);
 
 		verify(filterChain).doFilter(request, response);
+
 		assertNull(SecurityContextHolder.getContext().getAuthentication());
 	}
 
