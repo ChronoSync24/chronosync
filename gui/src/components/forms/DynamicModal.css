@@ -26,7 +26,7 @@
 .modal-body {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .dynamic-input {
@@ -41,6 +41,10 @@
 .dynamic-form-field {
   width: 100%;
   margin: 0;
+}
+
+.dynamic-form .MuiFormHelperText-root {
+  margin-top: 0 !important;
 }
 
 .modal-footer {

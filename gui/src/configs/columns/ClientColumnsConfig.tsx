@@ -12,12 +12,6 @@ export const getClientColumns = ({
   handleDelete,
 }: ColumnConfigProps): TableColumn[] => [
   {
-    key: 'id',
-    label: 'ID',
-    align: 'left',
-    width: '50px',
-  },
-  {
     key: 'firstName',
     label: 'First Name',
     align: 'left',

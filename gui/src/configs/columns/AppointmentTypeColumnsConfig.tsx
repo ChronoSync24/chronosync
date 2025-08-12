@@ -13,12 +13,6 @@ export const getAppointmentTypeColumns = ({
   handleDelete,
 }: ColumnConfigProps): TableColumn[] => [
   {
-    key: 'id',
-    label: 'ID',
-    align: 'left',
-    width: '40px',
-  },
-  {
     key: 'name',
     label: 'Name',
     align: 'left',

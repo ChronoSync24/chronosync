@@ -93,6 +93,7 @@ export const get = async (
     phone: '',
     page: 0,
     pageSize: 10,
+    uniqueIdentifier: '',
   }
 ): Promise<PageableResponse<Client>> => {
   try {
