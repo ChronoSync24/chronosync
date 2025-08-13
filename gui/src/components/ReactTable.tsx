@@ -28,6 +28,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     borderBottom: '2px solid #E0E0E0',
     backgroundColor: theme.palette.background.paper,
     '&:first-of-type': {
+      paddingLeft: '16px',
       borderTopLeftRadius: '8px',
       borderBottomLeftRadius: '8px',
       borderLeft: '2px solid #E0E0E0',
@@ -51,6 +52,7 @@ const StyledHeaderRow = styled(TableRow)(({ theme }) => ({
     backgroundColor: theme.palette.grey[100],
     fontWeight: 600,
     '&:first-of-type': {
+      paddingLeft: '16px',
       borderTopLeftRadius: '8px',
       borderBottomLeftRadius: '8px',
       borderLeft: '2px solid #E0E0E0',

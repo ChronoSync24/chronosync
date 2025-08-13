@@ -22,27 +22,24 @@ public class ClientRequestDTO {
 	private String email;
 	private String phone;
 	private String address;
-	private Long firmId;
+	private String uniqueIdentifier;
 
 	/**
 	 * Creates and returns Client model from Data Transfer Object.
 	 *
 	 * @return {@link Client} user model
 	 */
-	public Client toModel() {
-		Firm firm = new Firm();
-		firm.setId(firmId);
-
+	public Client toModel(Firm firm) {
 		return Client.builder()
-				.id(id)
-				.firstName(firstName)
-				.lastName(lastName)
-				.email(email)
-				.phone(phone)
-				.address(address)
-
-				.firm(firm)
-				.build();
+			.id(id)
+			.firstName(firstName)
+			.lastName(lastName)
+			.email(email)
+			.phone(phone)
+			.address(address)
+			.uniqueIdentifier(uniqueIdentifier)
+			.firm(firm)
+			.build();
 	}
 
 }

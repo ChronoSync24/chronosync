@@ -2,6 +2,7 @@ package com.sinergy.chronosync.service.impl;
 
 import com.sinergy.chronosync.builder.ClientFilterBuilder;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
+import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
 import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.RepositoryException;
@@ -36,12 +37,17 @@ public class ClientServiceImpl implements ClientService {
 	 * @return {@link Page} clients associated with the authenticated user's firm
 	 */
 	@Override
-	public Page<Client> getClients(PageRequest pageRequest) {
+	public Page<Client> getClients(PaginatedClientRequestDTO pageRequest) {
 		ClientFilterBuilder filterBuilder = ClientFilterBuilder.builder()
 			.firmId(securityContextService.getAuthUserFirm().getId())
+			.firstName(pageRequest.getFirstName())
+			.lastName(pageRequest.getLastName())
+			.email(pageRequest.getEmail())
+			.phone(pageRequest.getPhone())
+			.uniqueIdentifier(pageRequest.getUniqueIdentifier())
 			.build();
 
-		filterBuilder.setPageable(pageRequest);
+		filterBuilder.setPageable(PageRequest.of(pageRequest.getPage(), pageRequest.getPageSize()));
 
 		return clientRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
 	}
@@ -55,7 +61,7 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	@Transactional
 	public Client createClient(ClientRequestDTO requestDto) {
-		Client client = requestDto.toModel();
+		Client client = requestDto.toModel(securityContextService.getAuthUserFirm());
 		client.setFirm(securityContextService.getAuthUserFirm());
 		try {
 			return clientRepository.create(client);
@@ -73,7 +79,7 @@ public class ClientServiceImpl implements ClientService {
 	 */
 	@Override
 	public Client updateClient(ClientRequestDTO requestDto) {
-		return clientRepository.update(requestDto.toModel());
+		return clientRepository.update(requestDto.toModel(securityContextService.getAuthUserFirm()));
 	}
 
 	/**

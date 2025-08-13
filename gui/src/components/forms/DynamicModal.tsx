@@ -54,7 +54,17 @@ export default function DynamicModal({
   const [form, setForm] = useState<Record<string, string>>(() => {
     const defaultValues: Record<string, string> = {};
     fields.forEach((field: FieldConfig) => {
-      defaultValues[field.name] = initialValues[field.name] || '';
+      if (field.name === 'phone') {
+        const initial = initialValues[field.name] || '';
+        defaultValues[field.name] =
+          isCreate ?
+            initial.startsWith('+') ?
+              initial
+            : '+'
+          : initial;
+      } else {
+        defaultValues[field.name] = initialValues[field.name] || '';
+      }
     });
 
     return defaultValues;
@@ -66,7 +76,17 @@ export default function DynamicModal({
   useEffect(() => {
     const defaultValues: Record<string, string> = {};
     fields.forEach((field: FieldConfig) => {
-      defaultValues[field.name] = initialValues[field.name] || '';
+      if (field.name === 'phone') {
+        const initial = initialValues[field.name] || '';
+        defaultValues[field.name] =
+          isCreate ?
+            initial.startsWith('+') ?
+              initial
+            : '+'
+          : initial;
+      } else {
+        defaultValues[field.name] = initialValues[field.name] || '';
+      }
     });
     setForm(defaultValues);
     setErrors({});
@@ -81,7 +101,17 @@ export default function DynamicModal({
   const handleReset = () => {
     const resetValues = fields.reduce(
       (acc: Record<string, string>, field: FieldConfig) => {
-        acc[field.name] = initialValues[field.name] || '';
+        if (field.name === 'phone') {
+          const initial = initialValues[field.name] || '';
+          acc[field.name] =
+            isCreate ?
+              initial.startsWith('+') ?
+                initial
+              : '+'
+            : initial;
+        } else {
+          acc[field.name] = initialValues[field.name] || '';
+        }
         return acc;
       },
       {}
@@ -103,6 +133,20 @@ export default function DynamicModal({
         form[field.name].length > field.validation.maxLength
       ) {
         newErrors[field.name] = `Max ${field.validation.maxLength} chars`;
+      }
+      if (
+        field.validation?.minLength &&
+        form[field.name] &&
+        form[field.name].length < field.validation.minLength
+      ) {
+        newErrors[field.name] = `Min ${field.validation.minLength} chars`;
+      }
+      if (
+        field.validation?.pattern &&
+        form[field.name] &&
+        !new RegExp(field.validation.pattern).test(form[field.name])
+      ) {
+        newErrors[field.name] = 'Invalid pattern';
       }
     });
     setErrors(newErrors);
@@ -157,6 +201,30 @@ export default function DynamicModal({
       );
     }
 
+    // Special handling for phone input: enforce leading '+' and prevent its deletion
+    const isPhoneField = field.name === 'phone';
+    const normalizePhoneInput = (raw: string) => {
+      const digitsOnly = raw.replace(/[^\d]/g, '');
+      return `+${digitsOnly}`;
+    };
+    const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const input = e.target as HTMLInputElement;
+      const selectionStart = input.selectionStart ?? 0;
+      const selectionEnd = input.selectionEnd ?? 0;
+      // Prevent deleting the leading '+'
+      if (
+        (e.key === 'Backspace' && selectionStart <= 1 && selectionEnd <= 1) ||
+        (e.key === 'Delete' && selectionStart === 0 && selectionEnd === 0)
+      ) {
+        e.preventDefault();
+        return;
+      }
+      // Prevent typing '+' manually
+      if (e.key === '+') {
+        e.preventDefault();
+      }
+    };
+
     // Text/number/color input fields
     return (
       <div key={field.name} className='dynamic-form-field'>
@@ -164,12 +232,25 @@ export default function DynamicModal({
           type={field.type}
           placeholder={field.placeholder}
           label={field.label}
-          value={value}
-          onChange={(e) => handleChange(field.name, e.target.value)}
+          value={
+            isPhoneField ?
+              value?.startsWith('+') ?
+                value
+              : `+${value || ''}`
+            : value
+          }
+          onChange={(e) =>
+            isPhoneField ?
+              handleChange(field.name, normalizePhoneInput(e.target.value))
+            : handleChange(field.name, e.target.value)
+          }
+          onKeyDown={isPhoneField ? handlePhoneKeyDown : undefined}
           className='dynamic-input'
           slotProps={{
             htmlInput: {
               maxLength: field.validation?.maxLength || 50,
+              inputMode: isPhoneField ? 'tel' : undefined,
+              autoComplete: isPhoneField ? 'tel' : undefined,
             },
           }}
           error={!!error}
