@@ -1,46 +1,60 @@
 import * as React from 'react';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import {
-  useTheme,
-  Theme,
-  IconButton,
-  Box,
-} from '@mui/material';
+import { useTheme, Theme, IconButton, Box } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { NAVIGATION } from '../routes';
+import { APP_ROUTES } from '../routes';
+import { hasAtLeastRole } from '../utils/tokenUtils';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 interface DashboardLayoutBasicProps {
   children: React.ReactNode;
 }
 
-export default function DashboardLayoutBasic({ children }: DashboardLayoutBasicProps) {
+export default function DashboardLayoutBasic({
+  children,
+}: DashboardLayoutBasicProps) {
   const theme: Theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const token = localStorage.getItem('token') || '';
 
   // Create a router object that integrates with React Router
-  const router = React.useMemo(() => ({
-    pathname: location.pathname,
-    searchParams: new URLSearchParams(location.search),
-    navigate: (url: string | URL) => {
-      const path = typeof url === 'string' ? url : url.pathname;
-      navigate(path);
-    },
-  }), [location, navigate]);
+  const router = React.useMemo(
+    () => ({
+      pathname: location.pathname,
+      searchParams: new URLSearchParams(location.search),
+      navigate: (url: string | URL) => {
+        const path = typeof url === 'string' ? url : url.pathname;
+        navigate(path);
+      },
+    }),
+    [location, navigate]
+  );
+
+  const navigation = React.useMemo(() => {
+    const permittedRoutes = APP_ROUTES.filter((route) => {
+      if (!route.minRole) return true;
+      if (!token) return false;
+      return hasAtLeastRole(token, route.minRole);
+    });
+    return permittedRoutes.map((route) => ({
+      segment: route.path.substring(1),
+      title: route.title,
+      icon: route.icon,
+    }));
+  }, [token]);
 
   return (
     <AppProvider
-      navigation={NAVIGATION}
+      navigation={navigation}
       theme={theme}
       router={router}
       branding={{
-        logo: <img alt="" />,
+        logo: <img alt='' />,
         title: 'ChronoSync',
-        homeUrl: '/home'
-      }}
-    >
+        homeUrl: '/home',
+      }}>
       <DashboardLayout
         disableCollapsibleSidebar
         slots={{
@@ -54,8 +68,7 @@ export default function DashboardLayoutBasic({ children }: DashboardLayoutBasicP
                     backgroundColor: theme.palette.action.hover,
                   },
                   marginRight: '8px',
-                }}
-              >
+                }}>
                 <AccountCircleIcon />
               </IconButton>
             </Box>
@@ -63,7 +76,7 @@ export default function DashboardLayoutBasic({ children }: DashboardLayoutBasicP
         }}
         sx={{
           backgroundColor: theme.palette.background.paper,
-          
+
           '& .MuiDrawer-paper': {
             backgroundColor: theme.palette.background.default,
             borderRight: '1px solid #b3b3b3',
@@ -102,8 +115,7 @@ export default function DashboardLayoutBasic({ children }: DashboardLayoutBasicP
               },
             },
           },
-        }}
-      >
+        }}>
         {children}
       </DashboardLayout>
     </AppProvider>
