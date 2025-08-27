@@ -28,6 +28,7 @@ import java.util.List;
 @Builder
 public class AppointmentFilterBuilder extends BaseFilterBuilder<Appointment> {
 
+	//TODO: Refactor filter builder so it does not use whole objects for filtering. It should use only IDs of the objects.
 	private String note;
 	private LocalDateTime startDateTime;
 	private LocalDateTime endDateTime;

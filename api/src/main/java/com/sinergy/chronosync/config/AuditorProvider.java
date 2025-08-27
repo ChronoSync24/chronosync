@@ -25,6 +25,9 @@ public class AuditorProvider implements AuditorAware<User> {
 
 	@Override
 	public Optional<User> getCurrentAuditor() {
-		return Optional.ofNullable(securityContextService.getAuthUser());
+		User user = new User();
+		user.setId(securityContextService.getAuthUserId());
+
+		return Optional.of(user);
 	}
 }

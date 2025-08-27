@@ -27,7 +27,6 @@ import java.util.List;
 @Table(name = "users")
 public class User extends Person implements UserDetails {
 
-	//TODO: Add date created, modified (for every entity).
 	//TODO: Add datetime of logging in, and datetime of logging out.
 	//TODO: Implement global logger for user actions and system actions.
 
