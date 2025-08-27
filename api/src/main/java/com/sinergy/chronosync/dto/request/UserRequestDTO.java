@@ -14,12 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserRequestDTO {
 
+	private Long id;
 	private String firstName;
 	private String lastName;
 	private String address;
 	private String phone;
 	private String email;
 	private String password;
+	private String uniqueIdentifier;
+	private Boolean isEnabled;
 	private UserRole role;
 
 	/**
@@ -29,28 +32,28 @@ public class UserRequestDTO {
 	 */
 	public String getUsername() {
 		return (firstName.charAt(0) + lastName).toLowerCase();
-		//TODO: Append number at the end of username since there can be two persons with the same first and last name.
-		//TODO: Trigger can be added when creating new users.
 	}
 
 	/**
 	 * Creates and returns User model from Data Transfer Object.
 	 *
-	 * @param isEnabled {@link Boolean} is user account enabled
 	 * @return {@link User} user model
 	 */
-	public User toModel(Boolean isEnabled) {
+	public User toModel() {
 		User user = new User();
+		user.setId(id);
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setAddress(address);
 		user.setPhone(phone);
 		user.setEmail(email);
-		user.setUsername(this.getUsername());
+		user.setUsername(getUsername());
 		user.setPassword(password);
 		user.setRole(role);
 		user.setIsEnabled(isEnabled);
 		user.setIsLocked(false);
+		user.setUniqueIdentifier(uniqueIdentifier);
+
 		return user;
 	}
 }

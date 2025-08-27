@@ -2,8 +2,11 @@ package com.sinergy.chronosync.builder;
 
 import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.model.user.UserRole;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.Builder;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
@@ -20,52 +23,89 @@ import java.util.List;
  * create predicates based on the provided filter values. If a filter value is
  * not provided (i.e., null or empty), it will be ignored in the specification.</p>
  */
+@Setter
 @Builder
 public class UserFilterBuilder extends BaseFilterBuilder<User> {
-
-	private static final String ID = "id";
-	private static final String FIRST_NAME = "first_name";
-	private static final String LAST_NAME = "last_name";
-	private static final String ADDRESS = "address";
-	private static final String PHONE = "phone";
-	private static final String EMAIL = "email";
-	private static final String USERNAME = "username";
-	private static final String ROLE = "role";
 
 	private Long id;
 	private String firstName;
 	private String lastName;
-	private String address;
-	private String phone;
-	private String email;
 	private String username;
-	private UserRole role;
+	private List<UserRole> roles;
+	private Long firmId;
+	private String uniqueIdentifier;
+
+	@Builder.Default
+	private boolean exactUsernameMatch = false;
+
+	/**
+	 * Builds a list of predicates based on the provided filter criteria for querying {@link User} entities.
+	 * The predicates are constructed using the {@link CriteriaBuilder} and applied to the {@link Root} entity.
+	 *
+	 * @param criteriaBuilder {@link CriteriaBuilder} used for constructing predicates.
+	 * @param root            {@link Root} representing the {@link User} entity in the query.
+	 * @return {@link List} of {@link Predicate} objects representing the filtering conditions.
+	 */
+	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<User> root) {
+		List<Predicate> predicates = new ArrayList<>();
+
+		if (id != null) {
+			predicates.add(criteriaBuilder.equal(root.get("id"), id));
+		}
+		if (firstName != null && !firstName.isEmpty()) {
+			predicates.add(criteriaBuilder.like(
+				criteriaBuilder.lower(root.get("firstName")),
+				"%" + firstName.toLowerCase() + "%"
+			));
+		}
+		if (lastName != null && !lastName.isEmpty()) {
+			predicates.add(criteriaBuilder.like(
+				criteriaBuilder.lower(root.get("lastName")),
+				"%" + lastName.toLowerCase() + "%"
+			));
+		}
+		if (username != null && !username.isEmpty()) {
+			if (exactUsernameMatch) {
+				predicates.add(criteriaBuilder.equal(
+					criteriaBuilder.lower(root.get("username")),
+					username.toLowerCase()
+				));
+			} else {
+				predicates.add(criteriaBuilder.like(
+					criteriaBuilder.lower(root.get("username")),
+					"%" + username.toLowerCase() + "%"
+				));
+			}
+		}
+		if (roles != null && !roles.isEmpty()) {
+			predicates.add(root.get("role").in(roles));
+		}
+		if (firmId != null) {
+			predicates.add(criteriaBuilder.equal(root.get("firm").get("id"), firmId));
+		}
+		if (uniqueIdentifier != null && !uniqueIdentifier.isEmpty()) {
+			predicates.add(criteriaBuilder.like(
+				criteriaBuilder.lower(root.get("uniqueIdentifier")),
+				"%" + uniqueIdentifier.toLowerCase() + "%"
+			));
+		}
+
+		return predicates;
+	}
 
 	/**
 	 * Converts the filter criteria defined in this builder into a
 	 * {@link Specification} for querying {@link User} entities.
 	 *
 	 * <p>The method constructs a conjunction of predicates based on the
-	 * filter values set in this builder. Each non-null and non-empty filter
-	 * value will create a corresponding predicate using the LIKE operator for
-	 * string fields and the EQUAL operator for the ID and role fields.</p>
+	 * filter values set in this builder.</p>
 	 *
 	 * @return a {@link Specification} that can be used to filter {@link User} entities
 	 */
+	@Override
 	public Specification<User> toSpecification() {
-		return (root, query, criteriaBuilder) -> {
-			List<Predicate> predicates = new ArrayList<>();
-
-			addEqualPredicate(predicates, root, criteriaBuilder, ID, id);
-			addLikePredicate(predicates, root, criteriaBuilder, FIRST_NAME, firstName);
-			addLikePredicate(predicates, root, criteriaBuilder, LAST_NAME, lastName);
-			addLikePredicate(predicates, root, criteriaBuilder, ADDRESS, address);
-			addLikePredicate(predicates, root, criteriaBuilder, PHONE, phone);
-			addLikePredicate(predicates, root, criteriaBuilder, EMAIL, email);
-			addLikePredicate(predicates, root, criteriaBuilder, USERNAME, username);
-			addEqualPredicate(predicates, root, criteriaBuilder, ROLE, role != null ? role.name() : null);
-
-			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-		};
+		return (root, query, criteriaBuilder) -> criteriaBuilder.and(
+			buildPredicates(criteriaBuilder, root).toArray(new Predicate[0])
+		);
 	}
 }
