@@ -35,7 +35,7 @@ public class ClientFilterBuilder extends BaseFilterBuilder<Client> {
 	 * The predicates are constructed using the {@link CriteriaBuilder} and applied to the {@link Root} entity.
 	 *
 	 * @param criteriaBuilder {@link CriteriaBuilder} used for constructing predicates.
-	 * @param root {@link Root} representing the {@link Client} entity in the query.
+	 * @param root            {@link Root} representing the {@link Client} entity in the query.
 	 * @return {@link List} of {@link Predicate} objects representing the filtering conditions.
 	 */
 	public List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<Client> root) {
