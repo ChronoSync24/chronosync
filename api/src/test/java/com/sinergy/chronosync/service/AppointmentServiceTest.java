@@ -69,7 +69,7 @@ class AppointmentServiceImplTest {
 		authUser.setRole(UserRole.EMPLOYEE);
 		authUser.setFirm(authFirm);
 
-		when(securityContextService.getAuthUser()).thenReturn(authUser);
+		when(securityContextService.getAuthUserId()).thenReturn(authUser.getId());
 		when(securityContextService.getAuthUserFirm()).thenReturn(authFirm);
 	}
 

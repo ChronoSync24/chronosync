@@ -34,16 +34,19 @@ public class AppointmentServiceImpl implements AppointmentService {
 	 */
 	@Override
 	public Page<Appointment> getAppointments(PageRequest pageRequest) {
-		User authUser = securityContextService.getAuthUser();
 		AppointmentFilterBuilder filterBuilder;
 
-		if (authUser.getRole() == UserRole.MANAGER || authUser.getRole() == UserRole.ADMINISTRATOR) {
+		if (securityContextService.getAuthUserRole() == UserRole.MANAGER ||
+			securityContextService.getAuthUserRole() == UserRole.ADMINISTRATOR) {
 			filterBuilder = AppointmentFilterBuilder.builder()
 				.firm(securityContextService.getAuthUserFirm())
 				.build();
 		} else {
+			User employee = new User();
+			employee.setId(securityContextService.getAuthUserId());
+
 			filterBuilder = AppointmentFilterBuilder.builder()
-				.employee(securityContextService.getAuthUser())
+				.employee(employee)
 				.build();
 		}
 		return appointmentRepository.findAll(filterBuilder.toSpecification(), filterBuilder.getPageable());
