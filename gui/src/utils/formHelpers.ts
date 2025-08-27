@@ -1,4 +1,3 @@
-import { Client } from '../models/Client';
 import { FieldConfig } from '../components/forms/FieldConfig';
 
 /**
@@ -11,15 +10,20 @@ import { FieldConfig } from '../components/forms/FieldConfig';
 export const extractFormValues = (
   entity: any,
   fields: FieldConfig[]
-): Record<string, string> => {
+): Record<string, string | boolean> => {
   if (!entity) return {};
 
-  const initialValues: Record<string, string> = {};
+  const initialValues: Record<string, string | boolean> = {};
 
   fields.forEach((field) => {
     const value = entity[field.name];
+
     if (value !== undefined && value !== null) {
-      initialValues[field.name] = String(value);
+      if (field.type === 'checkbox') {
+        initialValues[field.name] = Boolean(value);
+      } else {
+        initialValues[field.name] = String(value);
+      }
     }
   });
 
