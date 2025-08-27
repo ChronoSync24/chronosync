@@ -4,7 +4,15 @@ import PrimaryButton from '../PrimaryButton';
 import SecondaryButton from '../SecondaryButton';
 import SelectField from '../SelectField';
 import './DynamicModal.css';
-import { CircularProgress, Dialog, DialogProps, Box } from '@mui/material';
+import {
+  CircularProgress,
+  Dialog,
+  DialogProps,
+  Box,
+  Checkbox,
+  FormControlLabel,
+  FormHelperText,
+} from '@mui/material';
 import { FieldConfig } from './FieldConfig';
 
 /**
@@ -12,8 +20,8 @@ import { FieldConfig } from './FieldConfig';
  *
  * @param {string} title - The title of the modal
  * @param {FieldConfig[]} fields - The fields to display in the modal
- * @param {Record<string, string>} [initialValues] - The initial values for the fields
- * @param {(formData: Record<string, string>) => void} onSubmit - The function to call when the form is submitted
+ * @param {Record<string, string | boolean>} [initialValues] - The initial values for the fields
+ * @param {(formData: Record<string, string | boolean>) => void} onSubmit - The function to call when the form is submitted
  * @param {() => void} [onCancel] - The function to call when the form is cancelled
  * @param {boolean} open - Whether the modal is open
  * @param {() => void} onClose - The function to call when the modal is closed
@@ -24,8 +32,8 @@ import { FieldConfig } from './FieldConfig';
 type DynamicModalProps = {
   title: string;
   fields: FieldConfig[];
-  initialValues?: Record<string, string>;
-  onSubmit: (formData: Record<string, string>) => void;
+  initialValues?: Record<string, string | boolean>;
+  onSubmit: (formData: Record<string, string | boolean>) => void;
   onCancel?: () => void;
   open: boolean;
   onClose: () => void;
@@ -36,7 +44,7 @@ type DynamicModalProps = {
 
 /**
  * A reusable modal component with dynamic form fields and validation.
- * Supports text, number, and select inputs, with optional initial values,
+ * Supports text, number, select, and checkbox inputs, with optional initial values,
  * validation rules, and asynchronous option loading.
  */
 export default function DynamicModal({
@@ -51,11 +59,13 @@ export default function DynamicModal({
   isLoading = false,
   isCreate = false,
 }: DynamicModalProps) {
-  const [form, setForm] = useState<Record<string, string>>(() => {
-    const defaultValues: Record<string, string> = {};
+  const [form, setForm] = useState<Record<string, string | boolean>>(() => {
+    const defaultValues: Record<string, string | boolean> = {};
     fields.forEach((field: FieldConfig) => {
-      if (field.name === 'phone') {
-        const initial = initialValues[field.name] || '';
+      if (field.type === 'checkbox') {
+        defaultValues[field.name] = initialValues[field.name] ?? false;
+      } else if (field.name === 'phone') {
+        const initial = (initialValues[field.name] as string) || '';
         defaultValues[field.name] =
           isCreate ?
             initial.startsWith('+') ?
@@ -63,7 +73,7 @@ export default function DynamicModal({
             : '+'
           : initial;
       } else {
-        defaultValues[field.name] = initialValues[field.name] || '';
+        defaultValues[field.name] = (initialValues[field.name] as string) || '';
       }
     });
 
@@ -74,10 +84,12 @@ export default function DynamicModal({
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const defaultValues: Record<string, string> = {};
+    const defaultValues: Record<string, string | boolean> = {};
     fields.forEach((field: FieldConfig) => {
-      if (field.name === 'phone') {
-        const initial = initialValues[field.name] || '';
+      if (field.type === 'checkbox') {
+        defaultValues[field.name] = initialValues[field.name] ?? false;
+      } else if (field.name === 'phone') {
+        const initial = (initialValues[field.name] as string) || '';
         defaultValues[field.name] =
           isCreate ?
             initial.startsWith('+') ?
@@ -85,24 +97,26 @@ export default function DynamicModal({
             : '+'
           : initial;
       } else {
-        defaultValues[field.name] = initialValues[field.name] || '';
+        defaultValues[field.name] = (initialValues[field.name] as string) || '';
       }
     });
     setForm(defaultValues);
     setErrors({});
     setTouched({});
-  }, [initialValues, fields]);
+  }, [initialValues, fields, isCreate]);
 
-  const handleChange = (name: string, value: string) => {
+  const handleChange = (name: string, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleReset = () => {
     const resetValues = fields.reduce(
-      (acc: Record<string, string>, field: FieldConfig) => {
-        if (field.name === 'phone') {
-          const initial = initialValues[field.name] || '';
+      (acc: Record<string, string | boolean>, field: FieldConfig) => {
+        if (field.type === 'checkbox') {
+          acc[field.name] = initialValues[field.name] ?? false;
+        } else if (field.name === 'phone') {
+          const initial = (initialValues[field.name] as string) || '';
           acc[field.name] =
             isCreate ?
               initial.startsWith('+') ?
@@ -110,7 +124,7 @@ export default function DynamicModal({
               : '+'
             : initial;
         } else {
-          acc[field.name] = initialValues[field.name] || '';
+          acc[field.name] = (initialValues[field.name] as string) || '';
         }
         return acc;
       },
@@ -123,32 +137,49 @@ export default function DynamicModal({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    fields.forEach((field) => {
-      if (field.validation?.required && !form[field.name]) {
-        newErrors[field.name] = 'Required';
+
+    // Only validate fields that are actually visible
+    const visibleFields = fields.filter(
+      (field) => !field.showOnCreate || isCreate
+    );
+
+    visibleFields.forEach((field) => {
+      const value = form[field.name];
+
+      if (field.validation?.required) {
+        if (field.type === 'checkbox' && value !== true) {
+          newErrors[field.name] = 'Required';
+        } else if (field.type !== 'checkbox' && !value) {
+          newErrors[field.name] = 'Required';
+        }
       }
-      if (
-        field.validation?.maxLength &&
-        form[field.name] &&
-        form[field.name].length > field.validation.maxLength
-      ) {
-        newErrors[field.name] = `Max ${field.validation.maxLength} chars`;
-      }
-      if (
-        field.validation?.minLength &&
-        form[field.name] &&
-        form[field.name].length < field.validation.minLength
-      ) {
-        newErrors[field.name] = `Min ${field.validation.minLength} chars`;
-      }
-      if (
-        field.validation?.pattern &&
-        form[field.name] &&
-        !new RegExp(field.validation.pattern).test(form[field.name])
-      ) {
-        newErrors[field.name] = 'Invalid pattern';
+
+      // String-specific validations
+      if (field.type !== 'checkbox' && typeof value === 'string') {
+        if (
+          field.validation?.maxLength &&
+          value &&
+          value.length > field.validation.maxLength
+        ) {
+          newErrors[field.name] = `Max ${field.validation.maxLength} chars`;
+        }
+        if (
+          field.validation?.minLength &&
+          value &&
+          value.length < field.validation.minLength
+        ) {
+          newErrors[field.name] = `Min ${field.validation.minLength} chars`;
+        }
+        if (
+          field.validation?.pattern &&
+          value &&
+          !new RegExp(field.validation.pattern).test(value)
+        ) {
+          newErrors[field.name] = 'Invalid pattern';
+        }
       }
     });
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -181,7 +212,31 @@ export default function DynamicModal({
 
   const renderField = (field: FieldConfig) => {
     const value = form[field.name];
+
     const error = touched[field.name] && errors[field.name];
+
+    // Checkbox input field
+    if (field.type === 'checkbox') {
+      return (
+        <div key={field.name} className='dynamic-form-field'>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={value as boolean}
+                onChange={(e) => handleChange(field.name, e.target.checked)}
+                color='primary'
+              />
+            }
+            label={field.label || field.name}
+          />
+          {error && (
+            <FormHelperText error sx={{ mt: 0.5, ml: 0 }}>
+              {error}
+            </FormHelperText>
+          )}
+        </div>
+      );
+    }
 
     // Select input field
     if (field.type === 'select' && field.options) {
@@ -190,7 +245,7 @@ export default function DynamicModal({
           <SelectField
             label={field.label || field.name}
             placeholder={field.placeholder}
-            value={value}
+            value={String(value)}
             onChange={(newValue) => handleChange(field.name, String(newValue))}
             options={field.options}
             error={!!error}
@@ -234,9 +289,9 @@ export default function DynamicModal({
           label={field.label}
           value={
             isPhoneField ?
-              value?.startsWith('+') ?
+              (value as string)?.startsWith('+') ?
                 value
-              : `+${value || ''}`
+              : `+${(value as string) || ''}`
             : value
           }
           onChange={(e) =>
@@ -277,7 +332,11 @@ export default function DynamicModal({
             <CircularProgress />
           </Box>
         : <>
-            <div className='modal-body'>{fields.map(renderField)}</div>
+            <div className='modal-body'>
+              {fields
+                .filter((field) => !field.showOnCreate || isCreate)
+                .map(renderField)}
+            </div>
             <div className='modal-footer dynamic-form-buttons'>
               <SecondaryButton
                 type='button'
