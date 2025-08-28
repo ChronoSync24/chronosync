@@ -30,8 +30,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -150,7 +148,7 @@ class AppointmentServiceImplTest {
 
 		assertThat(result).isNotNull();
 		assertThat(result.getTotalElements()).isEqualTo(1);
-		assertThat(result.getContent().get(0).getNote()).isEqualTo("Manager Appointment");
+		assertThat(result.getContent().getFirst().getNote()).isEqualTo("Manager Appointment");
 
 		verify(appointmentRepository, times(1)).findAll(Mockito.<Specification<Appointment>>any(),
 			eq(pageRequest));

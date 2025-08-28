@@ -23,7 +23,7 @@ public class LogoutServiceImpl implements LogoutService, LogoutHandler {
 
 	/**
 	 * <p> Extracts the JWT token from the {@code Authorization} header of the
-	 * incoming {@link HttpServletRequest}. If the token is found and it deletes the token.
+	 * incoming {@link HttpServletRequest}. If the token is found, and it deletes the token.
 	 * Additionally, it clears the security context to log the user out of the current session.</p>
 	 *
 	 * @param request        {@link HttpServletRequest} http request containing the authorization header

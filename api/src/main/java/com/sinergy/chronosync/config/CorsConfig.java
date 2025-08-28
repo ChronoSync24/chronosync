@@ -20,6 +20,7 @@ public class CorsConfig implements CorsConfigurationSource {
 	@Value("#{'${security.cors.allowed-headers}'.split(',')}")
 	private List<String> allowedHeaders;
 
+	@SuppressWarnings("NullableProblems")
 	@Override
 	public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 

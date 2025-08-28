@@ -43,6 +43,7 @@ public class PolicyEnforcementAspect {
 	 * @return {@link Object} the result of the original method execution
 	 * @throws Throwable if the original method or validation throws an exception
 	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Around("@annotation(enforcePolicy)")
 	public Object enforce(ProceedingJoinPoint pjp, EnforcePolicy enforcePolicy) throws Throwable {
 

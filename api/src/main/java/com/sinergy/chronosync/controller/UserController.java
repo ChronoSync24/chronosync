@@ -7,7 +7,6 @@ import com.sinergy.chronosync.dto.request.UserRequestDTO;
 import com.sinergy.chronosync.dto.response.UserRegistrationResponseDTO;
 import com.sinergy.chronosync.dto.response.UserResponseDTO;
 import com.sinergy.chronosync.model.user.User;
-import com.sinergy.chronosync.service.SecurityContextService;
 import com.sinergy.chronosync.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
 	private final UserService userService;
-	private final SecurityContextService securityContextService;
 
 	/**
 	 * Creates new user.
