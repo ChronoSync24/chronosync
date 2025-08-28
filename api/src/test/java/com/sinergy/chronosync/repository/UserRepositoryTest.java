@@ -146,7 +146,7 @@ class UserRepositoryTest {
 		List<User> testUsers = getUsers();
 
 		Specification<User> spec = UserFilterBuilder.builder()
-			.role(UserRole.ADMINISTRATOR)
+			.roles(List.of(UserRole.ADMINISTRATOR))
 			.build()
 			.toSpecification();
 

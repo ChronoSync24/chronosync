@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
 			user.setRole(requestDTO.getRole());
 
 			if (!requestDTO.getPassword().isEmpty()) {
-				user.setPassword(requestDTO.getPassword());
+				user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
 			}
 		}
 

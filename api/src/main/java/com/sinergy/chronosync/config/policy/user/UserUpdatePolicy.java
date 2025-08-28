@@ -39,7 +39,7 @@ public class UserUpdatePolicy implements CrudPolicy<UserRequestDTO> {
 				// Admin has no restrictions
 			}
 			case MANAGER -> {
-				if (request != null && (StringUtils.isEmpty(request.getPassword()) || request.getRole() != null)) {
+				if (request != null && (StringUtils.isNotEmpty(request.getPassword()) || request.getRole() != null)) {
 					throw new AccessDeniedException("Insufficient privileges.");
 				}
 			}

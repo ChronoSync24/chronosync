@@ -87,7 +87,7 @@ class ClientServiceTest {
 
 		Page<Client> clients = new PageImpl<>(List.of(newClient.toModel(firm)));
 
-		when(clientRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(clients);
+		when(clientRepository.findAll(Mockito.<Specification<Client>>any(), any(Pageable.class))).thenReturn(clients);
 
 		Page<Client> result = clientService.getClients(paginatedRequest);
 
@@ -95,7 +95,10 @@ class ClientServiceTest {
 		assertEquals(1, result.getTotalElements(), "Should contain 1 client");
 		assertEquals("John", result.getContent().getFirst().getFirstName());
 
-		verify(clientRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
+		verify(clientRepository, times(1)).findAll(
+			Mockito.<Specification<Client>>any(),
+			any(Pageable.class)
+		);
 	}
 
 	/**

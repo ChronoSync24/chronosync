@@ -6,7 +6,6 @@ import com.sinergy.chronosync.dto.response.AuthenticationResponse;
 import com.sinergy.chronosync.model.Token;
 import com.sinergy.chronosync.model.user.User;
 import com.sinergy.chronosync.repository.TokenRepository;
-import com.sinergy.chronosync.repository.UserRepository;
 import com.sinergy.chronosync.service.AuthenticationService;
 import com.sinergy.chronosync.util.JwtUtils;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-	private final UserRepository userRepository;
 	private final TokenRepository tokenRepository;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtils jwtUtils;
