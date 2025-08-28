@@ -4,7 +4,6 @@ import com.sinergy.chronosync.builder.ClientFilterBuilder;
 import com.sinergy.chronosync.dto.request.ClientRequestDTO;
 import com.sinergy.chronosync.dto.request.PaginatedClientRequestDTO;
 import com.sinergy.chronosync.exception.EntityNotFoundException;
-import com.sinergy.chronosync.exception.InvalidStateException;
 import com.sinergy.chronosync.exception.RepositoryException;
 import com.sinergy.chronosync.model.Client;
 import com.sinergy.chronosync.repository.ClientRepository;
@@ -33,8 +32,8 @@ public class ClientServiceImpl implements ClientService {
 	 * This method checks the current logged-in user's firm and returns
 	 * a list of {@link Client} objects linked to that firm's ID.
 	 *
-	 * @param pageRequest The pagination and sorting information
-	 * @return {@link Page} clients associated with the authenticated user's firm
+	 * @param pageRequest {@link PaginatedClientRequestDTO} The pagination and sorting information
+	 * @return {@link Page<Client>} clients associated with the authenticated user's firm
 	 */
 	@Override
 	public Page<Client> getClients(PaginatedClientRequestDTO pageRequest) {
@@ -86,7 +85,7 @@ public class ClientServiceImpl implements ClientService {
 	 * Deletes a client identified by its ID.
 	 *
 	 * @param id {@link Long} ID of the appointment type to delete
-	 * @throws InvalidStateException if deletion fails or the client does not exist
+	 * @throws EntityNotFoundException if deletion fails or the client does not exist
 	 */
 	@Override
 	public void deleteClient(Long id) {

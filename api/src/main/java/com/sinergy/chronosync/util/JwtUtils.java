@@ -93,6 +93,7 @@ public class JwtUtils {
 	 * @param jwtString {@link String} JWT from which to extract the claim
 	 * @return {@link List<String>} list of user roles
 	 */
+	@SuppressWarnings("unchecked")
 	public List<String> extractRoles(String jwtString) {
 		return extractClaim(jwtString, claims -> claims.get("roles", List.class));
 	}

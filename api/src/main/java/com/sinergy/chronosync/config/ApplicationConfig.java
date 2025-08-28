@@ -39,7 +39,13 @@ public class ApplicationConfig {
 	@Bean
 	public UserDetailsService userDetailsService() {
 		return username -> userRepository
-			.findOne(UserFilterBuilder.builder().username(username).build().toSpecification())
+			.findOne(
+				UserFilterBuilder.builder()
+					.username(username)
+					.exactUsernameMatch(true)
+					.build()
+					.toSpecification()
+			)
 			.orElseThrow(() -> new UsernameNotFoundException("User not found."));
 	}
 

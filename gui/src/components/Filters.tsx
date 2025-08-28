@@ -20,6 +20,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useTheme } from '@mui/material/styles';
 import ClearIcon from '@mui/icons-material/Clear';
 import PrimaryButton from './PrimaryButton';
+import { getCurrentUserHighestRole } from '../utils/tokenUtils';
+import { Theme } from '@mui/material/styles';
+import { UserRole } from '../models/user/UserRole';
 
 /**
  * Configuration for a single filter field.
@@ -36,6 +39,7 @@ export interface FilterField {
   type: 'text' | 'number' | 'select' | 'multiselect' | 'date';
   options?: { value: string | number; label: string }[]; // For select/multiselect
   placeholder?: string;
+  accessibleBy?: UserRole[];
 }
 
 /**
@@ -70,7 +74,9 @@ const Filters: React.FC<FiltersProps> = ({
   onClearFilters,
   onApplyFilters,
 }) => {
-  const theme = useTheme();
+  const theme: Theme = useTheme();
+
+  const highestRole = getCurrentUserHighestRole(localStorage.getItem('token'));
 
   const sortedFields = React.useMemo(() => {
     const typeOrder = {
@@ -295,7 +301,11 @@ const Filters: React.FC<FiltersProps> = ({
                 width: '100%',
                 justifyItems: 'start',
               }}>
-              {sortedFields.map(renderFilterField)}
+              {sortedFields
+                .filter(
+                  (field) => field.accessibleBy?.includes(highestRole) ?? true
+                )
+                .map(renderFilterField)}
             </Box>
 
             <Box

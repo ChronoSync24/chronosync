@@ -23,8 +23,12 @@ public class AuditorProvider implements AuditorAware<User> {
 		this.securityContextService = securityContextService;
 	}
 
+	@SuppressWarnings("NullableProblems")
 	@Override
 	public Optional<User> getCurrentAuditor() {
-		return Optional.ofNullable(securityContextService.getAuthUser());
+		User user = new User();
+		user.setId(securityContextService.getAuthUserId());
+
+		return Optional.of(user);
 	}
 }

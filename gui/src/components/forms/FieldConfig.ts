@@ -7,8 +7,9 @@ import { OptionType } from '../SelectField';
  * @param {'number'} number - Number input field
  * @param {'select'} select - Select input field
  * @param {'color'} color - Color input field
+ * @param {'checkbox'} checkbox - Checkbox input field
  */
-export type FieldType = 'text' | 'number' | 'select' | 'color';
+export type FieldType = 'text' | 'number' | 'select' | 'color' | 'checkbox';
 
 /**
  * Interface for field validation rules.
@@ -49,6 +50,7 @@ export type AsyncOptionsResult = {
  * @param {(input: string, page: number) => Promise<AsyncOptionsResult>} [asyncOptions] - Optional function to load options asynchronously
  * @param {FieldValidation} [validation] - Validation rules for the field
  * @param {any} [value] - The current value of the field
+ * @param {boolean} [showOnCreate] - Whether the field should only be shown when creating (not updating)
  */
 export type FieldConfig = {
   name: string;
@@ -59,93 +61,5 @@ export type FieldConfig = {
   asyncOptions?: (input: string, page: number) => Promise<AsyncOptionsResult>;
   validation?: FieldValidation;
   value?: any;
+  showOnCreate?: boolean;
 };
-
-// Client Form Fields
-// export const clientFormFields: FieldConfig[] = [
-//   {
-//     name: 'firstName',
-//     label: 'First Name',
-//     placeholder: 'Enter first name',
-//     type: 'text',
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'lastName',
-//     label: 'Last Name',
-//     placeholder: 'Enter last name',
-//     type: 'text',
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'email',
-//     label: 'Email',
-//     placeholder: 'Enter email',
-//     type: 'text',
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'phone',
-//     label: 'Phone',
-//     placeholder: 'Enter phone',
-//     type: 'text',
-//     validation: { required: true },
-//   },
-// ];
-
-// // User Form Fields
-// export const userFormFields: FieldConfig[] = [
-//   {
-//     name: 'name',
-//     label: 'Name',
-//     placeholder: 'Enter name',
-//     type: 'text',
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'email',
-//     label: 'Email',
-//     placeholder: 'Enter email',
-//     type: 'text',
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'role',
-//     label: 'Role',
-//     placeholder: 'Select role',
-//     type: 'select',
-//     options: ['admin', 'user', 'moderator'],
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'department',
-//     label: 'Department',
-//     placeholder: 'Select department',
-//     type: 'select',
-//     options: ['IT', 'HR', 'Marketing', 'Finance', 'Sales'],
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'status',
-//     label: 'Status',
-//     placeholder: 'Select status',
-//     type: 'select',
-//     options: ['active', 'inactive', 'pending', 'suspended'],
-//     validation: { required: true },
-//   },
-//   {
-//     name: 'location',
-//     label: 'Location',
-//     placeholder: 'Select location',
-//     type: 'select',
-//     options: [
-//       'New York',
-//       'Los Angeles',
-//       'Chicago',
-//       'Miami',
-//       'Seattle',
-//       'Boston',
-//     ],
-//     validation: { required: true },
-//   },
-// ];

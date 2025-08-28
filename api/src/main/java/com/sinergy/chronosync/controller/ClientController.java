@@ -22,6 +22,9 @@ public class ClientController {
 
 	/**
 	 * Retrieves a paginated list of clients associated with the current user's firm.
+	 *
+	 * @param paginationRequest {@link PaginatedClientRequestDTO} pagination request
+	 * @return {@link Page<Client>} page of clients
 	 */
 	@PostMapping("/search")
 	public ResponseEntity<Page<Client>> getClients(

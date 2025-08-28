@@ -2,10 +2,11 @@ package com.sinergy.chronosync.service;
 
 import com.sinergy.chronosync.config.JwtUserPrincipal;
 import com.sinergy.chronosync.exception.InvalidStateException;
-import com.sinergy.chronosync.exception.UserNotFoundException;
 import com.sinergy.chronosync.model.Firm;
 import com.sinergy.chronosync.model.user.User;
+import com.sinergy.chronosync.model.user.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -34,13 +35,10 @@ public class SecurityContextService {
 	 * <p>This method extracts the currently authenticated username from the security context
 	 * and constructs a filter to query the user repository. If the user is found, it is returned.
 	 *
-	 * @throws UserNotFoundException if no user is found with the authenticated username
+	 * @return {@link User} authenticated user
 	 */
-	public User getAuthUser() {
-		User user = new User();
-		user.setId(getUserPrincipal().getId());
-
-		return user;
+	public Long getAuthUserId() {
+		return getUserPrincipal().getId();
 	}
 
 	/**
@@ -51,7 +49,6 @@ public class SecurityContextService {
 	 * firm is returned.
 	 *
 	 * @return the {@link Firm} associated with the authenticated user
-	 * @throws UserNotFoundException if no user is found with the authenticated username
 	 * @throws InvalidStateException if the user is not associated with any firm
 	 */
 	public Firm getAuthUserFirm() {
@@ -63,5 +60,21 @@ public class SecurityContextService {
 		}
 
 		return firm;
+	}
+
+	/**
+	 * Extracts user role from granted authorities.
+	 *
+	 * @return {@link UserRole} authenticated user role
+	 * @throws InvalidStateException in case user is not associated with any role
+	 */
+	public UserRole getAuthUserRole() {
+		GrantedAuthority authority = getUserPrincipal().getAuthorities().getFirst();
+
+		if (authority == null || authority.getAuthority().isEmpty()) {
+			throw new InvalidStateException("User is not associated with any role.");
+		}
+
+		return UserRole.valueOf(authority.getAuthority().replaceFirst("^ROLE_", ""));
 	}
 }

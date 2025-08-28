@@ -101,6 +101,24 @@ export function hasAtLeastRole(token: string, minRole: UserRole): boolean {
 }
 
 /**
+ * Get the current user's highest role from the stored JWT token.
+ *
+ * @param {string} [token] - Optional JWT token. If not provided, gets from localStorage.
+ * @returns {UserRole} The highest role of the current user, defaults to EMPLOYEE if no roles found.
+ */
+export function getCurrentUserHighestRole(token: string | null): UserRole {
+  if (!token) return UserRole.EMPLOYEE;
+
+  const currentUserRoles = getRolesFromToken(token);
+
+  if (currentUserRoles.length === 0) return UserRole.EMPLOYEE;
+
+  return currentUserRoles.reduce((highest, role) => {
+    return ROLE_ORDER[role] > ROLE_ORDER[highest] ? role : highest;
+  });
+}
+
+/**
  * Determine whether a JWT is expired using its `exp` claim.
  *
  * If the token is empty or invalid, this returns true (treated as expired).

@@ -45,11 +45,12 @@ public class WebSecurityConfig {
 	);
 
 	private static final List<String> MANAGER_LIST_URL = List.of(
-		"/api/v1/appointment-type/**"
+		"/api/v1/appointment-type/**",
+		"/api/v1/user/**"
 	);
 
 	private static final List<String> ADMIN_LIST_URL = List.of(
-		"/api/v1/user/create"
+		"/api/v1/**"
 	);
 
 	/**
